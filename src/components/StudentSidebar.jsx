@@ -1,13 +1,13 @@
 import { NavLink } from "react-router-dom";
-import { FiMenu, FiHome, FiUsers, FiClipboard } from "react-icons/fi";
+import { FiMenu, FiHome, FiClipboard, FiBell } from "react-icons/fi";
 
-function Sidebar({ collapsed, setCollapsed }) {
+function StudentSidebar({ collapsed, setCollapsed }) {
   const user = JSON.parse(localStorage.getItem("user"));
 
   const navItems = [
-    { name: "Dashboard", path: "/admin/dashboard", icon: <FiHome /> },
-    { name: "Create User", path: "/admin/create-user", icon: <FiUsers /> },
-    { name: "Records", path: "/admin/records", icon: <FiClipboard /> },
+    { name: "Dashboard", path: "/student/dashboard", icon: <FiHome /> },
+    { name: "My Clearance", path: "/student/my-clearance", icon: <FiClipboard /> },
+    { name: "Notifications", path: "/student/notifications", icon: <FiBell /> },
   ];
 
   return (
@@ -34,7 +34,13 @@ function Sidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
-        <nav className="mt-8 space-y-2 px-3">
+        {!collapsed && (
+          <p className="px-7 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+            Student Menu
+          </p>
+        )}
+
+        <nav className="mt-4 space-y-2 px-3">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
@@ -58,12 +64,12 @@ function Sidebar({ collapsed, setCollapsed }) {
         <div className="p-4">
           <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
-              {user?.email?.charAt(0).toUpperCase() || "A"}
+              {user?.email?.charAt(0).toUpperCase() || "S"}
             </div>
             <div>
-              <p className="font-semibold text-white">Admin</p>
+              <p className="font-semibold text-white">Student</p>
               <p className="text-xs text-white/75">
-                {user?.email || "admin@cics.edu.ph"}
+                {user?.email || "student@cics.edu.ph"}
               </p>
             </div>
           </div>
@@ -73,4 +79,4 @@ function Sidebar({ collapsed, setCollapsed }) {
   );
 }
 
-export default Sidebar;
+export default StudentSidebar;

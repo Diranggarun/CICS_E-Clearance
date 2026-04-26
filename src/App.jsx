@@ -6,7 +6,13 @@ import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
 import CreateUser from "./admin/CreateUser";
 import AdminRecords from "./admin/AdminRecords";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./components/StudentSidebar";
+import StudentLayout from "./layouts/StudentLayout";
+import StudentDashboard from "./student/StudentDashboard";
+import MyClearance from "./student/MyClearance";
+import Notifications from "./student/Notifications";
+
+
 
 function App() {
   return (
@@ -23,6 +29,12 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/create-user" element={<CreateUser />} />
           <Route path="/admin/records" element={<AdminRecords />} />
+        </Route>
+
+        <Route element={<StudentLayout />}> 
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
+        <Route path="/student/my-clearance" element={<MyClearance />} />
+        <Route path="/student/notifications" element={<Notifications />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
