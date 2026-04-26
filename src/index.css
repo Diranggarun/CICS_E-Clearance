@@ -1,8 +1,8 @@
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --primary: #1767FE;
@@ -14,22 +14,33 @@
   --border-color: rgba(218, 218, 218, 0.80);
   --border-input: rgba(167, 167, 167, 0.80);
   --shadow-card: 0px 1px 4px rgba(0, 0, 0, 0.16);
-  --font-main: 'Poppins', sans-serif;
-  --font-heading: 'Inter', sans-serif;
+  --font-main: "Poppins", sans-serif;
+  --font-heading: "Inter", sans-serif;
 }
 
-html, body, #root {
-  height: 100%;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
   width: 100%;
 }
 
 body {
+  margin: 0;
   font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-input, select, button {
+input,
+select,
+button {
   font-family: var(--font-main);
   outline: none;
 }

@@ -1,32 +1,34 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-// TODO (backend team): Import ProtectedRoute once auth context is wired up
-// import ProtectedRoute from './components/ProtectedRoute'
-// import Dashboard from './pages/Dashboard'
+import { Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import AdminLayout from "./layouts/AdminLayout";
+import AdminDashboard from "./admin/AdminDashboard";
+import CreateUser from "./admin/CreateUser";
+import AdminRecords from "./admin/AdminRecords";
+import Sidebar from "./components/Sidebar";
 
 function App() {
   return (
     <>
       <Toaster position="top-right" />
+
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* TODO (backend team): Uncomment once auth is implemented */}
-        {/* <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } /> */}
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/create-user" element={<CreateUser />} />
+          <Route path="/admin/records" element={<AdminRecords />} />
+        </Route>
 
-        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
