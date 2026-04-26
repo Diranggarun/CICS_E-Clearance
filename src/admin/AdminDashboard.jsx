@@ -1,4 +1,17 @@
-import { FiUsers, FiFileText, FiCheckCircle, FiClock } from "react-icons/fi";
+import {
+  FiUsers,
+  FiFileText,
+  FiCheckCircle,
+  FiClock,
+} from "react-icons/fi";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
 
 function AdminDashboard() {
   const stats = [
@@ -8,30 +21,42 @@ function AdminDashboard() {
     { title: "Pending", value: "270", icon: <FiClock /> },
   ];
 
-  return (
-    <div>
-      <h1 className="text-4xl font-bold text-[#1767FE]">Dashboard</h1>
-      <p className="mt-2 text-lg font-medium text-[#717171]">
-        Overview of the CICS E-Clearance system.
-      </p>
+  const officeData = [
+    { office: "Library", cleared: 180, pending: 70 },
+    { office: "SC", cleared: 150, pending: 100 },
+    { office: "Publication", cleared: 130, pending: 120 },
+    { office: "Adviser", cleared: 200, pending: 50 },
+    { office: "Dean", cleared: 100, pending: 150 },
+  ];
 
-      <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+  const appleCard =
+    "rounded-[28px] border border-[#d6e2ff] bg-white/70 shadow-[0_4px_20px_rgba(13,39,247,0.06)] ring-1 ring-white/80 backdrop-blur-xl transition-all duration-200 hover:-translate-y-[2px] hover:border-[#c3d4ff] hover:shadow-[0_8px_30px_rgba(13,39,247,0.08)]";
+
+  return (
+    <div className="space-y-8 font-inter">
+      <div>
+        <h1 className="bg-gradient-to-b from-[#0D27F7] to-[#0E1BEF] bg-clip-text text-3xl font-semibold tracking-tight text-transparent md:text-4xl">
+          Dashboard
+        </h1>
+        <p className="mt-2 text-base font-medium text-gray-500 md:text-lg">
+          Overview of the CICS E-Clearance system.
+        </p>
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
-          <div
-            key={item.title}
-            className="rounded-[25px] border border-gray-200 bg-[#F8F8FF] p-6 shadow-sm"
-          >
+          <div key={item.title} className={`${appleCard} p-6`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-[#717171]">
+                <p className="text-sm font-medium text-gray-500">
                   {item.title}
                 </p>
-                <h2 className="mt-3 text-3xl font-bold text-[#1767FE]">
+                <h2 className="mt-3 text-3xl font-semibold text-[#0D27F7]">
                   {item.value}
                 </h2>
               </div>
 
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EAF2FF] text-2xl text-[#1767FE]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e2ebff] bg-white/60 text-2xl text-[#0D27F7] shadow-sm backdrop-blur">
                 {item.icon}
               </div>
             </div>
@@ -39,50 +64,46 @@ function AdminDashboard() {
         ))}
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-[25px] border border-gray-200 bg-[#F8F8FF] p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-[#1767FE]">
+      <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+        <div className={`${appleCard} p-6`}>
+          <h2 className="text-xl font-semibold text-[#0D27F7]">
+            Office Progress
+          </h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Clearance status per office.
+          </p>
+
+          <div className="mt-5 h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={officeData}>
+                <XAxis dataKey="office" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="cleared" fill="#0D27F7" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="pending" fill="#FFB433" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className={`${appleCard} p-6`}>
+          <h2 className="text-xl font-semibold text-[#0D27F7]">
             Recent Activity
           </h2>
 
           <div className="mt-5 space-y-3">
-            <div className="rounded-2xl bg-white p-4 text-[#717171] shadow-sm">
-              Maria Santos submitted a clearance request.
-            </div>
-            <div className="rounded-2xl bg-white p-4 text-[#717171] shadow-sm">
-              Publication added a payment requirement.
-            </div>
-            <div className="rounded-2xl bg-white p-4 text-[#717171] shadow-sm">
-              Dean approved Juan Dela Cruz.
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-[25px] border border-gray-200 bg-[#F8F8FF] p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-[#1767FE]">
-            Quick Summary
-          </h2>
-
-          <div className="mt-5 space-y-4">
-            <div>
-              <div className="mb-2 flex justify-between text-sm text-[#717171]">
-                <span>Clearance Completion</span>
-                <span>46%</span>
+            {[
+              "Maria Santos submitted a clearance request.",
+              "Publication added a payment requirement.",
+              "Dean approved Juan Dela Cruz.",
+            ].map((text) => (
+              <div
+                key={text}
+                className="rounded-2xl border border-[#e2ebff] bg-white/60 p-4 text-sm text-gray-500 shadow-[0_2px_10px_rgba(13,39,247,0.04)] backdrop-blur transition hover:border-[#c3d4ff] hover:bg-blue-50"
+              >
+                {text}
               </div>
-              <div className="h-3 rounded-full bg-white">
-                <div className="h-3 w-[46%] rounded-full bg-[#1767FE]" />
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-2 flex justify-between text-sm text-[#717171]">
-                <span>Pending Requests</span>
-                <span>54%</span>
-              </div>
-              <div className="h-3 rounded-full bg-white">
-                <div className="h-3 w-[54%] rounded-full bg-[#FFB433]" />
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
