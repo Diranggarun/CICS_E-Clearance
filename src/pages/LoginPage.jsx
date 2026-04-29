@@ -69,11 +69,11 @@ export default function LoginPage() {
     <main className={styles.page}>
       <section className={styles.leftPanel}>
         <div className={styles.brand}>
-          <div className={styles.logoCircle}>
-            <div className={styles.logoMark}>
-              <span>✓</span>
-            </div>
-          </div>
+         <div className={styles.logoCircle}>
+        <div className={styles.logoMark}>
+          <span>EC</span>
+        </div>
+      </div>
 
           <h1 className={styles.brandName}>CICS E-Clearance</h1>
         </div>

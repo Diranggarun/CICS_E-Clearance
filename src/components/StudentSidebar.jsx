@@ -34,6 +34,22 @@ function StudentSidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
+    {!collapsed && (
+              <div className="px-4 pb-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
+                    {user?.email?.charAt(0).toUpperCase() || "A"}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white">Jonaidah C.</p>
+                    <p className="text-xs text-white/75">
+                      {user?.email || "student@cics.edu.ph"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
         {!collapsed && (
           <p className="px-7 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
             Student Menu
@@ -62,17 +78,12 @@ function StudentSidebar({ collapsed, setCollapsed }) {
 
       {!collapsed && (
         <div className="p-4">
-          <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
-              {user?.email?.charAt(0).toUpperCase() || "S"}
-            </div>
-            <div>
-              <p className="font-semibold text-white">Student</p>
-              <p className="text-xs text-white/75">
-                {user?.email || "student@cics.edu.ph"}
-              </p>
-            </div>
-          </div>
+          <NavLink
+            to="/login"
+            className="flex items-center justify-center rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-white/20"
+          >
+            Logout
+          </NavLink>
         </div>
       )}
     </aside>
