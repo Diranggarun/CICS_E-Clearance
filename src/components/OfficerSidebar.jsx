@@ -1,13 +1,22 @@
 import { NavLink } from "react-router-dom";
-import { FiMenu, FiHome, FiUsers, FiClipboard } from "react-icons/fi";
+import {
+  FiMenu,
+  FiHome,
+  FiFileText,
+  FiInbox,
+  FiCheckCircle,
+  FiXCircle,
+} from "react-icons/fi";
 
-function Sidebar({ collapsed, setCollapsed }) {
+function OfficerSidebar({ collapsed, setCollapsed }) {
   const user = JSON.parse(localStorage.getItem("user"));
 
   const navItems = [
-    { name: "Dashboard", path: "/admin/dashboard", icon: <FiHome /> },
-    { name: "Create User", path: "/admin/create-user", icon: <FiUsers /> },
-    { name: "Records", path: "/admin/records", icon: <FiClipboard /> },
+    { name: "Dashboard", path: "/officer/dashboard", icon: <FiHome /> },
+    { name: "Requirement", path: "/officer/requirement", icon: <FiFileText /> },
+    { name: "Requests", path: "/officer/requests", icon: <FiInbox /> },
+    { name: "Approved", path: "/officer/approved", icon: <FiCheckCircle /> },
+    { name: "Denied", path: "/officer/denied", icon: <FiXCircle /> },
   ];
 
   return (
@@ -34,20 +43,27 @@ function Sidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
+        {/* Top Profile Card */}
         {!collapsed && (
-          <div className="px-4 pb-4">
+        <div className="px-4 pb-4">
             <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
-                {user?.email?.charAt(0).toUpperCase() || "A"}
-              </div>
-              <div>
-                <p className="font-semibold text-white">Admin</p>
-                <p className="text-xs text-white/75">
-                  {user?.email || "admin@cics.edu.ph"}
-                </p>
-              </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
+                {user?.email?.charAt(0).toUpperCase() || "O"}
             </div>
-          </div>
+            <div>
+                <p className="font-semibold text-white">Officer</p>
+                <p className="text-xs text-white/75">
+                {user?.email || "officer@cics.edu.ph"}
+                </p>
+            </div>
+            </div>
+        </div>
+        )}
+        
+        {!collapsed && (
+          <p className="px-7 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+            Officer Menu
+          </p>
         )}
 
         <nav className="mt-4 space-y-2 px-3">
@@ -70,7 +86,7 @@ function Sidebar({ collapsed, setCollapsed }) {
         </nav>
       </div>
 
-      {!collapsed && (
+            {!collapsed && (
         <div className="p-4">
           <NavLink
             to="/login"
@@ -80,8 +96,9 @@ function Sidebar({ collapsed, setCollapsed }) {
           </NavLink>
         </div>
       )}
+      
     </aside>
   );
 }
 
-export default Sidebar;
+export default OfficerSidebar;
