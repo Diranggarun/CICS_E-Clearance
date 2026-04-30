@@ -15,7 +15,7 @@ import {
 
 function OfficerDashboard() {
   const stats = [
-    { title: "Assigned Students", value: "86", icon: <FiUsers /> },
+   
     { title: "Requests", value: "24", icon: <FiFileText /> },
     { title: "Approved", value: "42", icon: <FiCheckCircle /> },
     { title: "Pending", value: "20", icon: <FiClock /> },
