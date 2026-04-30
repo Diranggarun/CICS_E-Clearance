@@ -41,7 +41,7 @@ function StudentSidebar({ collapsed, setCollapsed }) {
                     {user?.email?.charAt(0).toUpperCase() || "A"}
                   </div>
                   <div>
-                    <p className="font-semibold text-white">Jonaidah C.</p>
+                    <p className="font-semibold text-white">Student</p>
                     <p className="text-xs text-white/75">
                       {user?.email || "student@cics.edu.ph"}
                     </p>
