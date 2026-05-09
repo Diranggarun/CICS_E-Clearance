@@ -1,0 +1,54 @@
+// CICS E-Clearance — Task 1 (Auth & User Management)
+// Schema kept narrow: only tables Task 1 needs. Tasks 2–6 will extend it.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  student
+  bytes_officer
+  librarian
+  faculty_adviser
+  chairperson
+  dean
+}
+
+enum AccountStatus {
+  pending
+  approved
+  denied
+}
+
+model User {
+  id              String        @id @default(uuid())
+  schoolId        String        @unique @map("school_id")
+  role            Role          @default(student)
+  firstName       String        @map("first_name")
+  middleName      String?       @map("middle_name")
+  lastName        String        @map("last_name")
+  sex             String?
+  birthdate       DateTime?
+  email           String        @unique
+  contactNumber   String?       @map("contact_number")
+  course          String?
+  college         String?
+  department      String?
+  passwordHash    String        @map("password_hash")
+  status          AccountStatus @default(pending)
+  approvedById    String?       @map("approved_by_id")
+  approvedAt      DateTime?     @map("approved_at")
+  denialReason    String?       @map("denial_reason")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  approvedBy      User?         @relation("UserApprovals", fields: [approvedById], references: [id])
+  approvedUsers   User[]        @relation("UserApprovals")
+
+  @@map("users")
+}

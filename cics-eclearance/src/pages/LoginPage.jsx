@@ -44,18 +44,22 @@ export default function LoginPage() {
       const res = await login(email, password);
 
       localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
       const role = res.data.user?.role || res.data.role;
 
       toast.success("Welcome back!");
 
-      if (role === "admin") {
-        navigate("/admin/dashboard");
-      } else if (role === "student") {
-        navigate("/dashboard");
-      } else {
-        navigate("/office/dashboard");
-      }
+      const dest = {
+        student: "/student/dashboard",
+        bytes_officer: "/admin/dashboard",
+        librarian: "/officer/dashboard",
+        faculty_adviser: "/officer/dashboard",
+        chairperson: "/officer/dashboard",
+        dean: "/officer/dashboard",
+      }[role] || "/login";
+
+      navigate(dest);
     } catch (err) {
       const msg =
         err.response?.data?.message || "Invalid credentials. Please try again.";

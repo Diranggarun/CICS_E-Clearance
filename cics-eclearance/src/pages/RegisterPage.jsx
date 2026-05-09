@@ -44,8 +44,10 @@ export default function RegisterPage() {
   const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
   const validate = () => {
-    if (Object.values(form).some((v) => v.trim() === '')) {
-      toast.error('Please fill in all fields.')
+    const required = ['idNumber', 'course', 'lastName', 'firstName', 'gender',
+      'dateOfBirth', 'contactNumber', 'institutionalEmail', 'password', 'confirmPassword']
+    if (required.some((k) => form[k].trim() === '')) {
+      toast.error('Please fill in all required fields.')
       return false
     }
     if (form.password !== form.confirmPassword) {
@@ -82,11 +84,16 @@ export default function RegisterPage() {
         email: form.institutionalEmail,
         password: form.password,
       })
-      toast.success('Account created! Please log in.')
+      toast.success('Account created! Awaiting BYTES Officer approval before you can log in.', { duration: 5000 })
       navigate('/login')
     } catch (err) {
-      const msg = err.response?.data?.message || 'Registration failed. Please try again.'
-      toast.error(msg)
+      const data = err.response?.data
+      if (data?.errors) {
+        const first = Object.values(data.errors)[0]
+        toast.error(Array.isArray(first) ? first[0] : String(first))
+      } else {
+        toast.error(data?.message || 'Registration failed. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -126,7 +133,7 @@ export default function RegisterPage() {
                   value={form.course}
                   onChange={set('course')}
                 >
-                  <option value="" disabled>BS-Information Technology</option>
+                  <option value="" disabled>Select your course</option>
                   {COURSES.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
@@ -157,7 +164,7 @@ export default function RegisterPage() {
               />
             </div>
             <div className={styles.fieldGroup}>
-              <label className={styles.label}>MIDDLE NAME</label>
+              <label className={styles.label}>MIDDLE NAME (OPTIONAL)</label>
               <input
                 className={styles.input}
                 placeholder="Santos"
@@ -177,7 +184,7 @@ export default function RegisterPage() {
                   value={form.gender}
                   onChange={set('gender')}
                 >
-                  <option value="" disabled>Male</option>
+                  <option value="" disabled>Select gender</option>
                   {GENDERS.map((g) => (
                     <option key={g} value={g}>{g}</option>
                   ))}
