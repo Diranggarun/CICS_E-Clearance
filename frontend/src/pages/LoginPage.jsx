@@ -146,7 +146,18 @@ export default function LoginPage() {
 
       <section className={styles.rightPanel}>
         <div className={styles.rightContent}>
-          <div className={styles.heroIcon}>✓</div>
+          <div className={styles.heroLogos}>
+            <img
+              src="/msu-seal.png"
+              alt="Mindanao State University Seal"
+              className={`${styles.heroLogo} ${styles.heroLogoMsu}`}
+            />
+            <img
+              src="/cics-logo.png"
+              alt="CICS Logo"
+              className={styles.heroLogo}
+            />
+          </div>
 
           <div className={styles.heroText}>
             <h2 className={styles.heroTitle}>
