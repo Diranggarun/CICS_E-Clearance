@@ -1,4 +1,23 @@
 {
+<<<<<<< HEAD
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Node.js + Express + Prisma + PostgreSQL. Powers the existing `cics-eclearance` frontend's Register/Login pages.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+=======
   "name": "cics-eclearance-backend",
   "version": "0.1.0",
   "private": true,
@@ -24,5 +43,6 @@
   "devDependencies": {
     "nodemon": "^3.1.7",
     "prisma": "^5.22.0"
+>>>>>>> 5accb46445691198462fa55466598b2aa3c568d0
   }
 }
