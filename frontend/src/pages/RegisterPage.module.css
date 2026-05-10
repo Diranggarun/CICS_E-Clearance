@@ -1,0 +1,229 @@
+/* RegisterPage.module.css */
+
+.page {
+  min-height: 100vh;
+  width: 100%;
+  background: conic-gradient(from 180deg at 50% 50%, white 0deg, #DBE8FF 315deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px 60px;
+  position: relative;
+}
+
+.backLink {
+  align-self: flex-start;
+  color: var(--primary);
+  font-size: 15px;
+  font-family: var(--font-main);
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.backLink:hover { opacity: 0.75; }
+
+/* Card */
+.card {
+  width: 100%;
+  max-width: 900px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+  border-radius: 30px;
+  border: 1px solid var(--border-color);
+  padding: 44px 48px;
+}
+
+.cardHeader {
+  margin-bottom: 32px;
+}
+
+.cardTitle {
+  color: var(--primary);
+  font-size: 26px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.cardSubtitle {
+  color: var(--text-gray);
+  font-size: 15px;
+  font-family: var(--font-main);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.row3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  color: var(--text-gray);
+  font-size: 13px;
+  font-family: var(--font-main);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+  border-radius: 10px;
+  border: 0.6px solid var(--border-input);
+  color: #333;
+  font-size: 14px;
+  font-family: var(--font-main);
+  font-weight: 400;
+  transition: border-color 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.input::placeholder {
+  color: var(--text-light-gray);
+}
+
+.input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.selectWrapper {
+  position: relative;
+}
+
+.selectWrapper .input {
+  cursor: pointer;
+  padding-right: 36px;
+}
+
+.selectArrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  color: var(--text-gray);
+  font-size: 18px;
+  font-weight: 600;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.inputWrapper .input {
+  padding-right: 44px;
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 4px;
+  line-height: 1;
+}
+
+/* Footer row */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+  border: 0.8px solid #4C4C4C;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.checkboxText {
+  color: #8C8B8B;
+  font-size: 13px;
+  font-family: var(--font-main);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.termsLink {
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.submitBtn {
+  height: 52px;
+  padding: 0 36px;
+  white-space: nowrap;
+  background: linear-gradient(180deg, #0D27F7 19%, #0E1BEF 58%);
+  box-shadow: var(--shadow-card);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.80);
+  color: white;
+  font-size: 16px;
+  font-family: var(--font-main);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.submitBtn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+.submitBtn:active:not(:disabled) { transform: translateY(0); }
+.submitBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .card { padding: 32px 24px; }
+  .row2, .row3 { grid-template-columns: 1fr; }
+  .footer { flex-direction: column; align-items: flex-start; }
+  .submitBtn { width: 100%; }
+}
