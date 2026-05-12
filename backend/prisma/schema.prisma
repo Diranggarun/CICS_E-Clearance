@@ -53,7 +53,6 @@ model User {
   @@map("users")
 }
 
-
 model Fee {
   id          Int      @id @default(autoincrement())
   name        String   // SSG, Course Fee, etc.
