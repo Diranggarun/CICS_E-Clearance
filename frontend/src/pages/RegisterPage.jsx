@@ -51,24 +51,29 @@ export default function RegisterPage() {
       "confirmPassword",
     ];
 
-    if (required.some((key) => form[key].trim() === "")) {
-      toast.error("Please fill in all required fields.");
+    const err = (msg) => {
+      toast.error(msg, { id: "register-error" });
       return false;
+    };
+
+    if (required.some((key) => form[key].trim() === "")) {
+      return err("Please fill in all required fields.");
+    }
+
+    if (!/^\d{4}-?\d{4,8}$/.test(form.idNumber.trim())) {
+      return err("School ID must look like 2024-00000 or 202300000.");
     }
 
     if (form.password !== form.confirmPassword) {
-      toast.error("Passwords do not match.");
-      return false;
+      return err("Passwords do not match.");
     }
 
     if (form.password.length < 8) {
-      toast.error("Password must be at least 8 characters.");
-      return false;
+      return err("Password must be at least 8 characters.");
     }
 
     if (!agreed) {
-      toast.error("Please agree to the Terms & Conditions.");
-      return false;
+      return err("Please agree to the Terms & Conditions.");
     }
 
     return true;
@@ -105,9 +110,13 @@ export default function RegisterPage() {
 
       if (data?.errors) {
         const first = Object.values(data.errors)[0];
-        toast.error(Array.isArray(first) ? first[0] : String(first));
+        toast.error(Array.isArray(first) ? first[0] : String(first), {
+          id: "register-error",
+        });
       } else {
-        toast.error(data?.message || "Registration failed. Please try again.");
+        toast.error(data?.message || "Registration failed. Please try again.", {
+          id: "register-error",
+        });
       }
     } finally {
       setLoading(false);
@@ -157,7 +166,7 @@ export default function RegisterPage() {
                 <label className={labelClass}>ID Number</label>
                 <input
                   className={inputClass}
-                  placeholder="2024-00000"
+                  placeholder="2024-00000 or 202300000"
                   value={form.idNumber}
                   onChange={set("idNumber")}
                 />

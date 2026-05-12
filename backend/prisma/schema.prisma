@@ -6,8 +6,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Supabase: pooled connection (port 6543, pgbouncer) for the app.
+  url       = env("DATABASE_URL")
+  // Supabase: direct connection (port 5432) for migrations.
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -50,5 +53,64 @@ model User {
   approvedBy      User?         @relation("UserApprovals", fields: [approvedById], references: [id])
   approvedUsers   User[]        @relation("UserApprovals")
 
+  clearanceRequests ClearanceRequest[]
+  decidedStages     ClearanceStage[]   @relation("StageApprover")
+
   @@map("users")
+}
+
+// --- Task 2: Student Clearance Request ---
+
+enum ClearanceStatus {
+  pending
+  approved
+  denied
+  completed
+}
+
+// Approval stages a clearance passes through, in order.
+enum StageRole {
+  bytes_officer
+  librarian
+  faculty_adviser
+  chairperson
+  dean
+}
+
+enum StageStatus {
+  pending
+  approved
+  denied
+}
+
+model ClearanceRequest {
+  id           String           @id @default(uuid())
+  studentId    String           @map("student_id")
+  referenceNo  String           @unique @map("reference_no")
+  academicYear String           @map("academic_year")
+  status       ClearanceStatus  @default(pending)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  completedAt  DateTime?        @map("completed_at")
+
+  student      User             @relation(fields: [studentId], references: [id])
+  stages       ClearanceStage[]
+
+  @@map("clearance_requests")
+}
+
+model ClearanceStage {
+  id                 String           @id @default(uuid())
+  clearanceRequestId String           @map("clearance_request_id")
+  role               StageRole
+  status             StageStatus      @default(pending)
+  approverId         String?          @map("approver_id")
+  reason             String?
+  decidedAt          DateTime?        @map("decided_at")
+  createdAt          DateTime         @default(now()) @map("created_at")
+
+  request            ClearanceRequest @relation(fields: [clearanceRequestId], references: [id], onDelete: Cascade)
+  approver           User?            @relation("StageApprover", fields: [approverId], references: [id])
+
+  @@unique([clearanceRequestId, role])
+  @@map("clearance_stages")
 }

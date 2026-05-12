@@ -1,20 +1,22 @@
 # CICS E-Clearance — Backend (Task 1: Auth & User Management)
 
-Node.js + Express + Prisma + PostgreSQL. Powers the existing `cics-eclearance` frontend's Register/Login pages.
+Node.js + Express + Prisma + Supabase (PostgreSQL). Powers the existing `cics-eclearance` frontend's Register/Login pages.
 
 ## Setup
 
-1. **Install PostgreSQL** locally (or use Docker / a hosted DB).
+1. **Create a [Supabase](https://supabase.com) project** (Dashboard → New project). Then open **Project Settings → Database → Connection string** and copy:
+   - the **Transaction pooler** URI (port `6543`) → `DATABASE_URL`
+   - the **Session / direct** URI (port `5432`) → `DIRECT_URL`
 2. From this folder:
    ```bash
    npm install
    cp .env.example .env
-   # edit DATABASE_URL and JWT_SECRET in .env
+   # edit DATABASE_URL, DIRECT_URL (your Supabase URIs) and JWT_SECRET in .env
    npx prisma migrate dev --name init
    npm run seed       # creates a BYTES Officer admin
    npm run dev
    ```
-3. The API runs on `http://localhost:8000`. Vite already proxies `/api/*` to it (see `cics-eclearance/vite.config.js`).
+3. The API runs on `http://localhost:5000`. Vite proxies `/api/*` to it (see `frontend/vite.config.js`).
 
 ## Seeded admin
 
@@ -35,12 +37,16 @@ Use this account to approve newly-registered students via `/api/admin/pending-ac
 | GET    | /api/admin/pending-accounts                | bytes_officer | List accounts awaiting approval       |
 | POST   | /api/admin/pending-accounts/:id/approve    | bytes_officer | Approve account                       |
 | POST   | /api/admin/pending-accounts/:id/deny       | bytes_officer | Deny account (body: `{ reason }`)     |
+| POST   | /api/clearance/request                     | student       | Start a clearance request             |
+| GET    | /api/clearance/me                          | student       | Most recent request + progress        |
+| GET    | /api/clearance/me/progress                 | student       | Active request progress (stepper)     |
+| GET    | /api/clearance/:id/pdf                     | owner/officer | PDF form — 409 unless fully approved  |
 
 ## curl examples
 
 ```bash
 # Register a student (matches the existing RegisterPage form payload)
-curl -X POST http://localhost:8000/api/auth/register \
+curl -X POST http://localhost:5000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "id_number": "2024-00001",
@@ -56,12 +62,12 @@ curl -X POST http://localhost:8000/api/auth/register \
   }'
 
 # Login as BYTES Officer
-curl -X POST http://localhost:8000/api/auth/login \
+curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"bytes@cics.edu.ph","password":"Bytes#2026"}'
 
 # Approve pending student (replace TOKEN and ID)
-curl -X POST http://localhost:8000/api/admin/pending-accounts/<USER_ID>/approve \
+curl -X POST http://localhost:5000/api/admin/pending-accounts/<USER_ID>/approve \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
