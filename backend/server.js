@@ -1,30 +1,54 @@
-// backend/server.js
 const path = require('path');
-// This line uses an absolute path to target the .env file located in the same folder as this server.js file
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const express = require('express');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
+const SALT_ROUNDS = 10;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Initialize Supabase with trimmed strings to prevent "Invalid path" errors caused by accidental spaces or newlines
+// Initialize Supabase
 const supabaseUrl = process.env.SUPABASE_URL?.trim();
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error("CRITICAL ERROR: Supabase environment variables are missing or undefined. Check your /backend/.env file.");
+  console.error("CRITICAL ERROR: Supabase environment variables are missing in .env");
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-/** * POST /auth/register 
- * Creates a user in Supabase Auth and a corresponding entry in the profiles table
+/**
+ * AUTH MIDDLEWARE
+ * Use this to protect any route that requires a logged-in user.
+ */
+const authenticateToken = async (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Extracts token from "Bearer <token>"
+
+  if (!token) return res.status(401).json({ message: "Access denied. No token provided." });
+
+  try {
+    // Verify the token with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    if (error || !user) throw new Error("Invalid token");
+
+    // Attach user to request object for use in the next route handler
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid or expired session." });
+  }
+};
+
+/**
+ * POST /api/auth/register
  */
 app.post('/api/auth/register', async (req, res) => {
   const { 
@@ -34,19 +58,16 @@ app.post('/api/auth/register', async (req, res) => {
   } = req.body;
 
   try {
-    // 1. Create user in Supabase Auth
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
       email,
-      password,
-      email_confirm: true // Ensure "Confirm Email" is OFF in Supabase Auth settings to avoid 400 errors
+      password, 
+      email_confirm: true
     });
 
-    if (authError) {
-      console.error("Auth Registration Error:", authError.message);
-      throw authError;
-    }
+    if (authError) throw authError;
 
-    // 2. Insert into the public profiles table
     const { error: profileError } = await supabase
       .from('profiles')
       .insert([{
@@ -59,22 +80,20 @@ app.post('/api/auth/register', async (req, res) => {
         gender,
         date_of_birth,
         contact_number,
-        role: 'student' 
+        password_hash: hashedPassword,
+        role: 'student'
       }]);
 
-    if (profileError) {
-      console.error("Profile Table Insert Error:", profileError.message);
-      throw profileError;
-    }
+    if (profileError) throw profileError;
 
-    res.status(201).json({ message: "Registration successful" });
+    res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-/** * POST /auth/login 
- * Returns access_token and user profile data
+/**
+ * POST /api/auth/login
  */
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
@@ -83,7 +102,6 @@ app.post('/api/auth/login', async (req, res) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
-    // Fetch user role from the profile table
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
@@ -91,7 +109,7 @@ app.post('/api/auth/login', async (req, res) => {
       .single();
 
     res.status(200).json({
-      access_token: data.session.access_token,
+      access_token: data.session.access_token, // This is the JWT
       user: {
         id: data.user.id,
         email: data.user.email,
@@ -99,37 +117,27 @@ app.post('/api/auth/login', async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(401).json({ message: "Invalid credentials. Please try again." });
+    res.status(401).json({ message: "Invalid credentials." });
   }
 });
 
-/** * GET /auth/me 
- * Returns profile details for the currently logged-in user
+/**
+ * GET /api/auth/me (PROTECTED)
+ * Uses the authenticateToken middleware to ensure only logged-in users enter.
  */
-app.get('/api/auth/me', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ message: "Unauthorized" });
-
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
   try {
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error) throw error;
-
-    const { data: profile } = await supabase
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', user.id)
+      .eq('id', req.user.id)
       .single();
 
-    res.json({ user: { ...user, ...profile } });
+    if (error) throw error;
+    res.json({ user: profile });
   } catch (err) {
-    res.status(401).json({ message: "Session expired" });
+    res.status(500).json({ error: err.message });
   }
-});
-
-/** * POST /auth/logout 
- */
-app.post('/api/auth/logout', (req, res) => {
-  res.status(200).json({ message: "Logged out" });
 });
 
 const PORT = process.env.PORT || 5000;

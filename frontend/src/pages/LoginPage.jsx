@@ -41,28 +41,42 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // 1. Call the login function
       const res = await login(email, password);
 
-      localStorage.setItem("access_token", res.data.access_token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      console.log("Full Response:", res); // DEBUG: Check what the server actually sent
 
-      const role = res.data.user?.role || res.data.role;
+      /**
+       * 2. Handle Session / JWT 
+       * If your auth.js returns the full axios response, use res.data.
+       * If your auth.js returns only the data, use res directly.
+       */
+      const data = res.data || res; 
+      const { access_token, user } = data;
+
+      if (!access_token) {
+        throw new Error("No token received from server");
+      }
+
+      // Store data
+      localStorage.setItem("access_token", access_token);
+      localStorage.setItem("user", JSON.stringify(user));
 
       toast.success("Welcome back!");
 
-      const dest = {
-        student: "/student/dashboard",
-        bytes_officer: "/admin/dashboard",
-        librarian: "/officer/dashboard",
-        faculty_adviser: "/officer/dashboard",
-        chairperson: "/officer/dashboard",
-        dean: "/officer/dashboard",
-      }[role] || "/login";
-
-      navigate(dest);
+      // 3. Role-Based Navigation
+      const role = user?.role;
+      if (role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (role === "student") {
+        navigate("/student/dashboard");
+      } else {
+        navigate("/office/dashboard");
+      }
     } catch (err) {
-      const msg =
-        err.response?.data?.message || "Invalid credentials. Please try again.";
+      console.error("Login attempt failed:", err);
+      // This helps you see if it's a network error or a credential error
+      const msg = err.response?.data?.message || err.message || "Invalid credentials.";
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -71,14 +85,14 @@ export default function LoginPage() {
 
   return (
     <main className={styles.page}>
+      {/* LEFT PANEL: Branding and Sign-in Form */}
       <section className={styles.leftPanel}>
         <div className={styles.brand}>
-         <div className={styles.logoCircle}>
-        <div className={styles.logoMark}>
-          <span>EC</span>
-        </div>
-      </div>
-
+          <div className={styles.logoCircle}>
+            <div className={styles.logoMark}>
+              <span>EC</span>
+            </div>
+          </div>
           <h1 className={styles.brandName}>CICS E-Clearance</h1>
         </div>
 
@@ -99,12 +113,12 @@ export default function LoginPage() {
                 placeholder="your@cics.edu.ph"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
             <div className={styles.fieldGroup}>
               <label className={styles.label}>PASSWORD</label>
-
               <div className={styles.inputWrapper}>
                 <input
                   type={showPass ? "text" : "password"}
@@ -112,8 +126,8 @@ export default function LoginPage() {
                   placeholder="••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
-
                 <button
                   type="button"
                   className={styles.eyeBtn}
@@ -144,20 +158,10 @@ export default function LoginPage() {
         </section>
       </section>
 
+      {/* RIGHT PANEL: Hero Graphics and Features list */}
       <section className={styles.rightPanel}>
         <div className={styles.rightContent}>
-          <div className={styles.heroLogos}>
-            <img
-              src="/msu-seal.png"
-              alt="Mindanao State University Seal"
-              className={`${styles.heroLogo} ${styles.heroLogoMsu}`}
-            />
-            <img
-              src="/cics-logo.png"
-              alt="CICS Logo"
-              className={styles.heroLogo}
-            />
-          </div>
+          <div className={styles.heroIcon}>✓</div>
 
           <div className={styles.heroText}>
             <h2 className={styles.heroTitle}>
@@ -165,7 +169,6 @@ export default function LoginPage() {
               <br />
               Clearance Portal
             </h2>
-
             <p className={styles.heroSubtitle}>
               Complete your clearance digitally. No more running between offices
               — track every step from your device.

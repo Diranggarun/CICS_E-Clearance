@@ -1,33 +1,17 @@
-<<<<<<< HEAD
-// vite.config.js
-=======
->>>>>>> 5accb46445691198462fa55466598b2aa3c568d0
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-<<<<<<< HEAD
     proxy: {
+      // Forward all /api requests to the Node.js backend on port 5000
       '/api': {
-        target: 'http://127.0.0.1:5000', // Use 127.0.0.1 to avoid localhost resolution issues
+        target: 'http://localhost:5000',
         changeOrigin: true,
-        
+        // We keep /api in the URL because our server.js routes now include it
       },
     },
   },
 })
-=======
-    port: 5173,
-    proxy: {
-      // Proxy API calls to the backend — update the target once backend is ready
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
-})
->>>>>>> 5accb46445691198462fa55466598b2aa3c568d0
