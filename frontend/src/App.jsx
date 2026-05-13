@@ -45,7 +45,7 @@ function App() {
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/my-clearance" element={<MyClearance />} />
         <Route path="/student/notifications" element={<Notifications />} />
-        <Route path="/payment" element={<Payment />} />
+        <Route path="/student/payment" element={<Payment />} />
         </Route>
 
 
