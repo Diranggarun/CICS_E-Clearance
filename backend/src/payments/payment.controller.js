@@ -32,5 +32,10 @@ export const approvePayment = async (req, res) => {
     data: { status: "approved" },
   });
 
+  await prisma.fine.updateMany({
+    where: { studentId: payment.userId },
+    data: { status: "paid" },
+  });
+
   res.json(payment);
 };
