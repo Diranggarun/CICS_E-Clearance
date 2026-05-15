@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 
-// ✅ REMOVED SUPABASE IMPORT — NO MORE ERRORS!
-
 export function useNotifications(userId) {
   const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(0);
@@ -10,7 +8,6 @@ export function useNotifications(userId) {
   useEffect(() => {
     if (!userId) return;
 
-    // ✅ TEST DATA ONLY — NO DATABASE NEEDED
     const testData = [
       {
         id: 'test-1',
@@ -44,7 +41,6 @@ export function useNotifications(userId) {
 
   }, [userId]);
 
-  // ✅ Mark as read function
   const markOneRead = (id) => {
     setNotifications(prev =>
       prev.map(n => n.id === id ? {...n, read_at: new Date().toISOString()} : n)

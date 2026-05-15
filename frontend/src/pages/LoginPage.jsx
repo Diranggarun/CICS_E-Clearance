@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-// ✅ USE OUR AUTH CONTEXT
-import { useAuth } from "../context/AuthContext"; 
+import { useAuth } from "../context/AuthContext";
 import {
   FiBell,
   FiZap,
@@ -43,31 +42,26 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!email || !password) {
       toast.error("Please fill in all fields.");
       return;
     }
-
     setLoading(true);
-
     try {
       const result = await loginUser(email, password);
-
       if (result.success) {
         toast.success("Welcome back!");
         navigate("/student");
       } else {
-        toast.error(result.message || "Invalid credentials. Please try again.");
+        toast.error(result.message);
       }
     } catch (err) {
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ 100% ORIGINAL DESIGN — FIXED TYPOS
   return (
     <main className="relative min-h-screen w-full overflow-hidden p-4 font-inter md:p-6">
       <img
@@ -103,7 +97,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0D27F7]/60" />
                   <input type={showPass ? "text" : "password"} placeholder="••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 w-full rounded-[12px] border border-[#dbe7ff] bg-white px-4 pl-11 pr-12 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#0D27F7] focus:ring-4 focus:ring-[#0D27F7]/15" />
-                  <button type="button" onClick={() => setShowPass((value) => !value)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-[#0D27F7]">
+                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-[#0D27F7]">
                     {showPass ? <FiEyeOff /> : <FiEye />}
                   </button>
                 </div>
@@ -113,7 +107,7 @@ export default function LoginPage() {
                 <Link to="/forgot-password" className="text-xs font-medium text-[#1767FE] underline-offset-4 transition hover:underline">Forgot password?</Link>
               </div>
 
-              <button type="submit" disabled={loading} className="h-12 rounded-full bg-gradient-to-b from-[#0D27F7] to-[#0E1BEF] text-sm font-semibold text-white shadow-[0_8px_24px_rgba(13,39,247,0.2)] transition hover:opacity-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60">
+              <button type="submit" disabled={loading} className="h-12 rounded-full bg-gradient-to-b from-[#0D27F7] to-[#0E1BEF] text-sm font-semibold text-white shadow-[0_8px_24px_rgba(13,39,247,0.2)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-60">
                 {loading ? "Logging in..." : "Log in"}
               </button>
             </form>
@@ -133,7 +127,7 @@ export default function LoginPage() {
             <div className="flex items-center justify-center">
               <div className="flex items-center gap-3 rounded-[22px] border border-white/35 bg-white/20 px-4 py-3 backdrop-blur-sm">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 p-2 ring-1 ring-white/80">
-                  <img src="/msu-seal.png" alt="Mindanao State University Seal" className="h-full w-full object-contain" />
+                  <img src="/msu-seal.png" alt="MSU Seal" className="h-full w-full object-contain" />
                 </div>
                 <div className="h-9 w-px bg-white/35" />
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 p-2 ring-1 ring-white/80">
