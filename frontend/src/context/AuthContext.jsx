@@ -35,7 +35,21 @@ export function AuthProvider({ children }) {
 
     // ── MOCK (remove once backend is ready) ──────────────────────────────────
     console.warn('MOCK LOGIN — replace with real API call')
-    setUser({ email, name: 'Student' })
+
+    // ✅ ADDED: CHECK EMAIL & PASSWORD HERE
+    if (email === "student@cics.edu.ph" && password === "student123") {
+      // ✅ CORRECT — LOGIN SUCCESS
+      setUser({ 
+        id: "test-user-123", // ✅ WE NEED THIS ID FOR NOTIFICATIONS
+        email, 
+        name: 'PADUL',
+        role: 'student'
+      })
+      return { success: true } // ✅ TELL LOGIN PAGE IT WORKED
+    } else {
+      // ❌ WRONG — INVALID CREDENTIAL
+      return { success: false, message: "Invalid email or password" }
+    }
     // ─────────────────────────────────────────────────────────────────────────
   }
 
