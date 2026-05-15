@@ -47,18 +47,12 @@ model User {
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
+  payments        Payment[]
+
   approvedBy      User?         @relation("UserApprovals", fields: [approvedById], references: [id])
   approvedUsers   User[]        @relation("UserApprovals")
 
   @@map("users")
-}
-
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      String   // student or admin
-  payments  Payment[]
 }
 
 
