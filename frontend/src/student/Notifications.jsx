@@ -7,7 +7,46 @@ import { useNotifications } from './useNotifications';
 function Notifications({ userId }) {
 
   // ✅ Get real data from database
-  const { notifications, loading, markOneRead } = useNotifications(userId);
+  const { notifications: realNotifications, loading, markOneRead } = useNotifications(userId);
+
+  // 🧪 TEST DATA: HARDCODED SAMPLE NOTIFICATIONS (WILL SHOW UP IMMEDIATELY!)
+  const testNotifications = [
+    {
+      id: 'test-1',
+      type: 'approved',
+      title: '✅ Library Office Approved',
+      message: 'Great! Your clearance step is successfully done.',
+      created_at: new Date().toISOString(),
+      read_at: null // 👈 NULL = UNREAD → shows blue left border
+    },
+    {
+      id: 'test-2',
+      type: 'payment',
+      title: '⚠️ Payment Required: ₱150',
+      message: 'Please pay now to complete Department Society step.',
+      created_at: new Date().toISOString(),
+      read_at: null
+    },
+    {
+      id: 'test-3',
+      type: 'pending',
+      title: '⏳ Registrar: Reviewing Request',
+      message: 'Your documents are being reviewed. We will update you soon.',
+      created_at: new Date().toISOString(),
+      read_at: null
+    },
+    {
+      id: 'test-4',
+      type: 'reminder',
+      title: '⏰ Reminder: Deadline Soon',
+      message: 'Complete all steps before October 30, 2025.',
+      created_at: new Date().toISOString(),
+      read_at: new Date().toISOString() // 👈 ALREADY READ → no blue border
+    }
+  ];
+
+  // ✅ COMBINE: show test data first, then real data (when available)
+  const notifications = [...testNotifications, ...realNotifications];
 
   const iconMap = {
     approved: <FiCheckCircle />,
@@ -110,4 +149,4 @@ function Notifications({ userId }) {
   );
 }
 
-export default Notifications;
+export default Notifications; 
