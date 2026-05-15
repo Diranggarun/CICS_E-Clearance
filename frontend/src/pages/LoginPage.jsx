@@ -31,6 +31,29 @@ const FEATURES = [
   },
 ];
 
+const LOGOS = [
+  {
+    src: "/msu-seal.png",
+    alt: "Mindanao State University Seal",
+  },
+  {
+    src: "/cics-logo.png",
+    alt: "CICS Logo",
+  },
+  {
+    src: "/bytes-logo.png",
+    alt: "BYTES Logo",
+  },
+  {
+    src: "/linkcode.png",
+    alt: "Linkcode Logo",
+  },
+  {
+    src: "/cursor.png",
+    alt: "Cursor Logo",
+  },
+];
+
 export default function LoginPage() {
   const navigate = useNavigate();
 
@@ -192,37 +215,25 @@ export default function LoginPage() {
           <div className="absolute -left-24 -top-28 h-72 w-72 rounded-full bg-white/10 blur-xl" />
           <div className="absolute -bottom-32 -right-24 h-64 w-64 rounded-full bg-white/10 blur-xl" />
 
-          <div className="relative z-10 flex w-full max-w-[460px] flex-col items-center gap-5 text-center">
+          <div className="relative z-10 flex w-full max-w-[500px] flex-col items-center gap-5 text-center">
             {/* Logos */}
             <div className="flex items-center justify-center">
-              <div className="flex items-center gap-3 rounded-[22px] border border-white/35 bg-white/20 px-4 py-3 backdrop-blur-sm">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 p-2 ring-1 ring-white/80">
-                  <img
-                    src="/msu-seal.png"
-                    alt="Mindanao State University Seal"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
+              <div className="flex flex-wrap items-center justify-center gap-2 rounded-[22px] border border-white/35 bg-white/20 px-4 py-3 backdrop-blur-sm">
+                {LOGOS.map((logo, index) => (
+                  <div key={logo.src} className="flex items-center gap-2">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 p-1.5 ring-1 ring-white/80">
+                      <img
+                        src={logo.src}
+                        alt={logo.alt}
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
 
-                <div className="h-9 w-px bg-white/35" />
-
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 p-2 ring-1 ring-white/80">
-                  <img
-                    src="/cics-logo.png"
-                    alt="CICS Logo"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-
-                <div className="h-9 w-px bg-white/35" />
-
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 p-2 ring-1 ring-white/80">
-                  <img
-                    src="/bytes-logo.png"
-                    alt="BYTES Logo"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
+                    {index !== LOGOS.length - 1 && (
+                      <div className="hidden h-7 w-px bg-white/30 sm:block" />
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
