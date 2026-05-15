@@ -67,7 +67,7 @@ export default function LoginPage() {
     }
   };
 
-  // ✅ 100% ORIGINAL DESIGN BELOW — NO CHANGES
+  // ✅ 100% ORIGINAL DESIGN — FIXED TYPOS
   return (
     <main className="relative min-h-screen w-full overflow-hidden p-4 font-inter md:p-6">
       <img
@@ -102,7 +102,7 @@ export default function LoginPage() {
                 <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Password</label>
                 <div className="relative">
                   <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0D27F7]/60" />
-                  <input type={showPass ? "text" : "password"} placeholder="••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 w-full rounded-[12px] border border-[dbe7ff] bg-white px-4 pl-11 pr-12 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#0D27F7] focus:ring-4 focus:ring-[#0D27F7]/15" />
+                  <input type={showPass ? "text" : "password"} placeholder="••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 w-full rounded-[12px] border border-[#dbe7ff] bg-white px-4 pl-11 pr-12 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#0D27F7] focus:ring-4 focus:ring-[#0D27F7]/15" />
                   <button type="button" onClick={() => setShowPass((value) => !value)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-[#0D27F7]">
                     {showPass ? <FiEyeOff /> : <FiEye />}
                   </button>
