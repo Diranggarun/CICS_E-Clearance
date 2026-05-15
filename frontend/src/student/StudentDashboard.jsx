@@ -43,7 +43,7 @@ function StudentDashboard() {
               Student Dashboard
             </p>
             <h1 className="mt-3 bg-gradient-to-b from-[#0D27F7] to-[#0E1BEF] bg-clip-text text-3xl font-semibold tracking-tight text-transparent md:text-4xl">
-              Welcome back, Jonaidah!
+              Welcome back, PLANGUGN A WATA!
             </h1>
             <p className="mt-2 max-w-2xl text-gray-500">
               AY 2025–2026 • Second Semester Enrollment Clearance

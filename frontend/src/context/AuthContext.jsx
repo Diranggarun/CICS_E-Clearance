@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
       setUser({ 
         id: "test-user-123", 
         email, 
-        name: 'Jonaidah',
+        name: 'PLANGUGN A WATA',
         role: 'student'
       })
       return { success: true }
