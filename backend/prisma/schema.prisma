@@ -114,3 +114,34 @@ model ClearanceStage {
   @@unique([clearanceRequestId, role])
   @@map("clearance_stages")
 }
+
+// --- Task 4: Payments (fines & fees) ---
+
+model Fee {
+  id          Int      @id @default(autoincrement())
+  name        String   // SSG, Course Fee, etc.
+  amount      Float
+  createdAt   DateTime @default(now())
+}
+
+model Fine {
+  id          Int      @id @default(autoincrement())
+  studentId   String
+  description String
+  amount      Float
+  status      String   @default("UNPAID")
+  createdAt   DateTime @default(now())
+
+  payments Payment[]
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  fineId      Int
+  method      String   // GCash / On-site
+  receiptUrl  String?
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+
+  fine Fine @relation(fields: [fineId], references: [id])
+}
