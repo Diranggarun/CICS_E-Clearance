@@ -6,8 +6,10 @@ export function useNotifications(userId) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) return;
+    // ✅ This runs immediately when page loads
+    console.log("Loading notifications for:", userId);
 
+    // ✅ YOUR 3 NOTIFICATIONS — EXACTLY WHAT WE WANT
     const testData = [
       {
         id: 'test-1',
@@ -35,12 +37,14 @@ export function useNotifications(userId) {
       }
     ];
 
+    // ✅ Set data — NO DELAY
     setNotifications(testData);
     setUnread(testData.filter(n => !n.read_at).length);
     setLoading(false);
 
   }, [userId]);
 
+  // ✅ Function to mark as read
   const markOneRead = (id) => {
     setNotifications(prev =>
       prev.map(n => n.id === id ? {...n, read_at: new Date().toISOString()} : n)
