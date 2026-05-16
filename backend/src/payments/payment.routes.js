@@ -6,15 +6,28 @@ import {
 } from "./payment.controller.js";
 
 import { upload } from "../../lib/upload.js";
+import { requireRole } from "../../middleware/requireRole.js";
+import { requireAuth } from "../../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/", createPayment);
-router.get("/", getPayments);
-router.put("/:id/approve", approvePayment);
+router.post("/", requireAuth, createPayment);
+router.get("/", requireAuth, getPayments);
 
-router.post("/upload", upload.single("receipt"), (req, res) => {
-  res.json({ file: req.file.filename });
-});
+router.put(
+  "/:id/approve",
+  requireAuth,
+  requireRole("bytes_officer"),
+  approvePayment
+);
+
+router.post(
+  "/upload",
+  requireAuth,
+  upload.single("receipt"),
+  (req, res) => {
+    res.json({ file: req.file.filename });
+  }
+);
 
 export default router;
