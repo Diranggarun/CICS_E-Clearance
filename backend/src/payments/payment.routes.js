@@ -1,20 +1,31 @@
-import express from "express";
+import express from 'express'
 import {
   createPayment,
-  getPayments,
+  listPayments,
   approvePayment,
-} from "./payment.controller.js";
+  denyPayment,
+  uploadReceipt,
+} from './payment.controller.js'
+import { upload } from '../lib/upload.js'
+import { requireAuth, requireRole } from '../middleware/auth.js'
+import { asyncHandler } from '../lib/asyncHandler.js'
 
-import { upload } from "../../lib/upload.js";
+const router = express.Router()
 
-const router = express.Router();
+router.use(requireAuth)
 
-router.post("/", createPayment);
-router.get("/", getPayments);
-router.put("/:id/approve", approvePayment);
+// Students submit payments for themselves; BYTES sees everything via filters.
+router.post('/', requireRole('student'), asyncHandler(createPayment))
+router.get('/', requireRole('bytes_officer', 'student'), asyncHandler(listPayments))
 
-router.post("/upload", upload.single("receipt"), (req, res) => {
-  res.json({ file: req.file.filename });
-});
+router.post(
+  '/upload',
+  requireRole('student'),
+  upload.single('receipt'),
+  asyncHandler(uploadReceipt),
+)
 
-export default router;
+router.put('/:id/approve', requireRole('bytes_officer'), asyncHandler(approvePayment))
+router.put('/:id/deny', requireRole('bytes_officer'), asyncHandler(denyPayment))
+
+export default router

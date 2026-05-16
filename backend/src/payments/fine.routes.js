@@ -1,33 +1,64 @@
-import express from "express";
-import prisma from "../../lib/prisma.js";
+import express from 'express'
+import prisma from '../lib/prisma.js'
+import { requireAuth, requireRole } from '../middleware/auth.js'
+import { asyncHandler } from '../lib/asyncHandler.js'
 
-const router = express.Router();
+const router = express.Router()
 
-router.post("/", async (req, res) => {
-  const { studentId, amount, reason } = req.body;
+router.use(requireAuth)
 
-  const fine = await prisma.fine.create({
-    data: { studentId, amount, reason, status: "unpaid" },
-  });
+// BYTES Officer issues a fine to a student.
+router.post(
+  '/',
+  requireRole('bytes_officer'),
+  asyncHandler(async (req, res) => {
+    const { studentId, amount, reason } = req.body
+    if (!studentId || !amount || !reason) {
+      return res.status(400).json({ message: 'studentId, amount, and reason are required.' })
+    }
+    const fine = await prisma.fine.create({
+      data: { studentId, amount: Number(amount), reason, status: 'unpaid' },
+    })
+    res.status(201).json(fine)
+  }),
+)
 
-  res.json(fine);
-});
+// A student may read only their own fines. BYTES Officer may read anyone's.
+router.get(
+  '/:studentId',
+  asyncHandler(async (req, res) => {
+    const { studentId } = req.params
+    if (req.user.role !== 'bytes_officer' && req.user.id !== studentId) {
+      return res.status(403).json({ message: 'You can only view your own fines.' })
+    }
+    const fines = await prisma.fine.findMany({
+      where: { studentId },
+      orderBy: { createdAt: 'desc' },
+    })
+    res.json(fines)
+  }),
+)
 
-router.get("/:studentId", async (req, res) => {
-  const fines = await prisma.fine.findMany({
-    where: { studentId: req.params.studentId },
-  });
+// BYTES Officer updates a fine (e.g. mark paid, edit amount).
+router.put(
+  '/:id',
+  requireRole('bytes_officer'),
+  asyncHandler(async (req, res) => {
+    const fine = await prisma.fine.update({
+      where: { id: req.params.id },
+      data: req.body,
+    })
+    res.json(fine)
+  }),
+)
 
-  res.json(fines);
-});
+router.delete(
+  '/:id',
+  requireRole('bytes_officer'),
+  asyncHandler(async (req, res) => {
+    await prisma.fine.delete({ where: { id: req.params.id } })
+    res.json({ message: 'Fine removed.' })
+  }),
+)
 
-router.put("/:id", async (req, res) => {
-  const fine = await prisma.fine.update({
-    where: { id: req.params.id },
-    data: req.body,
-  });
-
-  res.json(fine);
-});
-
-export default router;
+export default router

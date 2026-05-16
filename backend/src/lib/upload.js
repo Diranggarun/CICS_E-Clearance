@@ -23,7 +23,9 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// 5MB cap per project requirement (CLAUDE.md constraints).
 export const upload = multer({
   storage,
   fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
