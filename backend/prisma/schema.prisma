@@ -57,8 +57,49 @@ model User {
 
   clearanceRequests ClearanceRequest[]
   decidedStages     ClearanceStage[]   @relation("StageApprover")
+  notifications     Notification[]
 
   @@map("users")
+}
+
+// --- Task 6: Requirements (per-role checklist items) ---
+
+model Requirement {
+  id          String   @id @default(uuid())
+  role        Role     // which approval stage this requirement belongs to
+  title       String
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([role, active])
+  @@map("requirements")
+}
+
+// --- Task 5: Notifications ---
+
+enum NotificationType {
+  account
+  clearance
+  payment
+  fine
+  system
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType @default(system)
+  title     String
+  message   String
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
 }
 
 // --- Task 2: Student Clearance Request ---
@@ -145,4 +186,22 @@ model Payment {
   createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+// --- Task 7: Approval Workflow Engine (audit trail) ---
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorId     String   @map("actor_id")
+  actorRole   String   @map("actor_role")
+  action      String   // stage_approve / stage_deny / account_approve / payment_approve / etc.
+  targetType  String   @map("target_type") // clearance_request / clearance_stage / user / payment
+  targetId    String   @map("target_id")
+  reason      String?
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([targetType, targetId])
+  @@index([actorId])
+  @@map("audit_logs")
 }

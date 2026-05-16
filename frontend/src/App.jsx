@@ -23,6 +23,15 @@ import OfficerDenied from "./officer/OfficerDenied";
 
 import Payment from "./pages/Payment";
 
+import PendingAccounts from "./staff/PendingAccounts";
+import PaymentVerification from "./staff/PaymentVerification";
+import ManageFines from "./staff/ManageFines";
+import Reports from "./staff/Reports";
+import LibrarianDashboard from "./staff/LibrarianDashboard";
+import AdviserDashboard from "./staff/AdviserDashboard";
+import ChairpersonDashboard from "./staff/ChairpersonDashboard";
+import DeanDashboard from "./staff/DeanDashboard";
+
 
 function App() {
   return (
@@ -39,6 +48,17 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/create-user" element={<CreateUser />} />
           <Route path="/admin/records" element={<AdminRecords />} />
+          <Route path="/admin/pending-accounts" element={<PendingAccounts />} />
+          <Route path="/admin/payment-verification" element={<PaymentVerification />} />
+          <Route path="/admin/manage-fines" element={<ManageFines />} />
+          <Route path="/admin/reports" element={<Reports />} />
+        </Route>
+
+        <Route element={<OfficerLayout />}>
+          <Route path="/librarian/dashboard" element={<LibrarianDashboard />} />
+          <Route path="/adviser/dashboard" element={<AdviserDashboard />} />
+          <Route path="/chairperson/dashboard" element={<ChairpersonDashboard />} />
+          <Route path="/dean/dashboard" element={<DeanDashboard />} />
         </Route>
 
         <Route element={<StudentLayout />}> 
