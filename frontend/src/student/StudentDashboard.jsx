@@ -7,8 +7,15 @@ import {
   FiArrowRight,
 } from "react-icons/fi";
 
+// ✅ ADDED: Import our real notification component
+import Notifications from './Notifications';
+
 function StudentDashboard() {
   const progress = 37;
+
+  // ⚠️ NOTE: Since your current code uses hardcoded "Jonaidah", 
+  // we will use a TEST USER ID here. Later replace this with real logged-in user ID
+  const currentUserId = "test-user-123"; // 👈 CHANGE THIS TO REAL USER ID LATER
 
   const clearanceItems = [
     { office: "Library", signatory: "Maria Santos", status: "Approved" },
@@ -36,7 +43,7 @@ function StudentDashboard() {
               Student Dashboard
             </p>
             <h1 className="mt-3 bg-gradient-to-b from-[#0D27F7] to-[#0E1BEF] bg-clip-text text-3xl font-semibold tracking-tight text-transparent md:text-4xl">
-              Welcome back, Jonaidah!
+              Welcome back, PLANGUGN A WATA!
             </h1>
             <p className="mt-2 max-w-2xl text-gray-500">
               AY 2025–2026 • Second Semester Enrollment Clearance
@@ -120,20 +127,9 @@ function StudentDashboard() {
             </button>
           </div>
 
-          <div className={`${glassCard} p-6`}>
-            <div className="flex items-center gap-2">
-              <FiBell className="text-[#0D27F7]" />
-              <h2 className="text-xl font-semibold text-[#0D27F7]">
-                Notifications
-              </h2>
-            </div>
-
-            <div className="mt-5 space-y-3">
-              <Notice text="Library clearance approved" time="2 hours ago" />
-              <Notice text="Payment required for Department Society" time="Today" />
-              <Notice text="Publication is still pending review" time="Yesterday" />
-            </div>
-          </div>
+          {/* ✅ REPLACED: Your old hardcoded notifications box → NOW USING REAL COMPONENT */}
+          <Notifications userId={currentUserId} />
+          
         </div>
       </div>
     </div>
@@ -159,16 +155,7 @@ function StatCard({ icon, label, value }) {
   );
 }
 
-function Notice({ text, time }) {
-  return (
-    <div className="flex gap-3 rounded-2xl border border-[#e2ebff] bg-white/60 p-4 transition hover:bg-blue-50">
-      <FiCreditCard className="mt-0.5 text-[#0D27F7]" />
-      <div>
-        <p className="text-sm font-medium text-gray-700">{text}</p>
-        <p className="text-xs text-gray-500">{time}</p>
-      </div>
-    </div>
-  );
-}
+// ❌ REMOVED: We don't need the Notice function anymore because <Notifications /> handles it
+// function Notice({ text, time }) { ... }
 
 export default StudentDashboard;
