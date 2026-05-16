@@ -1,8 +1,17 @@
-import prisma from "../lib/prisma.js";
+import prisma from "../../lib/prisma.js";
+import { hasUnpaidFines, hasUnpaidFees } from "../../helpers/payment.helper.js";
 
 export const createPayment = async (req, res) => {
   try {
     const { userId, amount, method } = req.body;
+
+    const hasFines = await hasUnpaidFines(userId);
+
+    if (!hasFines) {
+      return res.status(400).json({
+        message: "No unpaid fines to pay",
+      });
+    }
 
     const payment = await prisma.payment.create({
       data: {
