@@ -6,10 +6,16 @@ export const createPayment = async (req, res) => {
     const { userId, amount, method } = req.body;
 
     const hasFines = await hasUnpaidFines(userId);
-
     if (!hasFines) {
       return res.status(400).json({
         message: "No unpaid fines to pay",
+      });
+    }
+
+    const hasFees = await hasUnpaidFees(userId);
+    if (hasFees) {
+      return res.status(400).json({
+        message: "You already have a pending payment",
       });
     }
 
