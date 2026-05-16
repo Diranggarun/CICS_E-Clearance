@@ -1,31 +1,22 @@
-/**
- * api/auth.js
- * ──────────────────────────────────────────────────────────────────────────────
- * All authentication API calls are centralized here.
- * Backend team: implement the endpoints below and update BASE_URL if needed.
- * ──────────────────────────────────────────────────────────────────────────────
- */
 import axios from 'axios'
 
-// Base URL is proxied through Vite (see vite.config.js → proxy: /api → localhost:8000)
-// Change the target port in vite.config.js to match your backend port.
 const api = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
 })
 
-// ── Request interceptor: attach JWT token if present ──────────────────────────
+// Attach JWT token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
-// ── Response interceptor: handle 401 globally ─────────────────────────────────
+// Handle global 401 (Unauthorized) errors
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem('access_token')
       window.location.href = '/login'
     }
@@ -33,21 +24,24 @@ api.interceptors.response.use(
   }
 )
 
-// ── Auth endpoints ─────────────────────────────────────────────────────────────
-// TODO (backend): POST /api/auth/login  → { email, password } → { access_token, user }
-export const login = (email, password) =>
-  api.post('/auth/login', { email, password })
+export const login = async (email, password) => {
+  const response = await api.post('/auth/login', { email, password });
+  
+  // CRITICAL: Save the token returned by the backend
+  if (response.data.access_token) {
+    localStorage.setItem('access_token', response.data.access_token);
+  }
+  
+  return response.data;
+}
 
-// TODO (backend): POST /api/auth/register → { ...fields } → { message } or { user }
-export const register = (payload) =>
-  api.post('/auth/register', payload)
+export const register = (payload) => api.post('/auth/register', payload);
 
-// TODO (backend): POST /api/auth/logout  → {}
-export const logout = () =>
-  api.post('/auth/logout')
+export const getMe = () => api.get('/auth/me');
 
-// TODO (backend): GET  /api/auth/me      → { user }
-export const getMe = () =>
-  api.get('/auth/me')
+export const logout = () => {
+  localStorage.removeItem('access_token');
+  window.location.href = '/login';
+};
 
-export default api
+export default api;
