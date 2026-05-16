@@ -1,4 +1,5 @@
 import prisma from '../lib/prisma.js'
+import { notify } from '../notifications/notify.js'
 
 export async function listPending(_req, res) {
   const users = await prisma.user.findMany({
@@ -23,6 +24,15 @@ export async function approveAccount(req, res) {
     where: { id },
     data: { status: 'approved', approvedById: req.user.id, approvedAt: new Date() },
   })
+  notify({
+    userId: updated.id,
+    userEmail: updated.email,
+    type: 'account',
+    title: 'Account approved',
+    message: 'Your CICS E-Clearance account has been approved. You may now log in.',
+    emailKey: 'accountApproval',
+    emailArgs: [updated.firstName],
+  })
   res.json({ message: 'Account approved', id: updated.id })
 }
 
@@ -36,9 +46,18 @@ export async function denyAccount(req, res) {
   if (user.status !== 'pending') {
     return res.status(409).json({ message: `Account already ${user.status}` })
   }
-  await prisma.user.update({
+  const updated = await prisma.user.update({
     where: { id },
     data: { status: 'denied', denialReason: reason, approvedById: req.user.id, approvedAt: new Date() },
+  })
+  notify({
+    userId: updated.id,
+    userEmail: updated.email,
+    type: 'account',
+    title: 'Account application denied',
+    message: `Your account application was denied. Reason: ${reason}`,
+    emailKey: 'accountDenial',
+    emailArgs: [updated.firstName, reason],
   })
   res.json({ message: 'Account denied' })
 }
