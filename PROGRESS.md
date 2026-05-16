@@ -1,6 +1,6 @@
 # CICS E-Clearance — Progress Report
 
-_Last updated: 2026-05-12_
+_Last updated: 2026-05-16_
 
 ## Stack (locked)
 
@@ -18,7 +18,7 @@ _Last updated: 2026-05-12_
 | 0b | DB schema & API contract | Affhan | 🟡 In progress — `users`, `clearance_requests`, `clearance_stages` done; remaining tables (fines, fees, payments, requirements, notifications, audit_log) pending |
 | 1 | Authentication & User Management | Dimalutang | ✅ Done |
 | 2 | Student Clearance Request | Naimah | ✅ Done (backend) |
-| 3 | Payment (Fines & Fees) | Asraf | ⬜ Not started |
+| 3 | Payment (Fines & Fees) | Asraf | ✅ Done (backend) |
 | 4 | Approval Workflow Engine | Landia | ⬜ Not started |
 | 5 | Notification System | Ed | ⬜ Not started |
 | 6 | Admin Dashboard, Reports & Requirements | Affhan | ⬜ Not started |
@@ -46,6 +46,24 @@ _Last updated: 2026-05-12_
 - `GET /api/clearance/me/progress` — structured progress for the status stepper.
 - `GET /api/clearance/:id/pdf` — printable PDF (student details, school ID, college/dept, academic year, approvers + timestamps, unique reference no.). Returns `409` with `pending_stages` unless every stage is approved; `403` if not the owner (BYTES Officer may also view).
 - Stage *decisions* are intentionally read-only here — that belongs to Task 4.
+
+### Task 3 — Payment (Fines & Fees)
+
+- POST /api/fines — create a new fine for a student (amount, reason, status = unpaid).
+- GET /api/fines/:studentId — retrieve all fines for a specific student.
+- PUT /api/fines/:id — update fine details and status.
+
+- POST /api/fees — create institutional fees (SSG, course, department, college).
+- GET /api/fees — retrieve all available fees.
+
+- POST /api/payments — create a payment record (GCash or on-site) with `pending` status.
+- GET /api/payments — retrieve all payment records.
+- PUT /api/payments/:id/approve — admin confirms payment and updates status to `approved`.
+
+- POST /api/payments/upload — upload GCash receipt using multer; stores file in `/uploads`.
+
+- Payment approval automatically updates student fines to `paid` status.
+- Supports both online (GCash with receipt upload) and on-site payment methods.
 
 ## Frontend changes
 - `RegisterPage.jsx` — client-side school-ID validation aligned with the backend; toasts now de-duplicate (shared `id`) instead of stacking.
