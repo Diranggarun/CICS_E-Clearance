@@ -7,6 +7,18 @@ const router = express.Router()
 
 router.use(requireAuth)
 
+// Resolve either a UUID or a school ID to the canonical user.id. Helps the BYTES
+// officer paste either format in the dashboard without needing to look up UUIDs.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+async function resolveStudentId(idOrSchoolId) {
+  if (!idOrSchoolId) return null
+  const where = UUID_RE.test(idOrSchoolId)
+    ? { id: idOrSchoolId }
+    : { schoolId: idOrSchoolId }
+  const user = await prisma.user.findFirst({ where, select: { id: true, role: true } })
+  return user
+}
+
 // BYTES Officer issues a fine to a student.
 router.post(
   '/',
@@ -16,23 +28,37 @@ router.post(
     if (!studentId || !amount || !reason) {
       return res.status(400).json({ message: 'studentId, amount, and reason are required.' })
     }
+    const target = await resolveStudentId(studentId)
+    if (!target) {
+      return res.status(404).json({ message: `No user found for "${studentId}".` })
+    }
+    if (target.role !== 'student') {
+      return res.status(400).json({ message: 'Fines can only be issued to students.' })
+    }
     const fine = await prisma.fine.create({
-      data: { studentId, amount: Number(amount), reason, status: 'unpaid' },
+      data: { studentId: target.id, amount: Number(amount), reason, status: 'unpaid' },
     })
     res.status(201).json(fine)
   }),
 )
 
-// A student may read only their own fines. BYTES Officer may read anyone's.
+// A student may read only their own fines. BYTES Officer may read anyone's
+// (and may pass either a UUID or a school ID).
 router.get(
   '/:studentId',
   asyncHandler(async (req, res) => {
     const { studentId } = req.params
-    if (req.user.role !== 'bytes_officer' && req.user.id !== studentId) {
+    let resolvedId = studentId
+    if (req.user.role === 'bytes_officer' && !UUID_RE.test(studentId)) {
+      const target = await resolveStudentId(studentId)
+      if (!target) return res.status(404).json({ message: `No user found for "${studentId}".` })
+      resolvedId = target.id
+    }
+    if (req.user.role !== 'bytes_officer' && req.user.id !== resolvedId) {
       return res.status(403).json({ message: 'You can only view your own fines.' })
     }
     const fines = await prisma.fine.findMany({
-      where: { studentId },
+      where: { studentId: resolvedId },
       orderBy: { createdAt: 'desc' },
     })
     res.json(fines)

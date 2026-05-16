@@ -1,23 +1,42 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   FiMenu,
   FiHome,
-  FiFileText,
-  FiInbox,
-  FiCheckCircle,
-  FiXCircle,
+  FiLogOut,
+  FiCheckSquare,
 } from "react-icons/fi";
+import { useAuth } from "../context/AuthContext";
 
 function OfficerSidebar({ collapsed, setCollapsed }) {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Approver dashboards (Librarian / Adviser / Chairperson / Dean) share OfficerLayout.
+  // Pick the dashboard path that matches the current role so the sidebar isn't confusing.
+  const roleDash = {
+    librarian: "/librarian/dashboard",
+    faculty_adviser: "/adviser/dashboard",
+    chairperson: "/chairperson/dashboard",
+    dean: "/dean/dashboard",
+  };
+  const dashPath = roleDash[user?.role] || "/officer/dashboard";
 
   const navItems = [
-    { name: "Dashboard", path: "/officer/dashboard", icon: <FiHome /> },
-    { name: "Requirement", path: "/officer/requirement", icon: <FiFileText /> },
-    { name: "Requests", path: "/officer/requests", icon: <FiInbox /> },
-    { name: "Approved", path: "/officer/approved", icon: <FiCheckCircle /> },
-    { name: "Denied", path: "/officer/denied", icon: <FiXCircle /> },
+    { name: "Dashboard", path: dashPath, icon: <FiHome /> },
+    { name: "Pending Approvals", path: dashPath, icon: <FiCheckSquare /> },
   ];
+
+  const handleLogout = () => {
+    logoutUser();
+    navigate("/login", { replace: true });
+  };
+
+  const displayName = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email
+    : "Officer";
+  const initial = (user?.firstName || user?.email || "O").charAt(0).toUpperCase();
+  const roleLabel = (user?.role || "officer").replace(/_/g, " ");
 
   return (
     <aside
@@ -43,37 +62,30 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
-        {/* Top Profile Card */}
         {!collapsed && (
-        <div className="px-4 pb-4">
+          <div className="px-4 pb-4">
             <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
-                {user?.email?.charAt(0).toUpperCase() || "O"}
-            </div>
-            <div>
-                <p className="font-semibold text-white">Officer</p>
-                <p className="text-xs text-white/75">
-                {user?.email || "officer@cics.edu.ph"}
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
+                {initial}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-white capitalize">{roleLabel}</p>
+                <p className="truncate text-xs text-white/75">
+                  {displayName}
                 </p>
+              </div>
             </div>
-            </div>
-        </div>
-        )}
-        
-        {!collapsed && (
-          <p className="px-7 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-            Officer Menu
-          </p>
+          </div>
         )}
 
         <nav className="mt-4 space-y-2 px-3">
           {navItems.map((item) => (
             <NavLink
-              key={item.path}
+              key={item.name}
               to={item.path}
-              className={({ isActive }) =>
+              className={() =>
                 `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                  isActive
+                  location.pathname === item.path
                     ? "bg-white/20 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)] backdrop-blur"
                     : "text-white/85 hover:bg-white/10 hover:text-white"
                 }`
@@ -86,17 +98,15 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
         </nav>
       </div>
 
-            {!collapsed && (
-        <div className="p-4">
-          <NavLink
-            to="/login"
-            className="flex items-center justify-center rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-white/20"
-          >
-            Logout
-          </NavLink>
-        </div>
-      )}
-      
+      <div className="p-4">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-white/20"
+        >
+          <FiLogOut />
+          {!collapsed && <span>Logout</span>}
+        </button>
+      </div>
     </aside>
   );
 }

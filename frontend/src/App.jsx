@@ -1,18 +1,20 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
 import CreateUser from "./admin/CreateUser";
 import AdminRecords from "./admin/AdminRecords";
 
-import Sidebar from "./components/StudentSidebar";
 import StudentLayout from "./layouts/StudentLayout";
 import StudentDashboard from "./student/StudentDashboard";
 import MyClearance from "./student/MyClearance";
 import Notifications from "./student/Notifications";
-
+import Payment from "./student/Payment";
 
 import OfficerLayout from "./layouts/OfficerLayout";
 import OfficerDashboard from "./officer/OfficerDashboard";
@@ -20,8 +22,6 @@ import OfficerRequirement from "./officer/OfficerRequirement";
 import OfficerRequests from "./officer/OfficerRequests";
 import OfficerApproved from "./officer/OfficerApproved";
 import OfficerDenied from "./officer/OfficerDenied";
-
-import Payment from "./pages/Payment";
 
 import PendingAccounts from "./staff/PendingAccounts";
 import PaymentVerification from "./staff/PaymentVerification";
@@ -32,6 +32,12 @@ import AdviserDashboard from "./staff/AdviserDashboard";
 import ChairpersonDashboard from "./staff/ChairpersonDashboard";
 import DeanDashboard from "./staff/DeanDashboard";
 
+const adminRoles = ["bytes_officer"];
+const studentRoles = ["student"];
+const librarianRoles = ["librarian"];
+const adviserRoles = ["faculty_adviser"];
+const chairRoles = ["chairperson"];
+const deanRoles = ["dean"];
 
 function App() {
   return (
@@ -39,11 +45,18 @@ function App() {
       <Toaster position="top-right" />
 
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route element={<AdminLayout />}>
+        {/* BYTES Officer area */}
+        <Route
+          element={
+            <ProtectedRoute roles={adminRoles}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/create-user" element={<CreateUser />} />
@@ -54,30 +67,74 @@ function App() {
           <Route path="/admin/reports" element={<Reports />} />
         </Route>
 
-        <Route element={<OfficerLayout />}>
+        {/* Student area */}
+        <Route
+          element={
+            <ProtectedRoute roles={studentRoles}>
+              <StudentLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route path="/student/my-clearance" element={<MyClearance />} />
+          <Route path="/student/notifications" element={<Notifications />} />
+          <Route path="/student/payment" element={<Payment />} />
+        </Route>
+
+        {/* Approver dashboards (each role gets its own gate) */}
+        <Route
+          element={
+            <ProtectedRoute roles={librarianRoles}>
+              <OfficerLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/librarian/dashboard" element={<LibrarianDashboard />} />
+        </Route>
+        <Route
+          element={
+            <ProtectedRoute roles={adviserRoles}>
+              <OfficerLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/adviser/dashboard" element={<AdviserDashboard />} />
+        </Route>
+        <Route
+          element={
+            <ProtectedRoute roles={chairRoles}>
+              <OfficerLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/chairperson/dashboard" element={<ChairpersonDashboard />} />
+        </Route>
+        <Route
+          element={
+            <ProtectedRoute roles={deanRoles}>
+              <OfficerLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/dean/dashboard" element={<DeanDashboard />} />
         </Route>
 
-        <Route element={<StudentLayout />}> 
-        <Route path="/student/dashboard" element={<StudentDashboard />} />
-        <Route path="/student/my-clearance" element={<MyClearance />} />
-        <Route path="/student/notifications" element={<Notifications />} />
-        <Route path="/student/payment" element={<Payment />} />
+        {/* Legacy officer namespace (kept logged-in but role-agnostic) */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <OfficerLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/officer" element={<Navigate to="/officer/dashboard" replace />} />
+          <Route path="/officer/dashboard" element={<OfficerDashboard />} />
+          <Route path="/officer/requirement" element={<OfficerRequirement />} />
+          <Route path="/officer/requests" element={<OfficerRequests />} />
+          <Route path="/officer/approved" element={<OfficerApproved />} />
+          <Route path="/officer/denied" element={<OfficerDenied />} />
         </Route>
 
-
-     <Route element={<OfficerLayout />}>
-    <Route path="/officer" element={<Navigate to="/officer/dashboard" replace />} />
-    <Route path="/officer/dashboard" element={<OfficerDashboard />} />
-    <Route path="/officer/requirement" element={<OfficerRequirement />} />
-    <Route path="/officer/requests" element={<OfficerRequests />} />
-    <Route path="/officer/approved" element={<OfficerApproved />} />
-    <Route path="/officer/denied" element={<OfficerDenied />} />
-  </Route>
-          
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>

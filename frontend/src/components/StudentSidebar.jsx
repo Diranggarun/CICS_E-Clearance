@@ -1,14 +1,27 @@
-import { NavLink } from "react-router-dom";
-import { FiMenu, FiHome, FiClipboard, FiBell } from "react-icons/fi";
+import { NavLink, useNavigate } from "react-router-dom";
+import { FiMenu, FiHome, FiClipboard, FiBell, FiCreditCard, FiLogOut } from "react-icons/fi";
+import { useAuth } from "../context/AuthContext";
 
 function StudentSidebar({ collapsed, setCollapsed }) {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
 
   const navItems = [
     { name: "Dashboard", path: "/student/dashboard", icon: <FiHome /> },
     { name: "My Clearance", path: "/student/my-clearance", icon: <FiClipboard /> },
+    { name: "Payment", path: "/student/payment", icon: <FiCreditCard /> },
     { name: "Notifications", path: "/student/notifications", icon: <FiBell /> },
   ];
+
+  const handleLogout = () => {
+    logoutUser();
+    navigate("/login", { replace: true });
+  };
+
+  const displayName = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email
+    : "Student";
+  const initial = (user?.firstName || user?.email || "S").charAt(0).toUpperCase();
 
   return (
     <aside
@@ -34,21 +47,21 @@ function StudentSidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
-    {!collapsed && (
-              <div className="px-4 pb-4">
-                <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
-                    {user?.email?.charAt(0).toUpperCase() || "A"}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">Student</p>
-                    <p className="text-xs text-white/75">
-                      {user?.email || "student@cics.edu.ph"}
-                    </p>
-                  </div>
-                </div>
+        {!collapsed && (
+          <div className="px-4 pb-4">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
+                {initial}
               </div>
-            )}
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-white">{displayName}</p>
+                <p className="truncate text-xs text-white/75">
+                  {user?.email || ""}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {!collapsed && (
           <p className="px-7 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
@@ -76,16 +89,15 @@ function StudentSidebar({ collapsed, setCollapsed }) {
         </nav>
       </div>
 
-      {!collapsed && (
-        <div className="p-4">
-          <NavLink
-            to="/login"
-            className="flex items-center justify-center rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-white/20"
-          >
-            Logout
-          </NavLink>
-        </div>
-      )}
+      <div className="p-4">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-white/20"
+        >
+          <FiLogOut />
+          {!collapsed && <span>Logout</span>}
+        </button>
+      </div>
     </aside>
   );
 }

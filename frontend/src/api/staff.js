@@ -10,6 +10,8 @@ export const getAuditTrail = (id) => api.get(`/approval/${id}/audit`)
 
 // === Accounts (admin) ===
 export const listPendingAccounts = () => api.get('/admin/pending-accounts')
+export const listStudents = () => api.get('/admin/students')
+export const createStaffUser = (payload) => api.post('/admin/users', payload)
 export const approveAccount = (id) =>
   api.post(`/admin/pending-accounts/${id}/approve`)
 export const denyAccount = (id, reason) =>

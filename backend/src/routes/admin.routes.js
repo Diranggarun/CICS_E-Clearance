@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { listPending, approveAccount, denyAccount } from '../controllers/admin.controller.js'
+import { listPending, listStudents, approveAccount, denyAccount, createUser } from '../controllers/admin.controller.js'
 import {
   dashboardStats,
   clearanceReport,
@@ -14,6 +14,8 @@ const router = Router()
 router.use(requireAuth, requireRole('bytes_officer'))
 
 router.get('/pending-accounts', asyncHandler(listPending))
+router.get('/students', asyncHandler(listStudents))
+router.post('/users', asyncHandler(createUser))
 router.post('/pending-accounts/:id/approve', asyncHandler(approveAccount))
 router.post('/pending-accounts/:id/deny', asyncHandler(denyAccount))
 

@@ -1,8 +1,13 @@
+import { useEffect, useState } from "react";
 import {
   FiUsers,
   FiFileText,
   FiCheckCircle,
   FiClock,
+  FiCreditCard,
+  FiAlertTriangle,
+  FiUserPlus,
+  FiLoader,
 } from "react-icons/fi";
 import {
   ResponsiveContainer,
@@ -11,26 +16,44 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
 } from "recharts";
+import { dashboardStats } from "../api/staff";
 
 function AdminDashboard() {
-  const stats = [
-    { title: "Total Students", value: "500", icon: <FiUsers /> },
-    { title: "Clearance Requests", value: "128", icon: <FiFileText /> },
-    { title: "Cleared", value: "230", icon: <FiCheckCircle /> },
-    { title: "Pending", value: "270", icon: <FiClock /> },
-  ];
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const officeData = [
-    { office: "Library", cleared: 180, pending: 70 },
-    { office: "SC", cleared: 150, pending: 100 },
-    { office: "Publication", cleared: 130, pending: 120 },
-    { office: "Adviser", cleared: 200, pending: 50 },
-    { office: "Dean", cleared: 100, pending: 150 },
-  ];
+  useEffect(() => {
+    dashboardStats()
+      .then((res) => setData(res.data))
+      .catch((err) =>
+        setError(err.response?.data?.message || "Could not load dashboard stats")
+      )
+      .finally(() => setLoading(false));
+  }, []);
 
   const appleCard =
     "rounded-[28px] border border-[#d6e2ff] bg-white/70 shadow-[0_4px_20px_rgba(13,39,247,0.06)] ring-1 ring-white/80 backdrop-blur-xl transition-all duration-200 hover:-translate-y-[2px] hover:border-[#c3d4ff] hover:shadow-[0_8px_30px_rgba(13,39,247,0.08)]";
+
+  const t = data?.totals || {};
+  const stats = [
+    { title: "Total Students", value: t.students ?? "—", icon: <FiUsers /> },
+    { title: "Pending Accounts", value: t.pending_accounts ?? "—", icon: <FiUserPlus /> },
+    { title: "Active Requests", value: t.active_requests ?? "—", icon: <FiFileText /> },
+    { title: "Completed", value: t.completed_requests ?? "—", icon: <FiCheckCircle /> },
+    { title: "Denied", value: t.denied_requests ?? "—", icon: <FiClock /> },
+    { title: "Pending Payments", value: t.pending_payments ?? "—", icon: <FiCreditCard /> },
+    { title: "Unpaid Fines", value: t.unpaid_fines ?? "—", icon: <FiAlertTriangle /> },
+  ];
+
+  const chartData = (data?.stages || []).map((s) => ({
+    stage: s.label.replace("Faculty Adviser", "Adviser"),
+    approved: s.approved,
+    pending: s.pending,
+    denied: s.denied,
+  }));
 
   return (
     <div className="space-y-8 font-inter">
@@ -39,18 +62,28 @@ function AdminDashboard() {
           Dashboard
         </h1>
         <p className="mt-2 text-base font-medium text-gray-500 md:text-lg">
-          Overview of the CICS E-Clearance system.
+          Live overview of the CICS E-Clearance system.
         </p>
       </div>
+
+      {loading && (
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <FiLoader className="animate-spin" /> Loading stats…
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
           <div key={item.title} className={`${appleCard} p-6`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
-                  {item.title}
-                </p>
+                <p className="text-sm font-medium text-gray-500">{item.title}</p>
                 <h2 className="mt-3 text-3xl font-semibold text-[#0D27F7]">
                   {item.value}
                 </h2>
@@ -64,47 +97,32 @@ function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-        <div className={`${appleCard} p-6`}>
-          <h2 className="text-xl font-semibold text-[#0D27F7]">
-            Office Progress
-          </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Clearance status per office.
-          </p>
+      <div className={`${appleCard} p-6`}>
+        <h2 className="text-xl font-semibold text-[#0D27F7]">
+          Stage Progress
+        </h2>
+        <p className="mt-1 text-sm text-gray-500">
+          Live breakdown of stage decisions across all clearance requests.
+        </p>
 
-          <div className="mt-5 h-[300px]">
+        <div className="mt-5 h-[320px]">
+          {chartData.length === 0 ? (
+            <div className="flex h-full items-center justify-center text-sm text-gray-400">
+              No clearance data yet.
+            </div>
+          ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={officeData}>
-                <XAxis dataKey="office" />
-                <YAxis />
+              <BarChart data={chartData}>
+                <XAxis dataKey="stage" />
+                <YAxis allowDecimals={false} />
                 <Tooltip />
-                <Bar dataKey="cleared" fill="#0D27F7" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="pending" fill="#FFB433" radius={[8, 8, 0, 0]} />
+                <Legend />
+                <Bar dataKey="approved" stackId="a" fill="#029422" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="pending" stackId="a" fill="#FFB433" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="denied" stackId="a" fill="#DC2626" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className={`${appleCard} p-6`}>
-          <h2 className="text-xl font-semibold text-[#0D27F7]">
-            Recent Activity
-          </h2>
-
-          <div className="mt-5 space-y-3">
-            {[
-              "Maria Santos submitted a clearance request.",
-              "Publication added a payment requirement.",
-              "Dean approved Juan Dela Cruz.",
-            ].map((text) => (
-              <div
-                key={text}
-                className="rounded-2xl border border-[#e2ebff] bg-white/60 p-4 text-sm text-gray-500 shadow-[0_2px_10px_rgba(13,39,247,0.04)] backdrop-blur transition hover:border-[#c3d4ff] hover:bg-blue-50"
-              >
-                {text}
-              </div>
-            ))}
-          </div>
+          )}
         </div>
       </div>
     </div>

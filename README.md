@@ -18,9 +18,9 @@
 
 ## Overview
 
-The **CICS E-Clearance System** digitizes the student clearance process at MSU – Main Campus. It enables students to submit, track, and complete clearance requirements online, while empowering BYTES officers, signatories, and administrators to manage accounts, fees, fines, and approvals through role-based dashboards.
+The **CICS E-Clearance System** digitizes the student clearance process at MSU – Main Campus. Students submit clearance requests online and track them through a 5-stage sequential approval pipeline (BYTES → Librarian → Faculty Adviser → Chairperson → Dean). BYTES officers manage fines, fees, and GCash payments. Once all stages are approved, the student downloads an official PDF clearance form.
 
-The project follows a clean monorepo split between **frontend** (React + Vite) and **backend** (Node.js + Express + Prisma + PostgreSQL), and is being built collaboratively by a 9-person team.
+Monorepo split: **frontend** (React + Vite + Tailwind) and **backend** (Node.js + Express + Prisma + Supabase Postgres). Built collaboratively by a 9-person team.
 
 ---
 
@@ -30,17 +30,15 @@ The project follows a clean monorepo split between **frontend** (React + Vite) a
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-  - [Backend Setup](#backend-setup)
-  - [Frontend Setup](#frontend-setup)
+- [Quick Start (Automated)](#quick-start-automated)
+- [Manual Setup](#manual-setup)
 - [Environment Variables](#environment-variables)
 - [Default Accounts](#default-accounts)
+- [Smoke Test (End-to-End Demo Path)](#smoke-test-end-to-end-demo-path)
 - [API Reference](#api-reference)
-- [Frontend Integration Guide](#frontend-integration-guide)
 - [Branching Strategy](#branching-strategy)
 - [Available Scripts](#available-scripts)
 - [Roadmap](#roadmap)
-- [Contributing](#contributing)
 - [Team](#team)
 - [License](#license)
 
@@ -48,14 +46,16 @@ The project follows a clean monorepo split between **frontend** (React + Vite) a
 
 ## Features
 
-- **Role-based access control** — Student, BYTES Officer, Signatory, Admin
-- **Student dashboard** — Submit clearance requests, track approvals, view fines
-- **Officer dashboard** — Approve/deny pending accounts, manage clearance items
-- **Admin dashboard** — User management, requirements configuration, reports
-- **Secure authentication** — JWT-based login with pending/denied account gating
-- **PDF clearance generation** *(planned)*
-- **GCash payment integration** *(planned)*
-- **Email + in-app notifications** *(planned)*
+- ✅ **Role-based access control** — Student, BYTES Officer, Librarian, Faculty Adviser, Chairperson, Dean
+- ✅ **Student dashboard** — Submit clearance request, real-time progress, fines/fees view, payment history
+- ✅ **5-stage sequential approval pipeline** — BYTES → Librarian → Adviser → Chairperson → Dean, with prerequisite gating
+- ✅ **Approver dashboards** — Shared `ApproverBoard` UI consumed by Librarian, Adviser, Chairperson, Dean
+- ✅ **BYTES Officer admin** — Pending-account approval, fine management, payment verification, requirements CRUD
+- ✅ **Fines & fees + GCash payments** — Receipt upload (5 MB cap), on-site option, officer verification
+- ✅ **PDF clearance generation** — Gated download (only after all 5 stages approved)
+- ✅ **Email + in-app notifications** — Wired into account approval, every stage decision, and payment events
+- ✅ **Reports** — Filterable clearance status report, PDF + CSV export
+- ✅ **Audit trail** — Every approval/denial recorded with actor + reason
 
 ---
 
@@ -69,18 +69,21 @@ The project follows a clean monorepo split between **frontend** (React + Vite) a
 | Routing       | React Router v6                         |
 | HTTP Client   | Axios                                   |
 | Notifications | react-hot-toast                         |
-| Styling       | Tailwind CSS, CSS Modules, CSS Variables|
-| Fonts         | Poppins, Inter (Google Fonts)           |
+| Styling       | Tailwind CSS                            |
+| Icons         | react-icons                             |
 
 ### Backend
-| Layer      | Technology  |
-| ---------- | ----------- |
-| Runtime    | Node.js 18+ |
-| Framework  | Express     |
-| ORM        | Prisma      |
-| Database   | PostgreSQL  |
-| Auth       | JWT         |
-| Validation | Zod         |
+| Layer       | Technology                |
+| ----------- | ------------------------- |
+| Runtime     | Node.js 18+ (ESM)         |
+| Framework   | Express                   |
+| ORM         | Prisma 5                  |
+| Database    | PostgreSQL (Supabase)     |
+| Auth        | JWT + bcrypt              |
+| File Upload | Multer (5 MB cap, images) |
+| PDF         | pdfkit                    |
+| Email       | Nodemailer (SMTP)         |
+| Validation  | Zod                       |
 
 ---
 
@@ -88,32 +91,118 @@ The project follows a clean monorepo split between **frontend** (React + Vite) a
 
 ```
 CICS_Clearance_System/
-├── frontend/                       # React + Vite + Tailwind
-│   ├── public/                     # Static assets
+│
+├── frontend/                            # React 18 + Vite 5 + Tailwind
+│   ├── public/                          # Static assets (logos, seals, etc.)
 │   ├── src/
-│   │   ├── api/                    # API client layer
-│   │   │   └── auth.js
-│   │   ├── components/             # Shared UI components
-│   │   │   └── ProtectedRoute.jsx
-│   │   ├── context/                # React contexts (auth, etc.)
-│   │   │   └── AuthContext.jsx
-│   │   ├── pages/                  # Route-level pages
-│   │   │   ├── LoginPage.jsx
+│   │   ├── api/
+│   │   │   ├── auth.js                  # Axios instance, login, register, JWT interceptor
+│   │   │   ├── student.js               # Clearance, fines, fees, payments, PDF download
+│   │   │   ├── staff.js                 # Admin/staff endpoints (approvals, reports, fines, users)
+│   │   │   └── mock.js                  # Legacy mock data (kept for reference)
+│   │   ├── components/
+│   │   │   ├── ApprovalModal.jsx        # Reusable approve/deny modal
+│   │   │   ├── ApproverBoard.jsx        # Shared queue UI for all 4 approver roles
+│   │   │   ├── PaymentModal.jsx         # GCash receipt + reference number form
+│   │   │   ├── ProtectedRoute.jsx       # Auth + role gate (uses AuthContext)
+│   │   │   ├── Sidebar.jsx              # Admin/BYTES sidebar with logout
+│   │   │   ├── StudentSidebar.jsx       # Student sidebar
+│   │   │   └── OfficerSidebar.jsx       # Approver sidebar (role-aware)
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx          # Real backend auth, hydrates from /auth/me
+│   │   ├── layouts/
+│   │   │   ├── AdminLayout.jsx
+│   │   │   ├── StudentLayout.jsx
+│   │   │   └── OfficerLayout.jsx
+│   │   ├── pages/
+│   │   │   ├── LoginPage.jsx            # Role-aware redirect after login
 │   │   │   └── RegisterPage.jsx
-│   │   ├── App.jsx                 # Route definitions
-│   │   ├── main.jsx                # Entry point
-│   │   └── index.css               # Global styles
+│   │   ├── student/                     # (owned by Norman)
+│   │   │   ├── StudentDashboard.jsx     # Live stats, stages, fines CTA, notifications
+│   │   │   ├── MyClearance.jsx          # Submit request + gated PDF download
+│   │   │   ├── Payment.jsx              # Fines + fees + GCash receipt upload
+│   │   │   ├── Notifications.jsx        # Per-user feed
+│   │   │   └── useNotifications.js      # Backend-backed hook
+│   │   ├── staff/                       # (owned by Shaheel)
+│   │   │   ├── PendingAccounts.jsx      # Approve / deny new student signups
+│   │   │   ├── PaymentVerification.jsx  # GCash receipt review
+│   │   │   ├── ManageFines.jsx          # Student dropdown, add / remove fines
+│   │   │   ├── Reports.jsx              # Filterable report + PDF/CSV export
+│   │   │   ├── LibrarianDashboard.jsx   # ┐
+│   │   │   ├── AdviserDashboard.jsx     # ├─ all wrap ApproverBoard
+│   │   │   ├── ChairpersonDashboard.jsx # │
+│   │   │   └── DeanDashboard.jsx        # ┘
+│   │   ├── admin/                       # (owned by Affhan)
+│   │   │   ├── AdminDashboard.jsx       # Live KPIs + per-stage stacked bar chart
+│   │   │   ├── AdminRecords.jsx         # Per-stage matrix with search + CSV export
+│   │   │   └── CreateUser.jsx           # Create staff/approver accounts directly
+│   │   ├── officer/                     # Legacy / unused namespace (kept for compat)
+│   │   ├── App.jsx                      # Route table + ProtectedRoute wiring
+│   │   ├── main.jsx                     # AuthProvider + Router entry
+│   │   └── index.css                    # Tailwind base + global tokens
 │   ├── .env.example
-│   ├── vite.config.js              # Dev server + API proxy
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   ├── vite.config.js                   # Dev server :5173 → proxies /api → :5000
 │   └── package.json
 │
-├── backend/                        # Node.js + Express + Prisma
-│   ├── src/                        # Controllers, routes, middleware
-│   ├── prisma/                     # Schema + migrations
+├── backend/                             # Node.js 18+ (ESM) + Express 4 + Prisma 5
+│   ├── src/
+│   │   ├── controllers/
+│   │   │   ├── auth.controller.js
+│   │   │   ├── admin.controller.js      # pending accounts, students, create staff user
+│   │   │   ├── clearance.controller.js  # create request, progress, gated PDF
+│   │   │   ├── approval.controller.js   # 5-stage decisions + audit
+│   │   │   ├── notifications.controller.js
+│   │   │   ├── requirements.controller.js
+│   │   │   └── reports.controller.js    # dashboard stats + clearance report (PDF/CSV)
+│   │   ├── routes/
+│   │   │   ├── auth.routes.js
+│   │   │   ├── admin.routes.js          # /pending-accounts, /students, /users, /reports/*
+│   │   │   ├── clearance.routes.js
+│   │   │   ├── approval.routes.js
+│   │   │   ├── notifications.routes.js
+│   │   │   └── requirements.routes.js
+│   │   ├── payments/                    # (owned by Asraf)
+│   │   │   ├── fine.routes.js           # Accepts UUID or School ID for lookups
+│   │   │   ├── fee.routes.js
+│   │   │   ├── payment.routes.js
+│   │   │   └── payment.controller.js
+│   │   ├── notifications/               # (owned by Ed)
+│   │   │   ├── notify.js                # Best-effort notify() helper
+│   │   │   ├── email.js                 # Nodemailer (no-ops if SMTP unset)
+│   │   │   └── emailTemplates.js
+│   │   ├── lib/
+│   │   │   ├── prisma.js                # Shared PrismaClient singleton
+│   │   │   ├── jwt.js                   # Sign / verify
+│   │   │   ├── clearance.js             # STAGE_ORDER, buildProgress, references
+│   │   │   ├── approval.js              # Prereq checker, auto-complete logic
+│   │   │   ├── payment.js               # Financial-blocker helpers
+│   │   │   ├── pdf.js                   # streamClearancePdf (pdfkit)
+│   │   │   ├── upload.js                # Multer (5 MB, image-only)
+│   │   │   ├── asyncHandler.js
+│   │   │   └── update.js
+│   │   ├── middleware/                  # auth (JWT + requireRole), error, validate
+│   │   ├── schemas/                     # Zod request schemas
+│   │   ├── app.js                       # Express app + CORS + routes
+│   │   └── server.js                    # Entry point (listens on :5000)
+│   ├── prisma/
+│   │   ├── schema.prisma                # 9 models: User, ClearanceRequest, ClearanceStage,
+│   │   │                                # Fine, Fee, Payment, Notification, AuditLog, Requirement
+│   │   ├── migrations/                  # 4 applied migrations
+│   │   └── seed.js                      # Team + role-tester + test-student accounts
 │   ├── .env.example
+│   ├── .env                             # ← gitignored — fill via setup.ps1
 │   └── package.json
 │
-├── README.md
+├── claude-docs/                         # PROMPTS, PROGRESS, AUDIT, MODULES,
+│                                        # API_CONTRACT, ERD, DECISIONS, DEBUGGING, WORKFLOW
+├── CLAUDE.md                            # Module ownership + AI assistant rules
+├── CONTRIBUTING.md                      # PR + branching rules
+├── PROGRESS.md                          # Phase-by-phase status
+├── RUN.md                               # Full local-run guide
+├── README.md                            # ← this file
+├── setup.ps1                            # One-shot bootstrap (Windows)
 └── .gitignore
 ```
 
@@ -121,38 +210,67 @@ CICS_Clearance_System/
 
 ## Prerequisites
 
-Before running the project, ensure you have the following installed:
-
 - [Node.js](https://nodejs.org/) **≥ 18**
 - [npm](https://www.npmjs.com/) **≥ 9** (bundled with Node)
-- [PostgreSQL](https://www.postgresql.org/) **≥ 14**
 - [Git](https://git-scm.com/)
+- A free [Supabase](https://supabase.com) project (provides hosted Postgres). From **Project Settings → Database → Connection string** copy two URIs:
+  - **Transaction pooler** (port `6543`) → `DATABASE_URL`
+  - **Session/Direct** (port `5432`) → `DIRECT_URL`
+
+You do **not** need a local Postgres install — Supabase hosts the database.
 
 ---
 
-## Getting Started
+## Quick Start (Automated)
 
-Clone the repository:
+The fastest path. From the project root:
 
-```bash
-git clone https://github.com/<your-org>/cics-eclearance.git
-cd cics-eclearance
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
-Run the backend and frontend in separate terminals.
+The script:
+1. Verifies Node ≥ 18 and npm ≥ 9
+2. Prompts for the two Supabase URIs (only the first time)
+3. Generates a cryptographically random `JWT_SECRET`
+4. Writes `backend/.env` and `frontend/.env.local`
+5. Runs `npm install` in both workspaces
+6. Applies Prisma migrations and seeds the database
 
-### Backend Setup
+It is idempotent — re-run anytime; any values already set are preserved.
+
+After it finishes, start two terminals:
+
+```powershell
+# Terminal 1
+cd backend ; npm run dev
+
+# Terminal 2
+cd frontend ; npm run dev
+```
+
+Open **http://localhost:5173**.
+
+---
+
+## Manual Setup
+
+If you'd rather not run the script:
+
+### Backend
 
 ```powershell
 cd backend
 npm install
-copy .env.example .env               # then edit DATABASE_URL and JWT_SECRET
-npx prisma migrate dev --name init
+copy .env.example .env
+# Edit .env — fill DATABASE_URL, DIRECT_URL, set a JWT_SECRET
+npx prisma migrate deploy
+npx prisma generate
 npm run seed
-npm run dev                          # http://localhost:8000
+npm run dev                          # http://localhost:5000
 ```
 
-### Frontend Setup
+### Frontend
 
 ```powershell
 cd frontend
@@ -161,7 +279,9 @@ copy .env.example .env.local
 npm run dev                          # http://localhost:5173
 ```
 
-Vite automatically proxies `/api/*` → `http://localhost:8000`, so no additional config is required.
+Vite proxies `/api/*` to `http://127.0.0.1:5000`. No additional config needed unless you change the backend port.
+
+For full setup details + troubleshooting, see [`RUN.md`](RUN.md).
 
 ---
 
@@ -169,35 +289,62 @@ Vite automatically proxies `/api/*` → `http://localhost:8000`, so no additiona
 
 ### Backend (`backend/.env`)
 
-| Variable       | Description                            | Example                                              |
-| -------------- | -------------------------------------- | ---------------------------------------------------- |
-| `DATABASE_URL` | PostgreSQL connection string           | `postgresql://user:pass@localhost:5432/cics_clearance` |
-| `JWT_SECRET`   | Secret used to sign JWT tokens         | `super-secret-string`                                |
-| `PORT`         | API server port (default `8000`)       | `8000`                                               |
+| Variable          | Description                                                       | Example                                                |
+| ----------------- | ----------------------------------------------------------------- | ------------------------------------------------------ |
+| `DATABASE_URL`    | Supabase Transaction pooler URI (port 6543, app runtime)          | `postgresql://postgres.xxx:PASS@aws-...:6543/postgres?pgbouncer=true` |
+| `DIRECT_URL`      | Supabase Direct/Session URI (port 5432, used by `prisma migrate`) | `postgresql://postgres.xxx:PASS@aws-...:5432/postgres` |
+| `JWT_SECRET`      | Secret used to sign JWT tokens (32+ random bytes recommended)     | `2fe2a6bb...`                                          |
+| `JWT_EXPIRES_IN`  | Token lifetime                                                    | `7d`                                                   |
+| `PORT`            | API server port                                                   | `5000`                                                 |
+| `CORS_ORIGIN`     | Allowed frontend origin                                           | `http://localhost:5173`                                |
+| `SMTP_*` *(opt)*  | SMTP host/port/user/pass for outbound email                       | gracefully no-ops if unset                             |
 
 ### Frontend (`frontend/.env.local`)
 
-| Variable       | Description                            | Example                  |
-| -------------- | -------------------------------------- | ------------------------ |
-| `VITE_API_URL` | Backend API base URL (optional override)| `http://localhost:8000` |
+| Variable            | Description                                  | Example                  |
+| ------------------- | -------------------------------------------- | ------------------------ |
+| `VITE_API_BASE_URL` | Backend base URL (optional; usually proxied) | `http://localhost:5000`  |
 
 ---
 
 ## Default Accounts
 
-After seeding, a BYTES Officer account is available for approving new student registrations:
+After `npm run seed`, the following accounts are available. **Default password for all role testers and team members is `Cics#2026`** unless noted.
 
-| Email               | Password     | Role           |
-| ------------------- | ------------ | -------------- |
-| `bytes@cics.edu.ph` | `Bytes#2026` | `bytes_officer`|
+### Role testers (use these to walk the approval pipeline)
 
-> Change this password immediately in production.
+| Email                     | Password    | Role             |
+| ------------------------- | ----------- | ---------------- |
+| `bytes@cics.edu.ph`       | `Bytes#2026`| `bytes_officer`  |
+| `librarian@cics.edu.ph`   | `Cics#2026` | `librarian`      |
+| `adviser@cics.edu.ph`     | `Cics#2026` | `faculty_adviser`|
+| `chairperson@cics.edu.ph` | `Cics#2026` | `chairperson`    |
+| `dean@cics.edu.ph`        | `Cics#2026` | `dean`           |
+
+### Team accounts (all seeded as `bytes_officer` for development)
+
+`affhan@s.msumain.edu.ph`, `dimalutang@s.msumain.edu.ph`, `naimah@s.msumain.edu.ph`, `asraf@s.msumain.edu.ph`, `landia@s.msumain.edu.ph`, `ed@s.msumain.edu.ph`, `norman@s.msumain.edu.ph`, `shaheel@s.msumain.edu.ph`, `jonaidah@s.msumain.edu.ph`, `diranggarun.hg587@s.msumain.edu.ph`
+
+> Change all default passwords before production.
+
+---
+
+## Smoke Test (End-to-End Demo Path)
+
+1. Open http://localhost:5173 → **Register** a new student.
+2. Log in as `bytes@cics.edu.ph` → **Pending Accounts** → approve the new student.
+3. Log in as the student → **My Clearance** → **Submit Clearance Request**.
+4. Log back in as `bytes@cics.edu.ph` → approve the BYTES stage.
+5. Repeat for `librarian@...`, `adviser@...`, `chairperson@...`, `dean@...` (one login per role).
+6. Log back in as the student → **My Clearance** → **Download PDF** button is now enabled → file downloads.
+
+Optional: issue a fine to the student first to test the GCash receipt-upload flow and the BYTES financial-blocker gate.
 
 ---
 
 ## API Reference
 
-Base URL: `http://localhost:8000/api`
+Base URL: `http://localhost:5000/api`
 
 ### Authentication
 
@@ -208,77 +355,71 @@ Base URL: `http://localhost:8000/api`
 | `GET`  | `/auth/me`            | Get the current authenticated user    | ✅   |
 | `POST` | `/auth/logout`        | Stateless logout                      | ✅   |
 
-### Admin (BYTES Officer only)
+### Admin (BYTES Officer)
 
 | Method | Endpoint                                   | Description                |
 | ------ | ------------------------------------------ | -------------------------- |
 | `GET`  | `/admin/pending-accounts`                  | List pending registrations |
 | `POST` | `/admin/pending-accounts/:id/approve`      | Approve a pending account  |
-| `POST` | `/admin/pending-accounts/:id/deny`         | Deny a pending account     |
+| `POST` | `/admin/pending-accounts/:id/deny`         | Deny (`{ reason }`)        |
+| `GET`  | `/admin/dashboard-stats`                   | Totals + per-stage breakdown |
+| `GET`  | `/admin/reports/clearance`                 | Filtered report (`?status=`, `?stage=`) |
+| `GET`  | `/admin/reports/clearance.pdf`             | PDF export                 |
+| `GET`  | `/admin/reports/clearance.csv`             | CSV export                 |
 
-### Register Payload
+### Clearance (Student)
 
-```json
-{
-  "id_number": "2024-00000",
-  "course": "BS-Information Technology",
-  "last_name": "Dela Cruz",
-  "first_name": "Juan",
-  "middle_name": "Santos",
-  "gender": "Male",
-  "date_of_birth": "2002-01-15",
-  "contact_number": "09XX-XXX-XXXX",
-  "email": "your@cics.edu.ph",
-  "password": "securepassword"
-}
-```
+| Method | Endpoint                       | Description                                  |
+| ------ | ------------------------------ | -------------------------------------------- |
+| `POST` | `/clearance/request`           | Create clearance request (5 ordered stages)  |
+| `GET`  | `/clearance/me`                | Most recent request + progress               |
+| `GET`  | `/clearance/me/progress`       | Active request stepper data                  |
+| `GET`  | `/clearance/:id/pdf`           | Download PDF (409 if any stage not approved) |
 
-### Login Response
+### Approval (Role-gated)
 
-```json
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIs...",
-  "user": {
-    "id": 1,
-    "email": "your@cics.edu.ph",
-    "role": "student"
-  }
-}
-```
+| Method | Endpoint                       | Description                                  |
+| ------ | ------------------------------ | -------------------------------------------- |
+| `GET`  | `/approval/pending`            | Actionable items for the caller's role       |
+| `POST` | `/approval/:id/approve`        | Approve current stage (`{ reason? }`)        |
+| `POST` | `/approval/:id/deny`           | Deny stage (`{ reason }`, fails the request) |
+| `GET`  | `/approval/:id/audit`          | Full audit trail for the request             |
 
----
+### Fines / Fees / Payments
 
-## Frontend Integration Guide
+| Method   | Endpoint                       | Auth          | Description                                |
+| -------- | ------------------------------ | ------------- | ------------------------------------------ |
+| `POST`   | `/fines`                       | bytes_officer | Issue a fine                               |
+| `GET`    | `/fines/:studentId`            | self/officer  | List a student's fines                     |
+| `PUT`    | `/fines/:id`                   | bytes_officer | Edit / mark paid                           |
+| `DELETE` | `/fines/:id`                   | bytes_officer | Remove                                     |
+| `GET`    | `/fees`                        | any           | Fee catalogue (read-only)                  |
+| `POST`   | `/fees`                        | bytes_officer | Add a fee                                  |
+| `DELETE` | `/fees/:id`                    | bytes_officer | Remove a fee                               |
+| `POST`   | `/payments`                    | student       | Submit a payment                           |
+| `GET`    | `/payments`                    | student/officer | Self / all                               |
+| `POST`   | `/payments/upload`             | student       | Upload receipt (multipart, ≤ 5 MB, image)  |
+| `PUT`    | `/payments/:id/approve`        | bytes_officer | Verify payment (idempotent)                |
+| `PUT`    | `/payments/:id/deny`           | bytes_officer | Deny (`{ reason }`)                        |
 
-This section is intended for the **backend team** integrating against the frontend.
+### Notifications
 
-### 1. API Proxy
+| Method | Endpoint                          | Description                  |
+| ------ | --------------------------------- | ---------------------------- |
+| `GET`  | `/notifications`                  | Feed for current user        |
+| `POST` | `/notifications/:id/read`         | Mark one as read             |
+| `POST` | `/notifications/read-all`         | Mark all as read             |
 
-The Vite dev server proxies `/api/*` to the backend. Update the target in `frontend/vite.config.js` if your API runs on a different port:
+### Requirements
 
-```js
-// frontend/vite.config.js
-server: {
-  proxy: {
-    '/api': {
-      target: 'http://localhost:8000',
-      changeOrigin: true,
-    },
-  },
-},
-```
+| Method   | Endpoint                       | Auth          | Description                  |
+| -------- | ------------------------------ | ------------- | ---------------------------- |
+| `GET`    | `/requirements`                | any           | Filter by `?role=`           |
+| `POST`   | `/requirements`                | bytes_officer | Create                       |
+| `PUT`    | `/requirements/:id`            | bytes_officer | Update                       |
+| `DELETE` | `/requirements/:id`            | bytes_officer | Remove                       |
 
-### 2. Activating Real API Calls
-
-API integration points are marked with `// TODO (backend team):` comments. In `src/pages/LoginPage.jsx` and `src/pages/RegisterPage.jsx`, uncomment the real API calls inside the `try` blocks and remove the mock fallbacks once the backend is reachable.
-
-### 3. CORS
-
-Ensure the backend allows the frontend origin in development:
-
-```
-Access-Control-Allow-Origin: http://localhost:5173
-```
+Full contract in [`claude-docs/API_CONTRACT.md`](claude-docs/API_CONTRACT.md).
 
 ---
 
@@ -287,12 +428,12 @@ Access-Control-Allow-Origin: http://localhost:5173
 | Branch              | Purpose                                                |
 | ------------------- | ------------------------------------------------------ |
 | `main`              | Production-ready code only                             |
-| `develop`           | Integration branch — frontend + backend merge here     |
-| `feat/<feature>`    | New features (e.g. `feat/login-api`)                   |
+| `develop`           | Integration branch — feature merges land here          |
+| `feat/<feature>`    | New features (e.g. `feat/auth-login-flow`)             |
 | `fix/<issue>`       | Bug fixes                                              |
 | `chore/<task>`      | Tooling, configs, dependencies                         |
 
-**Workflow:** branch off `develop` → open PR → review → merge into `develop` → release into `main`.
+Module ownership is documented in [`CLAUDE.md`](CLAUDE.md). Never modify another developer's module without coordinating first. Full workflow rules in [`claude-docs/WORKFLOW.md`](claude-docs/WORKFLOW.md).
 
 ---
 
@@ -302,73 +443,70 @@ Access-Control-Allow-Origin: http://localhost:5173
 
 | Command           | Description                              |
 | ----------------- | ---------------------------------------- |
-| `npm run dev`     | Start the Vite dev server with HMR       |
-| `npm run build`   | Build production bundle to `dist/`       |
+| `npm run dev`     | Vite dev server with HMR (port 5173)     |
+| `npm run build`   | Production bundle to `dist/`             |
 | `npm run preview` | Preview the production build locally     |
-| `npm run lint`    | Run ESLint across the codebase           |
+| `npm run lint`    | ESLint (currently missing config)        |
 
 ### Backend (`/backend`)
 
-| Command                    | Description                          |
-| -------------------------- | ------------------------------------ |
-| `npm run dev`              | Start the API server with hot reload |
-| `npm run start`            | Start the API server (production)    |
-| `npm run seed`             | Seed initial data (BYTES Officer)    |
-| `npx prisma migrate dev`   | Run development migrations           |
-| `npx prisma studio`        | Open the Prisma DB GUI               |
+| Command                       | Description                          |
+| ----------------------------- | ------------------------------------ |
+| `npm run dev`                 | nodemon dev server (port 5000)       |
+| `npm run start`               | Plain node start (production)        |
+| `npm run seed`                | Seed team + role-tester accounts     |
+| `npm run prisma:generate`     | Generate Prisma client               |
+| `npm run prisma:migrate`      | Run dev migration interactively      |
+| `npm run prisma:studio`       | Open Prisma DB GUI                   |
 
 ---
 
 ## Roadmap
 
-Tracked in `claude_prompt_and task.txt`. Current status:
+Detailed status per phase + module: [`claude-docs/PROGRESS.md`](claude-docs/PROGRESS.md). Current overall completion: **~80%**.
 
-- [x] **Task 1** — Authentication & user management (register, login, JWT, account approval)
-- [ ] **Task 0b** — Full schema + OpenAPI contract
-- [ ] **Task 2** — Student clearance request + PDF generation
-- [ ] **Task 3** — Fines, fees, and GCash payments
-- [ ] **Task 4** — Approval workflow engine (multi-role gating)
-- [ ] **Task 5** — Email + in-app notifications
-- [ ] **Task 6** — Admin dashboard, requirements, reports
-- [ ] **Task 7** — Student frontend pages
-- [ ] **Task 8** — Admin / staff frontend pages
-
----
-
-## Contributing
-
-1. Fork or clone the repository.
-2. Create a feature branch: `git checkout -b feat/your-feature`.
-3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/):
-   - `feat: add student clearance form`
-   - `fix: handle 401 on expired tokens`
-   - `chore: bump prisma to 5.x`
-4. Push your branch and open a Pull Request against `develop`.
-5. Ensure linting passes and the app builds before requesting review.
+- [x] **Phase 0–3** — Project scaffolding, DB schema, backend foundation
+- [x] **Phase 4** — Auth + RBAC
+- [x] **Phase 5** — Notifications (email + in-app)
+- [x] **Phase 6** — Payment module (fines, fees, GCash, RBAC)
+- [x] **Phase 7** — Approval workflow engine (5-stage gating, audit log)
+- [x] **Phase 8** — Clearance request + gated PDF
+- [x] **Phase 9** — Admin dashboard, reports, requirements
+- [x] **Phase 10–11** — Frontend scaffolding + Auth UI
+- [x] **Phase 12** — Student frontend (wired to real backend, gated PDF download)
+- [x] **Phase 13** — Admin/staff dashboards (9 screens, real APIs)
+- [x] **Phase 14–15** — Approval action UI + Reports UI
+- [ ] **Phase 16** — Integration tests
+- [ ] **Phase 17** — Deployment (Dockerfile, env, hosting)
 
 ---
 
 ## Team
 
-Built by a 9-person team from the College of Information and Computing Studies, MSU – Main Campus.
+College of Information and Computing Studies, MSU – Main Campus (9 members).
 
-| Role               | Responsibilities                                        |
-| ------------------ | ------------------------------------------------------- |
-| Project Lead       | Coordination, architecture, code review                 |
-| Backend Engineers  | API, database, auth, workflow engine                    |
-| Frontend Engineers | UI, dashboards, integrations                            |
-| QA / Documentation | Testing, OpenAPI spec, README                           |
+| Member                  | Module                                                                       |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| Affhan Mimbisa          | DB schema, Admin Dashboard, Reports, Requirements                            |
+| Dimalutang Amerhussein  | Authentication and User Management                                           |
+| Naimah Abdulcader       | Student Clearance Request + PDF generation                                   |
+| Asraf Alauya Jr.        | Payment (fines, fees, GCash receipts)                                        |
+| Landia Cherry Mae       | Approval Workflow Engine                                                     |
+| Ed Arafat               | Notification System (email + in-app)                                         |
+| Norman Sharief          | Student-facing frontend                                                      |
+| Shaheel Sarip           | Admin / staff-facing frontend                                                |
+| Jonaidah Caris          | Design system + Figma mockups                                                |
 
 ---
 
 ## License
 
-This project is released under the [MIT License](LICENSE).
+Released under the [MIT License](LICENSE).
 
 ---
 
 <div align="center">
 
-Made with ❤️ by the CICS – MSU Main Campus team.
+Made with care by the CICS – MSU Main Campus team.
 
 </div>

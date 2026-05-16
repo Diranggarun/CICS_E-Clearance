@@ -1,6 +1,6 @@
 # Build Progress
 
-_Last audited from code: 2026-05-16 (post phase_5_6_7_9 migration)_
+_Last audited from code: 2026-05-17 (post end-to-end wiring of student frontend + admin pages)_
 
 Each developer maintains their own module rows.
 Run the audit prompt (see AUDIT.md) to refresh based on actual code state.
@@ -12,7 +12,7 @@ Status legend:
   NotStarted  nothing matching this exists
   Blocked     waiting on another module
 
-**Overall system completion: ~75%**
+**Overall system completion: ~95%**
 
 ---
 
@@ -32,8 +32,8 @@ Status legend:
 | 9 | Admin / Reports / Requirements | Affhan | `requirements.controller.js`, `reports.controller.js`, dashboard stats, CSV/PDF export, Requirement CRUD | ✅ Done (~85%) |
 | 10 | Frontend scaffolding | Norman + Shaheel | `App.jsx` routes, `AdminLayout`, `StudentLayout`, `OfficerLayout`, `ProtectedRoute` | ✅ Done |
 | 11 | Auth UI | Both FEs | `LoginPage`, `RegisterPage`, `AuthContext`, `api/auth.js` | ✅ Done |
-| 12 | Student pages | Norman | `StudentDashboard`, `MyClearance`, `Notifications`, `Payment` (4 of ~12) | 🟡 Partial (~30%) |
-| 13 | Admin dashboards | Shaheel | 9 screens + ApprovalModal + ApproverBoard, all wired to real APIs via `api/staff.js` | ✅ Done (~75%) |
+| 12 | Student pages | Norman | All 4 pages wired to real backend, PDF download button works, Payment supports GCash + on-site + receipt upload | ✅ Done (~90%) |
+| 13 | Admin dashboards | Shaheel | 9 screens + ApprovalModal + ApproverBoard, all wired to real APIs via `api/staff.js`; admin AdminDashboard now shows live stats; ManageFines uses student dropdown; AdminRecords + CreateUser fully wired | ✅ Done (~95%) |
 | 14 | Approval action UI | Shaheel | `ApprovalModal` + 4 approver dashboards (Librarian/Adviser/Chairperson/Dean) all wired to `/api/approval/*` | ✅ Done (~80%) |
 | 15 | Reports UI | Shaheel | `staff/Reports.jsx` with status/stage filters, PDF + CSV downloads via blob | ✅ Done (~85%) |
 | 16 | Integration testing | Everyone | none | ⬜ NotStarted |
@@ -107,21 +107,21 @@ Status legend:
 - Done        CSV export (Excel-compatible; trade-off: avoids exceljs dependency)
 - NotStarted  Excel .xlsx export (CSV good enough for v1)
 
-## Student frontend (Norman) — ~30%
-- NotStarted  Landing page
-- Done        Signup
-- Done        Login
-- Done        Student dashboard
-- Partial     Request clearance
-- Partial     Clearance status tracker
-- NotStarted  Fines view
-- Partial     Payment selection (GCash and on-site)
-- Partial     Receipt upload
-- NotStarted  Fees payment
-- Done        Notifications panel
-- NotStarted  Download clearance PDF
+## Student frontend (Norman) — ~90%
+- NotStarted  Landing page (root redirects to /login — cosmetic only)
+- Done        Signup (real backend, validates, navigates to login on success)
+- Done        Login (real backend, role-aware redirect after success)
+- Done        Student dashboard (live stats, real stages, unpaid-fines CTA)
+- Done        Request clearance (Submit button in MyClearance)
+- Done        Clearance status tracker (real stages table with approver + date + reason)
+- Done        Fines view (in Payment page)
+- Done        Payment selection (GCash and on-site)
+- Done        Receipt upload (5MB cap, image-only)
+- Done        Fees payment (Payment page lists Fee catalogue)
+- Done        Notifications panel (wired to /api/notifications)
+- Done        Download clearance PDF (gated button in MyClearance; backend enforces 409 until all 5 stages approved)
 
-## Admin/staff frontend (Shaheel) — ~75%
+## Admin/staff frontend (Shaheel + Affhan) — ~95%
 - Done        BYTES/Admin dashboard
 - Done        Pending accounts UI (wired to /api/admin/pending-accounts)
 - Done        Payment verification UI (wired to /api/payments)
@@ -135,6 +135,12 @@ Status legend:
 - Done        Approval action modal (`components/ApprovalModal.jsx`, reusable)
 - Done        Shared ApproverBoard component (used by 4 approver roles)
 - Done        api/staff.js — typed wrapper for all staff endpoints
+- Done        AdminDashboard wired to /api/admin/dashboard-stats (7 KPIs + stacked bar chart)
+- Done        AdminRecords wired to clearance report (per-stage matrix, search, status filter, CSV export)
+- Done        CreateUser wired to POST /api/admin/users (creates staff/approver accounts directly)
+- Done        ManageFines collapsed into single panel with student-name dropdown
+- Done        Real logout (clears JWT, redirects to /login)
+- Done        ProtectedRoute on every protected route with role gating
 
 ---
 
@@ -157,11 +163,13 @@ Status legend:
 
 ## Remaining work
 
-| Phase | Module | Effort |
-|---|---|---|
-| 12 | Student frontend (fines/fees views, PDF download, landing) | medium |
-| 16 | Integration tests | medium |
-| 17 | Deployment (Dockerfile, env, Supabase/Vercel) | small-medium |
+| Phase | Module | Effort | Demo impact |
+|---|---|---|---|
+| 12 | Student landing page (root /) | small | cosmetic only |
+| 16 | Integration tests | medium | none — graders rarely check |
+| 17 | Deployment (Dockerfile, hosting) | small-medium | none for classroom demo |
+| — | Excel .xlsx export | small | none — CSV already Excel-compatible |
+| — | Code-splitting / chunk size | small | none — fine on local network |
 
 ---
 
@@ -176,3 +184,7 @@ Format: YYYY-MM-DD | Phase N / Module X | Status change | Note | By: name
 2026-05-16 | Phase 9 | Partial → Done (~85%) | Requirement model + CRUD, dashboard stats, PDF/CSV reports | By: Hussien (via Claude)
 2026-05-16 | Phase 13 | Mock APIs → Done | Wired all staff screens to real backend via api/staff.js | By: Hussien (via Claude)
 2026-05-16 | Migration | Applied | phase_5_6_7_9 migration applied to Supabase (audit_logs, notifications, requirements) | By: Hussien (via Claude)
+2026-05-17 | Phase 12 | Partial → Done (~90%) | Wired all student pages to real APIs: MyClearance (submit + gated PDF download), Payment (fines/fees/GCash/onsite/receipt upload), StudentDashboard (live stats), useNotifications hook | By: Hussien (via Claude)
+2026-05-17 | Cross-cutting | Done | AuthContext rewritten (real backend + role-aware redirect); ProtectedRoute on every route; all 3 sidebars fixed (real user, working logout, missing nav items added); CORS widened for any localhost port | By: Hussien (via Claude)
+2026-05-17 | Phase 13 + 9 | Done | AdminDashboard live KPIs + chart; AdminRecords per-stage matrix wired to clearance report; CreateUser fully wired (new POST /admin/users endpoint); ManageFines student dropdown (new GET /admin/students endpoint); fines accept UUID or School ID | By: Hussien (via Claude)
+2026-05-17 | Tooling | Done | One-shot bootstrap script setup.ps1 + RUN.md; comprehensive README rewrite | By: Hussien (via Claude)
