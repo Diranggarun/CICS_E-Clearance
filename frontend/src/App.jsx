@@ -21,7 +21,7 @@ import OfficerRequests from "./officer/OfficerRequests";
 import OfficerApproved from "./officer/OfficerApproved";
 import OfficerDenied from "./officer/OfficerDenied";
 
-
+import Payment from "./pages/Payment";
 
 
 function App() {
@@ -45,6 +45,7 @@ function App() {
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/my-clearance" element={<MyClearance />} />
         <Route path="/student/notifications" element={<Notifications />} />
+        <Route path="/student/payment" element={<Payment />} />
         </Route>
 
 

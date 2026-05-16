@@ -50,6 +50,8 @@ model User {
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
 
+  payments        Payment[]
+
   approvedBy      User?         @relation("UserApprovals", fields: [approvedById], references: [id])
   approvedUsers   User[]        @relation("UserApprovals")
 
@@ -117,31 +119,30 @@ model ClearanceStage {
 
 // --- Task 4: Payments (fines & fees) ---
 
-model Fee {
-  id          Int      @id @default(autoincrement())
-  name        String   // SSG, Course Fee, etc.
-  amount      Float
-  createdAt   DateTime @default(now())
+model Fine {
+  id        String   @id @default(uuid())
+  studentId String
+  amount    Float
+  reason    String
+  status    String   // unpaid / paid
+  createdAt DateTime @default(now())
 }
 
-model Fine {
-  id          Int      @id @default(autoincrement())
-  studentId   String
-  description String
-  amount      Float
-  status      String   @default("UNPAID")
-  createdAt   DateTime @default(now())
-
-  payments Payment[]
+model Fee {
+  id        String   @id @default(uuid())
+  name      String
+  amount    Float
 }
 
 model Payment {
-  id          Int      @id @default(autoincrement())
-  fineId      Int
-  method      String   // GCash / On-site
-  receiptUrl  String?
-  status      String   @default("PENDING")
+  id          String   @id @default(uuid())
+  userId      String
+  type        String   // fine / fee
+  amount      Float
+  method      String   // gcash / onsite
+  receipt     String?  // file path
+  status      String   // pending / approved / rejected
   createdAt   DateTime @default(now())
 
-  fine Fine @relation(fields: [fineId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
