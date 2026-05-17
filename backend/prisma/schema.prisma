@@ -1,0 +1,283 @@
+// CICS E-Clearance — Task 1 (Auth & User Management)
+// Schema kept narrow: only tables Task 1 needs. Tasks 2–6 will extend it.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Supabase: pooled connection (port 6543, pgbouncer) for the app.
+  url       = env("DATABASE_URL")
+  // Supabase: direct connection (port 5432) for migrations.
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  student
+  bytes_officer
+  librarian
+  faculty_adviser
+  chairperson
+  dean
+}
+
+enum AccountStatus {
+  pending
+  approved
+  denied
+}
+
+model User {
+  id            String        @id @default(uuid())
+  schoolId      String        @unique @map("school_id")
+  role          Role          @default(student)
+  firstName     String        @map("first_name")
+  middleName    String?       @map("middle_name")
+  lastName      String        @map("last_name")
+  sex           String?
+  birthdate     DateTime?
+  email         String        @unique
+  contactNumber String?       @map("contact_number")
+  course        String?
+  college       String?
+  department    String?
+  passwordHash  String        @map("password_hash")
+  status        AccountStatus @default(pending)
+  approvedById  String?       @map("approved_by_id")
+  approvedAt    DateTime?     @map("approved_at")
+  denialReason  String?       @map("denial_reason")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  payments Payment[]
+
+  approvedBy    User?  @relation("UserApprovals", fields: [approvedById], references: [id])
+  approvedUsers User[] @relation("UserApprovals")
+
+  clearanceRequests ClearanceRequest[]
+  decidedStages     ClearanceStage[]   @relation("StageApprover")
+  notifications     Notification[]
+  sessions          Session[]
+  emailLogs         EmailLog[]
+
+  @@map("users")
+}
+
+// --- Task 10: Reference + audit normalization ---
+
+model Department {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  code      String?  @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  courses Course[]
+
+  @@map("departments")
+}
+
+model Course {
+  id           String   @id @default(uuid())
+  departmentId String   @map("department_id")
+  name         String
+  code         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, name])
+  @@map("courses")
+}
+
+model Session {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  userAgent String?   @map("user_agent")
+  ipAddress String?   @map("ip_address")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@map("sessions")
+}
+
+model EmailLog {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  to          String
+  subject     String
+  templateKey String?  @map("template_key")
+  status      String // sent / failed / skipped
+  error       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@map("email_logs")
+}
+
+// --- Task 6: Requirements (per-role checklist items) ---
+
+model Requirement {
+  id          String   @id @default(uuid())
+  role        Role // which approval stage this requirement belongs to
+  title       String
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([role, active])
+  @@map("requirements")
+}
+
+// --- Task 5: Notifications ---
+
+enum NotificationType {
+  account
+  clearance
+  payment
+  fine
+  system
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType @default(system)
+  title     String
+  message   String
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+// --- Task 2: Student Clearance Request ---
+
+enum ClearanceStatus {
+  pending
+  approved
+  denied
+  completed
+}
+
+// Approval stages a clearance passes through, in order.
+enum StageRole {
+  bytes_officer
+  librarian
+  faculty_adviser
+  chairperson
+  dean
+}
+
+enum StageStatus {
+  pending
+  approved
+  denied
+}
+
+model ClearanceRequest {
+  id           String          @id @default(uuid())
+  studentId    String          @map("student_id")
+  referenceNo  String          @unique @map("reference_no")
+  academicYear String          @map("academic_year")
+  status       ClearanceStatus @default(pending)
+  createdAt    DateTime        @default(now()) @map("created_at")
+  completedAt  DateTime?       @map("completed_at")
+
+  student User             @relation(fields: [studentId], references: [id])
+  stages  ClearanceStage[]
+
+  @@map("clearance_requests")
+}
+
+model ClearanceStage {
+  id                 String      @id @default(uuid())
+  clearanceRequestId String      @map("clearance_request_id")
+  role               StageRole
+  status             StageStatus @default(pending)
+  approverId         String?     @map("approver_id")
+  reason             String?
+  decidedAt          DateTime?   @map("decided_at")
+  createdAt          DateTime    @default(now()) @map("created_at")
+
+  request  ClearanceRequest @relation(fields: [clearanceRequestId], references: [id], onDelete: Cascade)
+  approver User?            @relation("StageApprover", fields: [approverId], references: [id])
+
+  @@unique([clearanceRequestId, role])
+  @@map("clearance_stages")
+}
+
+// --- Task 4: Payments (fines & fees) ---
+
+model Fine {
+  id        String   @id @default(uuid())
+  studentId String
+  amount    Float
+  reason    String
+  status    String // unpaid / paid
+  createdAt DateTime @default(now())
+}
+
+model Fee {
+  id     String @id @default(uuid())
+  name   String
+  amount Float
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String // fine / fee
+  amount    Float
+  method    String // gcash / onsite
+  receipt   String? // legacy filename; new uploads also create a Receipt row
+  status    String // pending / approved / rejected
+  createdAt DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id])
+  receipts Receipt[]
+}
+
+model Receipt {
+  id        String   @id @default(uuid())
+  paymentId String   @map("payment_id")
+  filename  String
+  mimeType  String   @map("mime_type")
+  sizeBytes Int      @map("size_bytes")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@map("receipts")
+}
+
+// --- Task 7: Approval Workflow Engine (audit trail) ---
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String   @map("actor_id")
+  actorRole  String   @map("actor_role")
+  action     String // stage_approve / stage_deny / account_approve / payment_approve / etc.
+  targetType String   @map("target_type") // clearance_request / clearance_stage / user / payment
+  targetId   String   @map("target_id")
+  reason     String?
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([targetType, targetId])
+  @@index([actorId])
+  @@map("audit_logs")
+}

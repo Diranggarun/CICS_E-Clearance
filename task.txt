@@ -1,0 +1,443 @@
+# CICS E-Clearance System — Vibe Coding Prompts
+
+A task-by-task prompt pack for building the CICS E-Clearance System with an AI coding assistant (Claude Code, Cursor, Windsurf, etc.). Each task corresponds to a module from the team's task division. Do them in order — Tasks 0 → 6 are backend, 7 → 8 are frontend.
+
+---
+
+## Before you start: fill in your stack
+
+Replace the bracketed values throughout the prompts below with your actual stack so the AI generates code that fits your project:
+
+- **Frontend framework:** `[e.g. React + Vite + Tailwind, or Next.js, or Vue]`
+- **Backend framework:** `[e.g. Node.js + Express, or Laravel, or Django, or FastAPI]`
+- **Database:** `[e.g. MySQL, PostgreSQL, MongoDB]`
+- **ORM (if any):** `[e.g. Prisma, Sequelize, Eloquent, SQLAlchemy]`
+- **Auth strategy:** `[JWT or session-based]`
+- **File storage for receipts:** `[local /uploads folder, or AWS S3, or Cloudinary]`
+- **Email provider:** `[Gmail SMTP, SendGrid, Mailtrap for dev, etc.]`
+
+Keep this list visible while prompting — paste the relevant lines into each task prompt so the AI doesn't pick a stack you're not using.
+
+---
+
+## Task 0a — Assess what you already have
+
+Run this first since you mentioned an existing frontend and a little backend.
+
+```
+I'm building the CICS E-Clearance System for my college (Mindanao State University - 
+Main Campus). I already have some code in this repo. Before we add anything new:
+
+1. Walk through the project structure and tell me:
+   - What frontend framework and pages already exist
+   - What backend routes and database models already exist
+   - What auth mechanism (if any) is in place
+   - What's wired up vs what's just scaffolded
+
+2. Then list the gaps against this feature set:
+   - Auth & RBAC (Student, BYTES Officer, Librarian, Faculty Adviser, Chairperson, Dean)
+   - Clearance request submission and status tracking
+   - Fines and fees management with GCash and on-site payment
+   - Multi-role approval workflow with prerequisite gating
+   - Email + in-app notifications
+   - Admin dashboard, requirements management, reports
+   - PDF clearance form generation
+
+Don't write code yet. Give me a written assessment so I know what to build first.
+```
+
+---
+
+## Task 0b — Foundation: database schema & API contract
+
+Do this before any module code. Per the task division, Affhan leads schema and the team agrees on a shared API contract on day one.
+
+```
+Design the database schema and API contract for the CICS E-Clearance System.
+
+Context: Web app with three user workflows (Student, BYTES Officer, and 
+Librarian/Faculty Adviser/Chairperson/Dean). Stack: [your stack from above].
+
+Tables I need (at minimum):
+- users (school_id, role, full_name, sex, birthdate, email, contact_number, 
+  college, department, password_hash, is_approved, created_at)
+- roles (one of: student, bytes_officer, librarian, faculty_adviser, chairperson, dean)
+- clearance_requests (student_id, status, current_stage, created_at, completed_at)
+- approvals (clearance_request_id, role, approver_id, status, reason, decided_at)
+- fines (student_id, description, amount, status, created_by, created_at)
+- fees (type: SSG/course/department/college, amount, student_id, status)
+- payments (fine_id_or_fee_id, method: gcash/onsite, receipt_url, status, 
+  confirmed_by, confirmed_at)
+- requirements (description, created_by, active)
+- notifications (user_id, type, message, read, created_at)
+- audit_log (actor_id, action, target_type, target_id, timestamp)
+
+Deliverables:
+1. Schema as [migration files / Prisma schema / SQL DDL — pick what fits my stack]
+2. An OpenAPI/Swagger spec or a Postman collection covering the endpoints each 
+   module will need (auth, clearance, fines, fees, payments, approvals, 
+   notifications, dashboard, reports)
+3. A short README explaining the relationships and how prerequisite gating 
+   will be enforced (Faculty Adviser blocked until BYTES cleared; Chairperson 
+   and Dean blocked until BYTES + prior approvals)
+
+Keep status enums consistent: pending / approved / denied / paid / unpaid.
+```
+
+---
+
+## Task 1 — Authentication & User Management *(Dimalutang)*
+
+```
+Build the Authentication & User Management module for the CICS E-Clearance System.
+Stack: [your stack]. Use the schema and API contract from Task 0b.
+
+Build these endpoints:
+- POST /auth/register — accepts school ID, role, full name, sex, birthdate, 
+  email, contact number, college, department, password. Creates the account 
+  in "pending" state for BYTES Officer approval (except BYTES Officer accounts, 
+  which an existing admin must seed manually).
+- POST /auth/login — verifies credentials, returns [JWT / session]. Reject 
+  login if the account is still pending approval.
+- POST /auth/logout — invalidates token/session.
+- GET /auth/me — returns the current user.
+- GET /admin/pending-accounts — BYTES Officer only.
+- POST /admin/pending-accounts/:id/approve and /deny — BYTES Officer only.
+
+Requirements:
+- Hash passwords with bcrypt or argon2 (no plain text, ever).
+- Add Role-Based Access Control middleware. Roles: student, bytes_officer, 
+  librarian, faculty_adviser, chairperson, dean.
+- Validate every input (email format, school ID pattern, password min length).
+- Return clear error messages with appropriate HTTP status codes.
+- Write integration tests for register → pending → approve → login flow.
+
+Don't touch other modules' code. When done, give me a curl or Postman example 
+for each endpoint so I can verify.
+```
+
+---
+
+## Task 2 — Student Clearance Request *(Naimah)*
+
+```
+Build the Student Clearance Request module. Stack: [your stack]. Auth from 
+Task 1 must already be working.
+
+Endpoints:
+- POST /clearance/request — student initiates a clearance request. Creates 
+  a clearance_requests row with status=pending and stages for BYTES, Librarian, 
+  Faculty Adviser, Chairperson, Dean.
+- GET /clearance/me — student views their own request and real-time stage 
+  status (which stages are pending/approved/denied).
+- GET /clearance/me/progress — returns a structured progress object showing 
+  every stage and its current state.
+- GET /clearance/:id/pdf — generates a printable PDF clearance form. MUST 
+  refuse if any stage is not approved. Use [pdfkit / puppeteer / dompdf / 
+  reportlab — pick what fits my stack].
+
+Rules:
+- A student can only have one active (non-completed, non-denied) request at 
+  a time.
+- The PDF should include: student details, school ID, college/department, 
+  academic year, every approver's name and timestamp, and a unique reference 
+  number.
+- Students can only access their own clearance — enforce in middleware.
+
+Tests: create a request, simulate approvals from each role (mock the 
+approval module for now), then verify the PDF endpoint blocks until everything 
+is approved.
+```
+
+---
+
+## Task 3 — Payment (Fines & Fees) *(Asraf)*
+
+```
+Build the Payment module covering both fines and fees. Stack: [your stack]. 
+Use the schema from Task 0b.
+
+Endpoints — Fines:
+- POST /fines — BYTES Officer adds a fine to a student.
+- PATCH /fines/:id — update amount or description.
+- GET /fines/student/:studentId — list a student's fines.
+- GET /fines/me — student sees their own fines.
+
+Endpoints — Fees:
+- POST /fees — BYTES Officer defines a fee (SSG/course/department/college).
+- GET /fees/me — student sees fees applicable to them.
+
+Endpoints — Payments:
+- POST /payments — student submits payment. Body: { target_type: 'fine'|'fee', 
+  target_id, method: 'gcash'|'onsite', receipt_file (multipart, gcash only) }.
+- GET /payments/pending — BYTES Officer reviews.
+- POST /payments/:id/confirm and /deny — BYTES Officer marks paid/unpaid.
+
+Rules:
+- File upload for GCash receipts: store in [local /uploads or S3 or Cloudinary]. 
+  Validate MIME type (jpg, png, pdf) and size (max 5MB).
+- A fine or fee is only "cleared" once an admin confirms the payment.
+- On-site payments still create a payment record — admin confirms after 
+  receiving cash.
+
+Write a test that covers: BYTES adds a fine → student pays via GCash with 
+receipt → admin confirms → fine status flips to paid.
+```
+
+---
+
+## Task 4 — Approval Workflow Engine *(Landia)*
+
+```
+Build the multi-role Approval Workflow Engine. This is the most logic-heavy 
+module — read carefully. Stack: [your stack].
+
+Endpoints:
+- GET /approvals/pending — returns pending approvals for the logged-in role 
+  (Librarian, Faculty Adviser, Chairperson, or Dean see only requests they 
+  can act on).
+- GET /approvals/:clearanceRequestId — view full approval state of one request.
+- POST /approvals/:clearanceRequestId/approve — body: { role, reason? }.
+- POST /approvals/:clearanceRequestId/deny — body: { role, reason (required) }.
+
+The hard rules:
+1. The four non-BYTES roles work in parallel (any of them can review at any 
+   time), BUT prerequisites still gate them:
+   - Librarian: can approve as soon as BYTES is cleared (no fines, all fees 
+     paid, account approved).
+   - Faculty Adviser: same prerequisite as Librarian — BYTES cleared.
+   - Chairperson: requires BYTES cleared + Librarian approved + Faculty 
+     Adviser approved.
+   - Dean: requires BYTES cleared + Librarian + Faculty Adviser + Chairperson 
+     all approved.
+
+2. If prerequisites aren't met, the approve endpoint must return 409 Conflict 
+   with a message explaining what's still pending.
+
+3. Every approve/deny action writes to audit_log: who, what role, what 
+   request, what decision, what reason, what time.
+
+4. Trigger a notification (we'll wire the actual sender in Task 5 — for now, 
+   call a stub notify(userId, type, payload) function).
+
+5. If any role denies, the whole clearance moves to status=denied. The 
+   student must be able to see the reason.
+
+Write unit tests that prove the prerequisite gating works — especially try 
+to have the Dean approve before the Chairperson and confirm it gets rejected.
+```
+
+---
+
+## Task 5 — Notification System *(Ed)*
+
+```
+Build the Notification System. Stack: [your stack]. Email provider: 
+[your provider from above].
+
+Two channels:
+1. Email — using [SMTP / SendGrid / Gmail API].
+2. In-app notification feed — stored in the notifications table.
+
+Implement a single notify() function that other modules call. Signature:
+  notify(userId, eventType, payload) — writes an in-app notification AND 
+  sends an email if the eventType warrants one.
+
+Event types and templates needed:
+- account.approved / account.denied
+- clearance.requested (to BYTES Officer)
+- clearance.bytes_approved / clearance.bytes_denied
+- fine.added (reminder to pay)
+- payment.confirmed / payment.denied
+- approval.approved (per role) / approval.denied (per role with reason)
+- clearance.complete (with link to download the PDF)
+
+Endpoints for the in-app feed:
+- GET /notifications — paginated, latest first.
+- POST /notifications/:id/read — mark single as read.
+- POST /notifications/read-all — mark everything read.
+
+Requirements:
+- Email templates as separate files (HTML + plain text fallback). Use the 
+  designs from the UI Designer when available.
+- Queue or async-send emails so API responses aren't blocked by SMTP.
+- Don't crash the calling module if email fails — log and move on. The 
+  in-app notification still saves.
+- Wire notify() calls into Tasks 1, 2, 3, 4 (just the call sites — those 
+  modules already have stubs).
+
+Test by triggering each event type and confirming both an in-app row and 
+an email get produced (use Mailtrap or a test inbox in dev).
+```
+
+---
+
+## Task 6 — Admin Dashboard, Reports & Requirements *(Affhan)*
+
+```
+Build the Admin Dashboard, Reports, and Requirements module. Stack: 
+[your stack]. BYTES Officer is the primary user.
+
+Dashboard endpoints:
+- GET /admin/dashboard/stats — returns counts of: pending accounts, pending 
+  clearances, approved clearances, denied clearances, pending payments, 
+  total fines outstanding, students with completed clearance, students with 
+  incomplete clearance.
+- GET /admin/dashboard/recent-activity — last 20 audit_log entries with 
+  human-readable messages.
+
+Requirements management:
+- POST /admin/requirements — BYTES Officer adds a clearance requirement 
+  (description, active flag).
+- PATCH /admin/requirements/:id — update or deactivate.
+- GET /admin/requirements — list all (active + archived).
+
+Reports:
+- GET /admin/reports/clearance-status?department=&status=&format=pdf|excel 
+  — list of students filtered by department and clearance status.
+- GET /admin/reports/payments?from=&to=&format=pdf|excel — payment 
+  transactions in a date range.
+- GET /admin/reports/requirements-completion — per-department breakdown of 
+  students who have completed vs not completed.
+
+Rules:
+- All endpoints restricted to BYTES Officer role.
+- PDF export: use [pdfkit / puppeteer / dompdf / reportlab].
+- Excel export: use [exceljs / openpyxl / phpspreadsheet / SheetJS].
+- Reports must include a generated-at timestamp and the officer's name.
+
+Test by seeding 20 fake students across two departments with mixed clearance 
+states and exporting both report formats.
+```
+
+---
+
+## Task 7 — Student-Facing Frontend *(Norman)*
+
+```
+Build the Student-facing frontend. Framework: [your frontend stack]. APIs from 
+Tasks 1–6 should already be running.
+
+Pages to build (use the UI Designer's mockups if available, otherwise Tailwind 
++ shadcn/ui or your component library of choice):
+
+1. Landing page — short pitch, login and signup buttons.
+2. Signup page — all fields from the schema (school ID, role=student fixed, 
+   full name, sex, birthdate, email, contact, college, department, password, 
+   confirm password). Show a "pending approval" message after submit.
+3. Login page — email + password, with proper error handling.
+4. Student dashboard — shows current clearance status, fines summary, fees 
+   summary, recent notifications.
+5. Request Clearance page — primary CTA if no active request; otherwise 
+   shows progress.
+6. Clearance Status Tracker — visual stepper showing BYTES → Librarian → 
+   Faculty Adviser → Chairperson → Dean. Each step shows pending/approved/
+   denied with timestamp and reason if denied. Polls or uses WebSocket for 
+   real-time updates.
+7. Fines page — list of fines with amounts. "Pay" button per fine opens 
+   a modal: select GCash or on-site. GCash flow shows the official payment 
+   link/number and a receipt upload field. On-site flow shows instructions 
+   to visit the BYTES office.
+8. Fees page — same pattern as fines, but for SSG/course/department/college fees.
+9. Notifications panel — slide-out or full page, shows in-app feed, mark as 
+   read, click-through to relevant page.
+10. Generate Clearance page — only enabled when all stages approved. Big 
+    "Download Clearance Form (PDF)" button.
+
+Build a shared component library first: Button, Input, Modal, Toast, Badge 
+(pending/approved/denied colors), Card, Table, ProgressStepper. Coordinate 
+with the admin frontend (Task 8) so both sides use the same components.
+
+Make sure everything is responsive — proposal explicitly emphasizes 
+"any device."
+```
+
+---
+
+## Task 8 — Admin & Staff-Facing Frontend *(Shaheel)*
+
+```
+Build the Admin and Staff-facing frontend. Framework: [your frontend stack]. 
+Reuse the shared component library from Task 7.
+
+Two distinct admin experiences:
+
+A) BYTES Officer Dashboard
+1. Overview — stat cards (pending accounts, pending clearances, pending 
+   payments, etc. — calls /admin/dashboard/stats).
+2. Pending Accounts — table with approve/deny actions.
+3. Clearance Requests tabs: Pending / Approved / Denied — filterable, 
+   searchable by student name or school ID.
+4. Manage Fines page — add fine to student (search student, enter amount 
+   and description), edit existing fines, list view per student.
+5. Payment Verification page — table of pending payments with receipt 
+   thumbnail (click to view full image), confirm/deny buttons. Show payment 
+   method clearly.
+6. Requirements management — CRUD on clearance requirements.
+7. Reports page — filter form (department, status, date range), export 
+   buttons (PDF, Excel), preview area.
+
+B) Librarian / Faculty Adviser / Chairperson / Dean Dashboard
+   (Single layout, different data based on role from JWT/session)
+1. Overview — pending requests count, recent activity.
+2. Pending Requests — table listing students who need this role's approval. 
+   Each row: student info, "View Status" button.
+3. Student Clearance Status modal/page — shows the student's progress on 
+   ALL stages so the approver can confirm prerequisites are met. If 
+   prerequisites are not met for the current role, show a clear "Cannot 
+   approve yet — waiting on [X]" message and disable the approve button.
+4. Approve / Deny buttons — deny requires a reason input.
+5. Approved and Denied tabs — read-only history.
+
+Shared concerns:
+- Use the same Badge, Button, Modal, Table, Toast components as Task 7.
+- Navigation should adapt to role — don't show BYTES Officer features to 
+  a Librarian, etc.
+- Responsive layout for desktop and tablet (admin work is usually desktop, 
+  but proposal still requires accessibility from any device).
+```
+
+---
+
+## After all tasks: integration & polish checklist
+
+Once each task is built individually, walk through these end-to-end flows to catch integration gaps. Run them as a final prompt:
+
+```
+Run an end-to-end test of the CICS E-Clearance System covering this scenario:
+
+1. New student registers → pending approval.
+2. BYTES Officer approves the account → student receives email.
+3. Student logs in → requests clearance.
+4. BYTES Officer adds a fine of 200 pesos to the student.
+5. Student pays the fine via GCash with receipt upload.
+6. BYTES Officer confirms the payment.
+7. Student pays SSG, course, department, and college fees.
+8. BYTES Officer confirms all fee payments.
+9. Dean tries to approve before Chairperson — must fail with 409.
+10. Librarian approves.
+11. Faculty Adviser approves.
+12. Chairperson approves.
+13. Dean approves.
+14. Student receives "clearance complete" email.
+15. Student downloads the PDF clearance form.
+
+Tell me every step that fails, every notification that doesn't fire, and 
+every UI state that breaks. Don't fix anything yet — just report.
+```
+
+---
+
+## Coordination reminders
+
+Pulled straight from the task division so nobody forgets:
+
+- All developers use the same Git repository with feature branches and pull requests.
+- Hold daily or twice-weekly stand-ups to surface blockers early.
+- Each backend developer pairs with a frontend developer on their endpoint shape before frontend implementation begins.
+- Affhan leads schema discussion in Week 1 — nobody starts coding until the schema is locked.
+- The team agrees on the API contract (Postman or Swagger) on day one.
+
+---
+
+*Reference: Project Proposal (April 2026) and CICS E-Clearance Task Division. Built for the team of 9 at MSU Main Campus, College of Information and Computing Studies.*

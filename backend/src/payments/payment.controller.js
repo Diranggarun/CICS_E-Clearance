@@ -1,0 +1,131 @@
+import prisma from '../lib/prisma.js'
+import { notify } from '../notifications/notify.js'
+
+const ALLOWED_TYPES = ['fine', 'fee']
+const ALLOWED_METHODS = ['gcash', 'onsite']
+
+// POST /api/payments — student submits a payment.
+export async function createPayment(req, res) {
+  const { type, amount, method, receipt, fineId } = req.body || {}
+
+  if (!ALLOWED_TYPES.includes(type)) {
+    return res.status(400).json({ message: 'type must be "fine" or "fee".' })
+  }
+  if (!ALLOWED_METHODS.includes(method)) {
+    return res.status(400).json({ message: 'method must be "gcash" or "onsite".' })
+  }
+  if (method === 'gcash' && !receipt) {
+    return res.status(400).json({ message: 'GCash payments require a receipt upload.' })
+  }
+  if (!amount || Number(amount) <= 0) {
+    return res.status(400).json({ message: 'amount must be positive.' })
+  }
+
+  // If paying a fine, verify it exists and belongs to this student.
+  if (type === 'fine' && fineId) {
+    const fine = await prisma.fine.findUnique({ where: { id: fineId } })
+    if (!fine || fine.studentId !== req.user.id) {
+      return res.status(404).json({ message: 'Fine not found.' })
+    }
+  }
+
+  const payment = await prisma.payment.create({
+    data: {
+      userId: req.user.id,
+      type,
+      amount: Number(amount),
+      method,
+      receipt: receipt || null,
+      status: 'pending',
+    },
+  })
+  res.status(201).json(payment)
+}
+
+// GET /api/payments — BYTES sees all; students see only their own.
+export async function listPayments(req, res) {
+  const where = req.user.role === 'bytes_officer' ? {} : { userId: req.user.id }
+  if (req.query.status) where.status = req.query.status
+  const payments = await prisma.payment.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    include: req.user.role === 'bytes_officer' ? { user: { select: { firstName: true, lastName: true, schoolId: true } } } : undefined,
+  })
+  res.json(payments)
+}
+
+// PUT /api/payments/:id/approve — BYTES Officer only.
+export async function approvePayment(req, res) {
+  const payment = await prisma.payment.findUnique({ where: { id: req.params.id } })
+  if (!payment) return res.status(404).json({ message: 'Payment not found.' })
+  if (payment.status !== 'pending') {
+    return res.status(409).json({ message: `Payment already ${payment.status}.` })
+  }
+
+  // Use a transaction so the linked fine flips with the payment.
+  const [updated] = await prisma.$transaction([
+    prisma.payment.update({
+      where: { id: payment.id },
+      data: { status: 'approved' },
+    }),
+    ...(payment.type === 'fine'
+      ? [
+          prisma.fine.updateMany({
+            where: { studentId: payment.userId, status: 'unpaid' },
+            data: { status: 'paid' },
+          }),
+        ]
+      : []),
+  ])
+
+  const user = await prisma.user.findUnique({ where: { id: payment.userId } })
+  if (user) {
+    notify({
+      userId: user.id,
+      userEmail: user.email,
+      type: 'payment',
+      title: 'Payment confirmed',
+      message: `Your payment of ₱${payment.amount} has been approved.`,
+      emailKey: 'paymentConfirmation',
+      emailArgs: [user.firstName, payment.id.slice(0, 8).toUpperCase(), payment.amount],
+    })
+  }
+
+  res.json(updated)
+}
+
+// PUT /api/payments/:id/deny — BYTES Officer only.
+export async function denyPayment(req, res) {
+  const reason = (req.body?.reason || '').trim()
+  if (!reason) return res.status(400).json({ message: 'Denial reason required.' })
+
+  const payment = await prisma.payment.findUnique({ where: { id: req.params.id } })
+  if (!payment) return res.status(404).json({ message: 'Payment not found.' })
+  if (payment.status !== 'pending') {
+    return res.status(409).json({ message: `Payment already ${payment.status}.` })
+  }
+
+  const updated = await prisma.payment.update({
+    where: { id: payment.id },
+    data: { status: 'rejected' },
+  })
+
+  const user = await prisma.user.findUnique({ where: { id: payment.userId } })
+  if (user) {
+    notify({
+      userId: user.id,
+      userEmail: user.email,
+      type: 'payment',
+      title: 'Payment denied',
+      message: `Your payment of ₱${payment.amount} was denied. Reason: ${reason}`,
+    })
+  }
+
+  res.json(updated)
+}
+
+// POST /api/payments/upload — returns the stored filename for use in createPayment.
+export async function uploadReceipt(req, res) {
+  if (!req.file) return res.status(400).json({ message: 'No file uploaded.' })
+  res.json({ file: req.file.filename, size: req.file.size })
+}
