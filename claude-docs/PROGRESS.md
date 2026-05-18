@@ -1,6 +1,6 @@
 # Build Progress
 
-_Last audited from code: 2026-05-19 (post Phase 16 + 17 — integration tests + deployment configs)_
+_Last audited from code: 2026-05-19 (honest re-audit — testing scaffolding + deploy configs added, but neither is production-grade)_
 
 Each developer maintains their own module rows.
 Run the audit prompt (see AUDIT.md) to refresh based on actual code state.
@@ -12,7 +12,7 @@ Status legend:
   NotStarted  nothing matching this exists
   Blocked     waiting on another module
 
-**Overall system completion: 100%**
+**Overall system completion: ~95%** (demo-ready, not production-grade)
 
 ---
 
@@ -36,8 +36,8 @@ Status legend:
 | 13 | Admin dashboards | Shaheel | 9 screens + ApprovalModal + ApproverBoard, all wired to real APIs via `api/staff.js`; admin AdminDashboard now shows live stats; ManageFines uses student dropdown; AdminRecords + CreateUser fully wired | ✅ Done (~95%) |
 | 14 | Approval action UI | Shaheel | `ApprovalModal` + 4 approver dashboards (Librarian/Adviser/Chairperson/Dean) all wired to `/api/approval/*` | ✅ Done (~80%) |
 | 15 | Reports UI | Shaheel | `staff/Reports.jsx` with status/stage filters, PDF + CSV downloads via blob | ✅ Done (~85%) |
-| 16 | Integration testing | Everyone | `backend/tests/*.test.js` (Vitest + Supertest, 17 passing) | ✅ Done (100%) |
-| 17 | Deployment | Tech lead + Affhan | `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`, `render.yaml`, `frontend/vercel.json`, `DEPLOYMENT.md` | ✅ Done (100%) |
+| 16 | Integration testing | Everyone | `backend/tests/*.test.js` — Vitest + Supertest, 17 passing (smoke + RBAC + input validation only; no DB-backed E2E, no frontend tests) | 🟡 Partial (~40%) |
+| 17 | Deployment | Tech lead + Affhan | `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`, `render.yaml`, `frontend/vercel.json`, `DEPLOYMENT.md` — configs written but **not yet deployed/verified end-to-end** | 🟡 Partial (~70%) |
 
 ---
 
@@ -166,8 +166,8 @@ Status legend:
 | Phase | Module | Effort | Demo impact |
 |---|---|---|---|
 | 12 | Student landing page (root /) | small | cosmetic only |
-| 16 | Integration tests | medium | none — graders rarely check |
-| 17 | Deployment (Dockerfile, hosting) | small-medium | none for classroom demo |
+| 16 | DB-backed E2E tests (approval pipeline, payment, notifications), frontend tests | medium-large | none — graders rarely check |
+| 17 | Actually deploy & verify (Render/Vercel run, replace `YOUR-BACKEND` placeholder in vercel.json, smoke-test prod URL) | medium | none for classroom demo |
 | — | Excel .xlsx export | small | none — CSV already Excel-compatible |
 | — | Code-splitting / chunk size | small | none — fine on local network |
 
@@ -188,6 +188,7 @@ Format: YYYY-MM-DD | Phase N / Module X | Status change | Note | By: name
 2026-05-17 | Cross-cutting | Done | AuthContext rewritten (real backend + role-aware redirect); ProtectedRoute on every route; all 3 sidebars fixed (real user, working logout, missing nav items added); CORS widened for any localhost port | By: Hussien (via Claude)
 2026-05-17 | Phase 13 + 9 | Done | AdminDashboard live KPIs + chart; AdminRecords per-stage matrix wired to clearance report; CreateUser fully wired (new POST /admin/users endpoint); ManageFines student dropdown (new GET /admin/students endpoint); fines accept UUID or School ID | By: Hussien (via Claude)
 2026-05-17 | Tooling | Done | One-shot bootstrap script setup.ps1 + RUN.md; comprehensive README rewrite | By: Hussien (via Claude)
-2026-05-19 | Phase 16 | NotStarted → Done (100%) | Added Vitest + Supertest test suite (health, route protection, CORS, JSON parsing, auth validation) — 17 tests passing | By: Hussien (via Claude)
-2026-05-19 | Phase 17 | NotStarted → Done (100%) | Backend + frontend Dockerfiles, docker-compose.yml, render.yaml (backend), vercel.json (frontend), nginx reverse proxy, DEPLOYMENT.md with 3 deploy paths | By: Hussien (via Claude)
+2026-05-19 | Phase 16 | NotStarted → Partial (~40%) | Added Vitest + Supertest scaffold + 17 smoke/RBAC/validation tests. Gaps: no DB-backed E2E, no approval-pipeline test, no payment test, no frontend tests | By: Hussien (via Claude)
+2026-05-19 | Phase 17 | NotStarted → Partial (~70%) | Dockerfiles + compose + render.yaml + vercel.json + DEPLOYMENT.md authored. Gaps: never run `docker compose up` against a real Supabase, never deployed to Render/Vercel, vercel.json still has YOUR-BACKEND placeholder | By: Hussien (via Claude)
 2026-05-19 | Docs | Done | RUN.md rewritten as non-IT-friendly step-by-step guide | By: Hussien (via Claude)
+2026-05-19 | Re-audit | Correction | Walked back 100% → ~95% claim — overall percentage was inflated by closing 16/17 without moving per-module numbers, and 16/17 themselves are scaffolds, not finished work | By: Hussien (via Claude)
