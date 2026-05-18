@@ -1,165 +1,197 @@
-# Running the CICS E-Clearance System Locally
+# How to Run the CICS Clearance System
 
-End-to-end setup for a fresh clone. ~10 minutes if you already have a Supabase project.
+*Step-by-step guide for non-IT students. Just follow each step in order.*
 
-## Prerequisites
+---
 
-- Node.js >= 18 (`node --version`)
-- npm >= 9
-- A Supabase Postgres project (free tier is fine). Dashboard: https://supabase.com
-  - From **Project Settings → Database → Connection string** grab both:
-    - **Transaction pooler** URI (port `6543`) — for `DATABASE_URL`
-    - **Session/direct** URI (port `5432`) — for `DIRECT_URL`
+## PART 1 — One-Time Setup
 
-## Quick start (automated)
+*You only do this once on your computer. Takes about 15 minutes.*
 
-Once Node/npm are installed and you have the two Supabase URIs ready:
+### Step 1: Install Node.js (the engine that runs the system)
+
+1. Open your browser and go to **https://nodejs.org**
+2. Click the **big green button that says "LTS"** (the left one)
+3. A file will download. Open it.
+4. Click **Next → Next → Next → Install** (don't change anything)
+5. When it's done, click **Finish**
+
+Done with Step 1.
+
+---
+
+### Step 2: Make a free online database
+
+1. Go to **https://supabase.com**
+2. Click **Start your project** → sign in with Google or GitHub
+3. Click **New Project**
+4. Fill in:
+   - **Name:** `cics-clearance` (or anything you want)
+   - **Database Password:** make a password and **write it down on paper** — you'll need this!
+   - **Region:** pick **Southeast Asia (Singapore)**
+5. Click **Create new project**
+6. Wait about 2 minutes (the page shows a green checkmark when it's ready)
+
+Now get your two database links:
+
+7. On the left side, click the **gear icon (Project Settings)**
+8. Click **Database**
+9. Scroll down to **Connection string**
+10. You'll see tabs. Copy these **two links** into Notepad:
+    - **Transaction pooler** (ends with `6543`) → label it `DATABASE_URL`
+    - **Session pooler** (ends with `5432`) → label it `DIRECT_URL`
+11. In **both** links, find the part that says `[YOUR-PASSWORD]` and **replace it with your password** from step 4.
+
+Done with Step 2. Keep Notepad open — you'll paste these in a second.
+
+---
+
+### Step 3: Run the setup helper
+
+1. Press the **Windows key** (bottom-left of your keyboard, has the Windows logo)
+2. Type **`PowerShell`**
+3. Click **Windows PowerShell** (the blue icon)
+4. A blue window opens. **Click inside it** so it's active.
+5. **Copy and paste this**, then press Enter:
+
+   ```powershell
+   cd "C:\Users\diran\OneDrive\Desktop\CICS_Clearance System"
+   ```
+
+6. Now copy and paste this, then press Enter:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\setup.ps1
+   ```
+
+7. It will ask you to paste your two links from Notepad — paste them when asked, press Enter after each.
+8. Wait. It will print a lot of text. **Don't touch anything** until it stops and says it's done. (~2–5 minutes)
+
+Done with Step 3. The system is now installed!
+
+---
+
+## PART 2 — Every Time You Want to Use the System
+
+*You'll do this every time. Takes about 30 seconds.*
+
+You need **TWO PowerShell windows open at the same time.** Don't close either one!
+
+### Step 4: Start the backend (the brain)
+
+1. Press **Windows key** → type **`PowerShell`** → press Enter
+2. Copy and paste this, then press Enter:
+
+   ```powershell
+   cd "C:\Users\diran\OneDrive\Desktop\CICS_Clearance System\backend"
+   ```
+
+3. Then copy and paste this, then press Enter:
+
+   ```powershell
+   npm run dev
+   ```
+
+4. Wait until you see this message:
+
+   ```
+   CICS E-Clearance API running on http://localhost:5000
+   ```
+
+**Leave this window open. Don't close it!**
+
+---
+
+### Step 5: Start the frontend (the website)
+
+1. Press **Windows key** again → type **`PowerShell`** → press Enter
+   *(You should now have TWO PowerShell windows open)*
+2. In the NEW window, copy and paste this, then press Enter:
+
+   ```powershell
+   cd "C:\Users\diran\OneDrive\Desktop\CICS_Clearance System\frontend"
+   ```
+
+3. Then paste this, then press Enter:
+
+   ```powershell
+   npm run dev
+   ```
+
+4. Wait until you see this:
+
+   ```
+   Local: http://localhost:5173/
+   ```
+
+**Leave this window open too!**
+
+---
+
+### Step 6: Open the website
+
+1. Open **Google Chrome** (or any browser)
+2. Go to: **http://localhost:5173**
+3. Log in! Try one of these accounts:
+
+   | If you want to be a... | Email | Password |
+   |---|---|---|
+   | **Student** | `maria.santos@s.msumain.edu.ph` | `Cics#2026` |
+   | **BYTES Officer** | `bytes@cics.edu.ph` | `Bytes#2026` |
+   | **Librarian** | `librarian@cics.edu.ph` | `Cics#2026` |
+   | **Adviser** | `adviser@cics.edu.ph` | `Cics#2026` |
+   | **Chairperson** | `chairperson@cics.edu.ph` | `Cics#2026` |
+   | **Dean** | `dean@cics.edu.ph` | `Cics#2026` |
+
+You're in! Use the system.
+
+---
+
+## When You're Done
+
+1. Go to each PowerShell window
+2. Press **Ctrl + C** (hold Ctrl, then press C)
+3. Close both windows by clicking the **X**
+
+---
+
+## If Something Goes Wrong
+
+**The website won't load?**
+Both PowerShell windows must still be running. Check them.
+
+**It says "port in use" or "EADDRINUSE"?**
+Open PowerShell, paste this, press Enter:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\setup.ps1
+taskkill /IM node.exe /F
 ```
 
-`setup.ps1` verifies versions, prompts for the two URIs once, auto-generates `JWT_SECRET`, writes the env files, installs dependencies in both workspaces, applies migrations, and seeds the database. Re-run anytime — it's idempotent and skips values already set.
+Then start over from Step 4.
 
-After it finishes, jump to [Starting the servers](#starting-the-servers).
+**You see a red error?**
+Close both windows, start over from Step 4. 90% of problems are fixed this way.
 
-## Manual setup (if you'd rather not run the script)
+**Still broken?**
+Take a screenshot of the red text and send it to the team.
 
-### 1. Backend
+---
 
-```powershell
-cd backend
-npm install
-copy .env.example .env
-```
+## Try the Full Approval Flow (Optional Demo)
 
-Edit `backend/.env` and fill in:
-- `DATABASE_URL` — Supabase Transaction pooler URI (port 6543)
-- `DIRECT_URL` — Supabase Session/Direct URI (port 5432)
-- `JWT_SECRET` — any long random string (`openssl rand -hex 32` works)
-- `PORT=5000` (leave as-is unless you also update `frontend/vite.config.js`)
-- `CORS_ORIGIN=http://localhost:5173` (leave as-is — backend also accepts any other `localhost:*` port as a fallback)
+Want to see clearance go from request all the way to PDF? Do this in order:
 
-SMTP vars are optional — email sending no-ops if unset, and the rest of the app keeps working.
+1. Log in as **Student** (`maria.santos@s.msumain.edu.ph`) → click **My Clearance** → click **Submit Clearance Request**.
+2. Log out. Log in as **BYTES Officer** (`bytes@cics.edu.ph` / `Bytes#2026`) → approve the BYTES stage.
+3. Log out. Log in as **Librarian** → approve.
+4. Log out. Log in as **Adviser** → approve.
+5. Log out. Log in as **Chairperson** → approve.
+6. Log out. Log in as **Dean** → approve.
+7. Log back in as the **Student** → **My Clearance** → click **Download PDF** — it works now!
 
-Then:
+---
 
-```powershell
-npx prisma migrate deploy      # apply existing migrations
-npx prisma generate            # generate client
-npm run seed                   # seed team accounts + role testers + test students
-```
-
-### 2. Frontend
-
-```powershell
-cd frontend
-npm install
-copy .env.example .env.local
-```
-
-No edits needed — Vite proxies `/api/*` to `http://127.0.0.1:5000`.
-
-## Starting the servers
-
-**Open two separate PowerShell windows** (not tabs — both servers must run simultaneously):
-
-```powershell
-# Window 1 — backend
-cd "C:\Users\diran\OneDrive\Desktop\CICS_Clearance System\backend"
-npm run dev
-# wait for: CICS E-Clearance API running on http://localhost:5000
-```
-
-```powershell
-# Window 2 — frontend
-cd "C:\Users\diran\OneDrive\Desktop\CICS_Clearance System\frontend"
-npm run dev
-# wait for: Local: http://localhost:5173/
-```
-
-Open **http://localhost:5173**.
-
-> If the frontend says `Local: http://localhost:5174/` instead of 5173, a zombie Vite is holding 5173. The backend's CORS will still accept it because we allow any `localhost:*`, but for consistency just kill all node and restart: `taskkill /IM node.exe /F`.
-
-## Seeded test accounts
-
-After `npm run seed` you can log in with any of these. **Default password is `Cics#2026`** unless noted.
-
-### Role testers (use these to walk the full approval pipeline)
-
-| Email                     | Password    | Role             |
-|---------------------------|-------------|------------------|
-| `bytes@cics.edu.ph`       | `Bytes#2026`| `bytes_officer`  |
-| `librarian@cics.edu.ph`   | `Cics#2026` | `librarian`      |
-| `adviser@cics.edu.ph`     | `Cics#2026` | `faculty_adviser`|
-| `chairperson@cics.edu.ph` | `Cics#2026` | `chairperson`    |
-| `dean@cics.edu.ph`        | `Cics#2026` | `dean`           |
-
-### Test students
-
-| Email                              | Password    | Notes               |
-|------------------------------------|-------------|---------------------|
-| `maria.santos@s.msumain.edu.ph`    | `Cics#2026` | BSIT 4A — approved  |
-| `juan.delacruz@s.msumain.edu.ph`   | `Cics#2026` | BSCS 4B — approved  |
-
-### Team accounts (all `bytes_officer` for development)
-
-`affhan@`, `dimalutang@`, `naimah@`, `asraf@`, `landia@`, `ed@`, `norman@`, `shaheel@`, `jonaidah@`, `diranggarun.hg587@` (all `@s.msumain.edu.ph`) — password `Cics#2026`.
-
-## End-to-end smoke test (full approval pipeline)
-
-1. **Register** a new student via the Register page (or use Maria Santos).
-2. As **BYTES Officer** → **Pending Accounts** → approve the new student (skip if using Maria).
-3. As **BYTES Officer** → **Manage Fines** → pick the student → add a ₱100 fine.
-4. As the **student** → **Payment** → click Pay Now on the fine → upload any small image as a GCash receipt → submit.
-5. As **BYTES Officer** → **Payment Verification** → approve the payment.
-6. As the **student** → **My Clearance** → **Submit Clearance Request**.
-7. As **BYTES Officer** → approve the BYTES stage.
-8. Log in as `librarian@`, then `adviser@`, then `chairperson@`, then `dean@cics.edu.ph` → approve each stage in order.
-9. As the **student** → **My Clearance** → **Download PDF** (now enabled) → file downloads.
-
-If any approval 409s with "prerequisites not met," that's expected — the workflow enforces sequential gating.
-
-## Common issues
-
-| Symptom | Fix |
-|---|---|
-| `EADDRINUSE :::5000` on backend start | A zombie node.exe is holding the port. `taskkill /IM node.exe /F`, then restart. |
-| Vite falls back to port 5174 / 5175 | Same — a zombie Vite is on 5173. `taskkill /IM node.exe /F` and restart both servers. |
-| Login spins forever / Network error | Backend isn't running. Check the backend terminal for errors. |
-| `Invalid prisma.user.findUnique() ... invalid domain character` | Your `DATABASE_URL` still contains literal `[YOUR-PASSWORD]` placeholders or has special characters that need URL-encoding. Re-run `setup.ps1` or paste a fresh URI. |
-| Prisma `migrate dev` hangs / SSL error | You used the pooler URI for `DIRECT_URL`. Use the **direct/session** URI (port 5432). |
-| `prisma generate` EPERM file-lock on Windows | A running backend has the engine DLL open. Stop the backend, run `npx prisma generate`, restart. Harmless if the client was already generated. |
-| Frontend 404s on `/api/*` | Backend not on port 5000, or you changed `PORT` without updating `vite.config.js`. |
-| Receipt upload fails with 413 | Receipts are capped at 5 MB by Multer. |
-| "Email already registered" on Register | The email is taken (likely a seeded team account). Use a different one. |
-| `npm run lint` fails with "no config" | Known — frontend has no ESLint config yet. Skip lint; build and dev work. |
-
-## Helpful one-liners
-
-**List all student UUIDs and School IDs** (for adding fines via the new dropdown — usually unnecessary now, but useful for debugging):
-
-```powershell
-cd "C:\Users\diran\OneDrive\Desktop\CICS_Clearance System\backend"
-node -e "import('./src/lib/prisma.js').then(async (m) => { const p = m.default; const u = await p.user.findMany({ where: { role: 'student' }, select: { id: true, schoolId: true, firstName: true, lastName: true } }); console.table(u); await p.`$disconnect(); })"
-```
-
-**Verify the env actually loads:**
-
-```powershell
-cd backend
-node -e "require('dotenv').config(); console.log(process.env.DATABASE_URL)"
-```
-
-**Hit the API health check:**
-
-```powershell
-curl http://localhost:5000/api/health
-# {"ok":true}
-```
-
-## Where to look when something breaks
+## Where to Look When Something Breaks (For the Tech-Savvy)
 
 - **API contract:** `claude-docs/API_CONTRACT.md`
 - **Database schema:** `backend/prisma/schema.prisma` and `claude-docs/ERD.md`
