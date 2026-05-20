@@ -13,11 +13,15 @@ const router = Router()
 router.use(requireAuth)
 
 const APPROVER_ROLES = [
+  'admin',
+  'cursor_org',
+  'department_org',
   'bytes_officer',
   'librarian',
   'faculty_adviser',
   'chairperson',
   'dean',
+  'enrolling_faculty',
 ]
 
 // Generic stage decision endpoints. The actor's role determines which stage

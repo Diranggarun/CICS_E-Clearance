@@ -14,9 +14,13 @@ const router = express.Router()
 
 router.use(requireAuth)
 
-// Students submit payments for themselves; BYTES sees everything via filters.
+// Admin + the three org-fee officers verify payments; the controller scopes
+// each officer to their own organization's fee payments.
+const VERIFIER_ROLES = ['admin', 'cursor_org', 'department_org', 'bytes_officer']
+
+// Students submit payments for themselves; verifiers see them via filters.
 router.post('/', requireRole('student'), asyncHandler(createPayment))
-router.get('/', requireRole('bytes_officer', 'student'), asyncHandler(listPayments))
+router.get('/', requireRole('student', ...VERIFIER_ROLES), asyncHandler(listPayments))
 
 router.post(
   '/upload',
@@ -25,7 +29,7 @@ router.post(
   asyncHandler(uploadReceipt),
 )
 
-router.put('/:id/approve', requireRole('bytes_officer'), asyncHandler(approvePayment))
-router.put('/:id/deny', requireRole('bytes_officer'), asyncHandler(denyPayment))
+router.put('/:id/approve', requireRole(...VERIFIER_ROLES), asyncHandler(approvePayment))
+router.put('/:id/deny', requireRole(...VERIFIER_ROLES), asyncHandler(denyPayment))
 
 export default router

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   STAGE_PREREQUISITES,
   ROLE_TO_STAGE,
+  ORG_FEE_STAGES,
   checkPrerequisites,
   isFullyApproved,
   hasDenial,
@@ -14,120 +15,77 @@ const stagesFor = (overrides = {}) =>
     status: overrides[role] ?? 'pending',
   }))
 
-describe('STAGE_PREREQUISITES', () => {
-  it('bytes and librarian have no prerequisites', () => {
-    expect(STAGE_PREREQUISITES.bytes_officer).toEqual([])
-    expect(STAGE_PREREQUISITES.librarian).toEqual([])
+// Builds an overrides object approving every stage strictly before `role`.
+const approveBefore = (role) =>
+  Object.fromEntries(
+    STAGE_ORDER.slice(0, STAGE_ORDER.indexOf(role)).map((r) => [r, 'approved']),
+  )
+
+describe('STAGE_PREREQUISITES (strict sequential)', () => {
+  it('the first stage has no prerequisites', () => {
+    expect(STAGE_PREREQUISITES[STAGE_ORDER[0]]).toEqual([])
   })
 
-  it('adviser requires bytes', () => {
-    expect(STAGE_PREREQUISITES.faculty_adviser).toEqual(['bytes_officer'])
+  it('every stage requires exactly all stages before it in STAGE_ORDER', () => {
+    STAGE_ORDER.forEach((role, i) => {
+      expect(STAGE_PREREQUISITES[role]).toEqual(STAGE_ORDER.slice(0, i))
+    })
   })
 
-  it('chairperson requires bytes + librarian + adviser', () => {
-    expect(STAGE_PREREQUISITES.chairperson).toEqual([
-      'bytes_officer',
-      'librarian',
-      'faculty_adviser',
-    ])
-  })
-
-  it('dean requires all four prior stages', () => {
-    expect(STAGE_PREREQUISITES.dean).toEqual([
-      'bytes_officer',
-      'librarian',
-      'faculty_adviser',
-      'chairperson',
-    ])
+  it('the final stage requires all eight prior stages', () => {
+    const last = STAGE_ORDER[STAGE_ORDER.length - 1]
+    expect(STAGE_PREREQUISITES[last]).toEqual(STAGE_ORDER.slice(0, -1))
   })
 })
 
 describe('checkPrerequisites', () => {
-  it('returns null when bytes has no prereqs (always allowed)', () => {
-    expect(checkPrerequisites(stagesFor(), 'bytes_officer')).toBeNull()
+  it('returns null for the first stage (always allowed)', () => {
+    expect(checkPrerequisites(stagesFor(), STAGE_ORDER[0])).toBeNull()
   })
 
-  it('returns null when librarian has no prereqs (anytime after submission)', () => {
-    expect(checkPrerequisites(stagesFor(), 'librarian')).toBeNull()
+  it('blocks a stage while any prior stage is pending', () => {
+    const unmet = checkPrerequisites(stagesFor(), 'librarian')
+    expect(unmet).toEqual(STAGE_PREREQUISITES.librarian)
   })
 
-  it('blocks adviser if bytes not approved', () => {
-    const unmet = checkPrerequisites(stagesFor(), 'faculty_adviser')
-    expect(unmet).toEqual(['bytes_officer'])
-  })
-
-  it('allows adviser once bytes is approved', () => {
-    const stages = stagesFor({ bytes_officer: 'approved' })
-    expect(checkPrerequisites(stages, 'faculty_adviser')).toBeNull()
-  })
-
-  it('blocks chairperson if any of bytes/librarian/adviser is pending', () => {
-    const stages = stagesFor({
-      bytes_officer: 'approved',
-      librarian: 'approved',
-    })
-    const unmet = checkPrerequisites(stages, 'chairperson')
-    expect(unmet).toEqual(['faculty_adviser'])
-  })
-
-  it('blocks dean if any prior stage is pending', () => {
-    const stages = stagesFor({
-      bytes_officer: 'approved',
-      librarian: 'approved',
-      faculty_adviser: 'approved',
-    })
-    const unmet = checkPrerequisites(stages, 'dean')
-    expect(unmet).toEqual(['chairperson'])
-  })
-
-  it('allows dean once all four prior stages are approved', () => {
-    const stages = stagesFor({
-      bytes_officer: 'approved',
-      librarian: 'approved',
-      faculty_adviser: 'approved',
-      chairperson: 'approved',
-    })
+  it('allows a stage once every prior stage is approved', () => {
+    const stages = stagesFor(approveBefore('dean'))
     expect(checkPrerequisites(stages, 'dean')).toBeNull()
   })
 
+  it('blocks the final stage if any prior stage is pending', () => {
+    const last = STAGE_ORDER[STAGE_ORDER.length - 1]
+    const partial = approveBefore(last)
+    delete partial.dean // leave Dean pending
+    const unmet = checkPrerequisites(stagesFor(partial), last)
+    expect(unmet).toContain('dean')
+  })
+
   it('treats denied as not approved (does not satisfy prereq)', () => {
-    const stages = stagesFor({ bytes_officer: 'denied' })
-    expect(checkPrerequisites(stages, 'faculty_adviser')).toEqual([
-      'bytes_officer',
-    ])
+    const stages = stagesFor({ admin: 'denied' })
+    expect(checkPrerequisites(stages, 'cursor_org')).toEqual(['admin'])
   })
 })
 
 describe('isFullyApproved', () => {
   it('false when any stage is pending', () => {
-    const stages = stagesFor({
-      bytes_officer: 'approved',
-      librarian: 'approved',
-      faculty_adviser: 'approved',
-      chairperson: 'approved',
-    })
-    expect(isFullyApproved(stages)).toBe(false)
+    const partial = approveBefore(STAGE_ORDER[STAGE_ORDER.length - 1])
+    expect(isFullyApproved(stagesFor(partial))).toBe(false)
   })
 
-  it('true when all five stages are approved', () => {
-    const stages = stagesFor({
-      bytes_officer: 'approved',
-      librarian: 'approved',
-      faculty_adviser: 'approved',
-      chairperson: 'approved',
-      dean: 'approved',
-    })
-    expect(isFullyApproved(stages)).toBe(true)
+  it('true when all stages are approved', () => {
+    const all = Object.fromEntries(STAGE_ORDER.map((r) => [r, 'approved']))
+    expect(isFullyApproved(stagesFor(all))).toBe(true)
   })
 
-  it('false when fewer than 5 stages exist (malformed)', () => {
+  it('false when the stage count is malformed', () => {
     expect(isFullyApproved([])).toBe(false)
   })
 })
 
 describe('hasDenial', () => {
   it('false when no stage is denied', () => {
-    expect(hasDenial(stagesFor({ bytes_officer: 'approved' }))).toBe(false)
+    expect(hasDenial(stagesFor({ admin: 'approved' }))).toBe(false)
   })
 
   it('true when at least one stage is denied', () => {
@@ -136,16 +94,20 @@ describe('hasDenial', () => {
 })
 
 describe('ROLE_TO_STAGE', () => {
-  it('maps all 5 approver roles to their stage', () => {
-    expect(ROLE_TO_STAGE.bytes_officer).toBe('bytes_officer')
-    expect(ROLE_TO_STAGE.librarian).toBe('librarian')
-    expect(ROLE_TO_STAGE.faculty_adviser).toBe('faculty_adviser')
-    expect(ROLE_TO_STAGE.chairperson).toBe('chairperson')
-    expect(ROLE_TO_STAGE.dean).toBe('dean')
+  it('maps every approver role in STAGE_ORDER to its own stage', () => {
+    STAGE_ORDER.forEach((role) => {
+      expect(ROLE_TO_STAGE[role]).toBe(role)
+    })
   })
 
   it('does not map student or unknown roles', () => {
     expect(ROLE_TO_STAGE.student).toBeUndefined()
     expect(ROLE_TO_STAGE.unknown).toBeUndefined()
+  })
+})
+
+describe('ORG_FEE_STAGES', () => {
+  it('contains the three organization fee stages', () => {
+    expect(ORG_FEE_STAGES).toEqual(['cursor_org', 'department_org', 'bytes_officer'])
   })
 })

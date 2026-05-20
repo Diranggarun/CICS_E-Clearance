@@ -86,11 +86,20 @@ export default function Reports() {
           onChange={(e) => setStageFilter(e.target.value)}
           className="rounded-full border border-[#dbe7ff] bg-white px-4 py-2 text-sm outline-none focus:ring-4 focus:ring-[#0D27F7]/20"
         >
-          {['All', 'bytes_officer', 'librarian', 'faculty_adviser', 'chairperson', 'dean'].map(
-            (s) => (
-              <option key={s}>{s}</option>
-            ),
-          )}
+          {[
+            'All',
+            'admin',
+            'cursor_org',
+            'department_org',
+            'bytes_officer',
+            'librarian',
+            'faculty_adviser',
+            'chairperson',
+            'dean',
+            'enrolling_faculty',
+          ].map((s) => (
+            <option key={s}>{s}</option>
+          ))}
         </select>
 
         <div className="ml-auto flex gap-2">

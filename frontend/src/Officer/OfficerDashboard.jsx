@@ -1,5 +1,4 @@
 import {
-  FiUsers,
   FiFileText,
   FiCheckCircle,
   FiClock,

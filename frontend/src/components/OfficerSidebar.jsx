@@ -4,6 +4,7 @@ import {
   FiHome,
   FiLogOut,
   FiCheckSquare,
+  FiCreditCard,
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 
@@ -12,19 +13,33 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Approver dashboards (Librarian / Adviser / Chairperson / Dean) share OfficerLayout.
-  // Pick the dashboard path that matches the current role so the sidebar isn't confusing.
+  // Approver dashboards all share OfficerLayout. Pick the dashboard path that
+  // matches the current role so the sidebar isn't confusing.
   const roleDash = {
+    cursor_org: "/cursor/dashboard",
+    department_org: "/department/dashboard",
+    bytes_officer: "/bytes/dashboard",
     librarian: "/librarian/dashboard",
     faculty_adviser: "/adviser/dashboard",
     chairperson: "/chairperson/dashboard",
     dean: "/dean/dashboard",
+    enrolling_faculty: "/enrolling/dashboard",
+  };
+  // Org-fee officers also verify the payments for their organization.
+  const rolePayments = {
+    cursor_org: "/cursor/payments",
+    department_org: "/department/payments",
+    bytes_officer: "/bytes/payments",
   };
   const dashPath = roleDash[user?.role] || "/officer/dashboard";
+  const paymentsPath = rolePayments[user?.role];
 
   const navItems = [
     { name: "Dashboard", path: dashPath, icon: <FiHome /> },
     { name: "Pending Approvals", path: dashPath, icon: <FiCheckSquare /> },
+    ...(paymentsPath
+      ? [{ name: "Payments", path: paymentsPath, icon: <FiCreditCard /> }]
+      : []),
   ];
 
   const handleLogout = () => {

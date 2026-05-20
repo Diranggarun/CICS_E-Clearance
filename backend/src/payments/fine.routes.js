@@ -7,8 +7,8 @@ const router = express.Router()
 
 router.use(requireAuth)
 
-// Resolve either a UUID or a school ID to the canonical user.id. Helps the BYTES
-// officer paste either format in the dashboard without needing to look up UUIDs.
+// Resolve either a UUID or a school ID to the canonical user.id. Helps the Admin
+// paste either format in the dashboard without needing to look up UUIDs.
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 async function resolveStudentId(idOrSchoolId) {
   if (!idOrSchoolId) return null
@@ -19,10 +19,10 @@ async function resolveStudentId(idOrSchoolId) {
   return user
 }
 
-// BYTES Officer issues a fine to a student.
+// Admin issues a fine to a student.
 router.post(
   '/',
-  requireRole('bytes_officer'),
+  requireRole('admin'),
   asyncHandler(async (req, res) => {
     const { studentId, amount, reason } = req.body
     if (!studentId || !amount || !reason) {
@@ -42,19 +42,19 @@ router.post(
   }),
 )
 
-// A student may read only their own fines. BYTES Officer may read anyone's
+// A student may read only their own fines. Admin may read anyone's
 // (and may pass either a UUID or a school ID).
 router.get(
   '/:studentId',
   asyncHandler(async (req, res) => {
     const { studentId } = req.params
     let resolvedId = studentId
-    if (req.user.role === 'bytes_officer' && !UUID_RE.test(studentId)) {
+    if (req.user.role === 'admin' && !UUID_RE.test(studentId)) {
       const target = await resolveStudentId(studentId)
       if (!target) return res.status(404).json({ message: `No user found for "${studentId}".` })
       resolvedId = target.id
     }
-    if (req.user.role !== 'bytes_officer' && req.user.id !== resolvedId) {
+    if (req.user.role !== 'admin' && req.user.id !== resolvedId) {
       return res.status(403).json({ message: 'You can only view your own fines.' })
     }
     const fines = await prisma.fine.findMany({
@@ -65,10 +65,10 @@ router.get(
   }),
 )
 
-// BYTES Officer updates a fine (e.g. mark paid, edit amount).
+// Admin updates a fine (e.g. mark paid, edit amount).
 router.put(
   '/:id',
-  requireRole('bytes_officer'),
+  requireRole('admin'),
   asyncHandler(async (req, res) => {
     const fine = await prisma.fine.update({
       where: { id: req.params.id },
@@ -80,7 +80,7 @@ router.put(
 
 router.delete(
   '/:id',
-  requireRole('bytes_officer'),
+  requireRole('admin'),
   asyncHandler(async (req, res) => {
     await prisma.fine.delete({ where: { id: req.params.id } })
     res.json({ message: 'Fine removed.' })

@@ -47,7 +47,7 @@ A detailed phase-by-phase breakdown lives in [`claude-docs/PROGRESS.md`](claude-
 Pre-seeded accounts (password `Cics#2026` unless noted) — see [`RUN.md`](RUN.md) for the full table.
 
 1. Register a new student via the Register page
-2. Log in as `bytes@cics.edu.ph` / `Bytes#2026` → **Pending Accounts** → approve the new student
+2. Log in as `admin2@cics.edu.ph` / `Bytes#2026` → **Pending Accounts** → approve the new student
 3. As BYTES → **Manage Fines** → pick the student → add a ₱100 fine
 4. Log in as the student → **Payment** → pay via GCash (upload any small image as receipt)
 5. As BYTES → **Payment Verification** → approve the payment
@@ -60,6 +60,7 @@ Every step verified working — see [`claude-docs/DEBUGGING.md`](claude-docs/DEB
 
 ## Completion log (this session)
 
+- 2026-05-20 — Fixed "approving a clearance kicks you back to login" bug: the axios response interceptor in `frontend/src/api/auth.js` cleared the token and hard-redirected on **both** 401 and 403. Now only a genuine 401 ends the session; 403 surfaces the error to the page, and the login/register calls are exempt (wrong password shows an inline error instead of silently reloading)
 - 2026-05-17 — Student frontend wired end-to-end (Norman's module): MyClearance, Payment, StudentDashboard, useNotifications hook now hit real APIs; PDF download button added with backend gating
 - 2026-05-17 — AuthContext rewritten to use real backend + role-aware login redirect; ProtectedRoute applied to every route
 - 2026-05-17 — All 3 sidebars (Student / Admin / Officer) fixed: real user details from AuthContext, working logout, missing nav items added

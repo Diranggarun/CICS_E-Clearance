@@ -12,13 +12,26 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Handle global 401 (Unauthorized) errors
+// Global auth-error handling.
+//   401 = the session is genuinely invalid/expired -> clear it and send the
+//         user to login.
+//   403 = authenticated but not allowed to do THIS action -> surface the
+//         error to the caller; never destroy the session (doing so just hides
+//         the real problem and bounces the user to login for no reason).
+// The login/register calls are exempt so a wrong password shows an inline
+// error instead of silently reloading the page.
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    const status = error.response?.status
+    const url = error.config?.url || ''
+    const isAuthCall = url.includes('/auth/login') || url.includes('/auth/register')
+
+    if (status === 401 && !isAuthCall) {
       localStorage.removeItem('access_token')
-      window.location.href = '/login'
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }

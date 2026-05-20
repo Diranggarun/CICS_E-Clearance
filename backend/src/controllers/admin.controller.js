@@ -3,11 +3,15 @@ import prisma from '../lib/prisma.js'
 import { notify } from '../notifications/notify.js'
 
 const STAFF_ROLES = [
+  'admin',
   'bytes_officer',
+  'cursor_org',
+  'department_org',
   'librarian',
   'faculty_adviser',
   'chairperson',
   'dean',
+  'enrolling_faculty',
 ]
 
 // POST /api/admin/users — BYTES Officer creates a staff/officer account

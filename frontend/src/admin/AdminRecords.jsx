@@ -4,11 +4,15 @@ import toast from "react-hot-toast";
 import { clearanceReport, reportDownloadUrl } from "../api/staff";
 
 const STAGES = [
+  { key: "admin", label: "ADMIN" },
+  { key: "cursor_org", label: "CURSOR" },
+  { key: "department_org", label: "DEPT" },
   { key: "bytes_officer", label: "BYTES" },
   { key: "librarian", label: "LIBRARY" },
   { key: "faculty_adviser", label: "ADVISER" },
   { key: "chairperson", label: "CHAIR" },
   { key: "dean", label: "DEAN" },
+  { key: "enrolling_faculty", label: "ENROLL" },
 ];
 
 const STATUS_LABEL = {

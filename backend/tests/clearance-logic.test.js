@@ -9,13 +9,17 @@ import {
 } from '../src/lib/clearance.js'
 
 describe('STAGE_ORDER', () => {
-  it('matches the documented 5-stage pipeline in order', () => {
+  it('matches the documented 9-stage pipeline in order', () => {
     expect(STAGE_ORDER).toEqual([
+      'admin',
+      'cursor_org',
+      'department_org',
       'bytes_officer',
       'librarian',
       'faculty_adviser',
       'chairperson',
       'dean',
+      'enrolling_faculty',
     ])
   })
 
@@ -74,7 +78,7 @@ describe('buildProgress', () => {
     })),
   }
 
-  it('returns all 5 stages in canonical order', () => {
+  it('returns all stages in canonical order', () => {
     const p = buildProgress(baseRequest)
     expect(p.stages.map((s) => s.role)).toEqual(STAGE_ORDER)
   })
@@ -102,7 +106,7 @@ describe('buildProgress', () => {
       ...baseRequest,
       stages: [
         {
-          role: 'bytes_officer',
+          role: STAGE_ORDER[0],
           status: 'approved',
           reason: null,
           approver: { firstName: 'Jane', lastName: 'Doe' },

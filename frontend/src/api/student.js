@@ -31,8 +31,8 @@ export const listFees = () => api.get('/fees')
 // === Payments (student) ===
 export const listMyPayments = () => api.get('/payments')
 
-export const submitPayment = ({ type, amount, method, receipt, fineId }) =>
-  api.post('/payments', { type, amount, method, receipt, fineId })
+export const submitPayment = ({ type, amount, method, receipt, fineId, orgRole }) =>
+  api.post('/payments', { type, amount, method, receipt, fineId, orgRole })
 
 // Upload a receipt file (multipart). Returns { file, size }.
 export const uploadReceipt = async (file) => {

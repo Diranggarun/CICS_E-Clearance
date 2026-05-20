@@ -75,14 +75,18 @@ export default function LoginPage() {
       if (result.success) {
         toast.success("Welcome back!");
         const role = result.user?.role
-        const target =
-          role === 'bytes_officer' ? '/admin/dashboard'
-          : role === 'librarian' ? '/librarian/dashboard'
-          : role === 'faculty_adviser' ? '/adviser/dashboard'
-          : role === 'chairperson' ? '/chairperson/dashboard'
-          : role === 'dean' ? '/dean/dashboard'
-          : '/student/dashboard'
-        navigate(target);
+        const dashByRole = {
+          admin: '/admin/dashboard',
+          cursor_org: '/cursor/dashboard',
+          department_org: '/department/dashboard',
+          bytes_officer: '/bytes/dashboard',
+          librarian: '/librarian/dashboard',
+          faculty_adviser: '/adviser/dashboard',
+          chairperson: '/chairperson/dashboard',
+          dean: '/dean/dashboard',
+          enrolling_faculty: '/enrolling/dashboard',
+        }
+        navigate(dashByRole[role] || '/student/dashboard');
       } else {
         toast.error(result.message);
       }

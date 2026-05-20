@@ -4,11 +4,15 @@ import { FiUserPlus, FiLoader } from "react-icons/fi";
 import { createStaffUser } from "../api/staff";
 
 const ROLES = [
-  { value: "bytes_officer", label: "BYTES Officer" },
-  { value: "librarian", label: "Librarian" },
+  { value: "admin", label: "Admin" },
+  { value: "cursor_org", label: "Cursor (Org Fee)" },
+  { value: "department_org", label: "Department (Org Fee)" },
+  { value: "bytes_officer", label: "BYTES (Org Fee)" },
+  { value: "librarian", label: "Library" },
   { value: "faculty_adviser", label: "Faculty Adviser" },
   { value: "chairperson", label: "Chairperson" },
   { value: "dean", label: "Dean" },
+  { value: "enrolling_faculty", label: "Enrolling Faculty" },
 ];
 
 const EMPTY = {

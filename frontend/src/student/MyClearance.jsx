@@ -101,7 +101,7 @@ function MyClearance() {
           My Clearance
         </h1>
         <div className="rounded-[24px] border border-[#d6e2ff] bg-white/70 p-8 text-center shadow-[0_4px_20px_rgba(13,39,247,0.06)]">
-          <p className="text-gray-600">You don't have an active clearance request yet.</p>
+          <p className="text-gray-600">You don&apos;t have an active clearance request yet.</p>
           <button
             onClick={handleSubmit}
             disabled={submitting}

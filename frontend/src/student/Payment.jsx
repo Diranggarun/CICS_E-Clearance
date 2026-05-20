@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FiLoader, FiUpload, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
@@ -9,6 +9,13 @@ import {
   submitPayment,
   uploadReceipt,
 } from "../api/student";
+
+// Org-fee stages a fee can belong to (9-stage workflow).
+const ORG_LABELS = {
+  cursor_org: "Cursor",
+  department_org: "Department",
+  bytes_officer: "BYTES",
+};
 
 function StatusBadge({ status }) {
   const styles = {
@@ -37,7 +44,7 @@ export default function Payment() {
   const [file, setFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     if (!user?.id) return;
     try {
       const [finesRes, feesRes, paysRes] = await Promise.all([
@@ -53,11 +60,11 @@ export default function Payment() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     refresh();
-  }, [user?.id]);
+  }, [refresh]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,8 +86,9 @@ export default function Payment() {
         method,
         receipt,
         fineId: selected.fineId,
+        orgRole: selected.orgRole,
       });
-      toast.success("Payment submitted — waiting for BYTES verification");
+      toast.success("Payment submitted — waiting for verification");
       setSelected(null);
       setFile(null);
       setMethod("gcash");
@@ -170,17 +178,25 @@ export default function Payment() {
               >
                 <div>
                   <p className="font-medium text-gray-700">{fee.name}</p>
-                  <p className="text-sm text-gray-500">₱{Number(fee.amount).toFixed(2)}</p>
+                  <p className="text-sm text-gray-500">
+                    ₱{Number(fee.amount).toFixed(2)}
+                    {fee.orgRole
+                      ? ` • ${ORG_LABELS[fee.orgRole] || fee.orgRole} org fee`
+                      : " • unassigned"}
+                  </p>
                 </div>
                 <button
+                  disabled={!fee.orgRole}
+                  title={fee.orgRole ? undefined : "This fee is not linked to an organization yet."}
                   onClick={() =>
                     setSelected({
                       type: "fee",
                       amount: Number(fee.amount),
                       label: fee.name,
+                      orgRole: fee.orgRole,
                     })
                   }
-                  className="rounded-full border border-[#0D27F7] px-4 py-2 text-xs font-semibold text-[#0D27F7] transition hover:bg-blue-50"
+                  className="rounded-full border border-[#0D27F7] px-4 py-2 text-xs font-semibold text-[#0D27F7] transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Pay
                 </button>

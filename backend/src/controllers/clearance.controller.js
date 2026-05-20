@@ -65,8 +65,15 @@ export async function getMine(req, res) {
 
 // GET /api/clearance/me/progress — structured progress for the stepper.
 export async function getMyProgress(req, res) {
+  // Includes 'completed' so a fully-approved clearance still renders on the
+  // student's My Clearance page (and keeps the Download PDF button reachable).
+  // ACTIVE_STATUSES itself is left untouched — createRequest relies on it to
+  // decide whether the student may start a new request.
   const request = await prisma.clearanceRequest.findFirst({
-    where: { studentId: req.user.id, status: { in: ACTIVE_STATUSES } },
+    where: {
+      studentId: req.user.id,
+      status: { in: [...ACTIVE_STATUSES, 'completed'] },
+    },
     orderBy: { createdAt: 'desc' },
     include: requestInclude,
   })
@@ -85,8 +92,10 @@ export async function getPdf(req, res) {
   if (!request) return res.status(404).json({ message: 'Clearance request not found.' })
 
   const isOwner = request.studentId === req.user.id
-  const isOfficer = req.user.role === 'bytes_officer'
-  if (!isOwner && !isOfficer) {
+  // Admin oversees the whole pipeline; Dean and Enrolling Faculty handle the
+  // final stages and need the completed form on hand.
+  const isStaff = ['admin', 'dean', 'enrolling_faculty'].includes(req.user.role)
+  if (!isOwner && !isStaff) {
     return res.status(403).json({ message: 'You can only access your own clearance.' })
   }
 

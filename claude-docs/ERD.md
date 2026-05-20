@@ -1,8 +1,13 @@
 ﻿# Database Schema Reference
 
 Owner: Affhan Mimbisa (schema coordinator)
-Source of truth: database/schema.sql
-Migrations: database/migration_NNN_short_name.sql (never edit old ones)
+Source of truth: `backend/prisma/schema.prisma`
+Migrations: `backend/prisma/migrations/` (Prisma; never edit applied ones)
+
+> 2026-05-20 — Workflow expansion: `Role` and `StageRole` enums each gained
+> `admin`, `cursor_org`, `department_org`, `enrolling_faculty`. `Fee` and
+> `Payment` gained an `orgRole` column linking a fee/payment to an org-fee
+> stage. See migration `20260520120000_workflow_9_stages`.
 
 ---
 
@@ -13,7 +18,7 @@ Migrations: database/migration_NNN_short_name.sql (never edit old ones)
 | users | All accounts (student, bytes, librarian, adviser, chairperson, dean) | auth |
 | account_approvals | Audit of BYTES approving/rejecting accounts | auth |
 | clearance_requests | Top-level request from a student | clearance |
-| approval_stages | Per-stage approval state (5 rows per request) | approval |
+| approval_stages | Per-stage approval state (9 rows per request as of 2026-05-20) | approval |
 | audit_logs | Immutable log of every approval action | approval |
 | fines | Fines per student | payment |
 | fees | Fees per student (SSG, course, dept, college) | payment |

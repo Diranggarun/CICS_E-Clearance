@@ -5,6 +5,7 @@ import {
   FiUsers,
   FiClipboard,
   FiUserCheck,
+  FiCheckSquare,
   FiCreditCard,
   FiDollarSign,
   FiBarChart2,
@@ -18,6 +19,7 @@ function Sidebar({ collapsed, setCollapsed }) {
 
   const navItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: <FiHome /> },
+    { name: "Clearance Approvals", path: "/admin/clearance-approvals", icon: <FiCheckSquare /> },
     { name: "Pending Accounts", path: "/admin/pending-accounts", icon: <FiUserCheck /> },
     { name: "Payment Verification", path: "/admin/payment-verification", icon: <FiCreditCard /> },
     { name: "Manage Fines", path: "/admin/manage-fines", icon: <FiDollarSign /> },

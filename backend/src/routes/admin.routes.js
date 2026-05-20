@@ -11,7 +11,10 @@ import { asyncHandler } from '../lib/asyncHandler.js'
 
 const router = Router()
 
-router.use(requireAuth, requireRole('bytes_officer'))
+// The Admin role owns the staff surface: account approval, user creation,
+// records, and reports. (Previously handled by the BYTES Officer, which is
+// now just an org-fee approval stage.)
+router.use(requireAuth, requireRole('admin'))
 
 router.get('/pending-accounts', asyncHandler(listPending))
 router.get('/students', asyncHandler(listStudents))

@@ -38,6 +38,23 @@ Status legend:
 | 15 | Reports UI | Shaheel | `staff/Reports.jsx` with status/stage filters, PDF + CSV downloads via blob | ✅ Done (~85%) |
 | 16 | Integration testing | Everyone | `backend/tests/*.test.js` — Vitest + Supertest, **50 tests passing** (HTTP smoke + RBAC + input validation + full approval-prereq logic + clearance helpers). Gaps: no DB-backed E2E, no frontend component tests. | 🟢 Done (~85%) |
 | 17 | Deployment | Tech lead + Affhan | `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`, `render.yaml`, `frontend/vercel.json` + `scripts/inject-backend-url.mjs` (env-driven URL injection), `DEPLOYMENT.md`. Build verified — no placeholder leaks. Gap: actual production deploy not yet executed. | 🟢 Done (~85%) |
+| 18 | Workflow expansion (5→9 stages) | Cross-module | New migration `20260520120000_workflow_9_stages` + `scripts/backfill-workflow-stages.js`; `STAGE_ORDER`/`STAGE_PREREQUISITES` rebuilt; per-org fee gating (`Fee.orgRole`/`Payment.orgRole`); account approval → `admin` role; 5 new frontend dashboards + routing. Code complete & builds; **migration + backfill not yet applied to the DB**. See GAP_ANALYSIS_WORKFLOW.md. | 🟡 Code done, DB pending |
+
+---
+
+## ⚠️ Workflow expansion — pending DB steps (2026-05-20)
+
+The 9-stage workflow change is code-complete but the database has NOT been
+migrated yet. Run from `backend/`:
+
+```
+npx prisma migrate deploy      # applies 20260520120000_workflow_9_stages
+npx prisma generate            # regenerates the Prisma client
+node scripts/backfill-workflow-stages.js   # adds 4 stages to existing requests
+npm run seed                   # (optional) refresh role-test accounts
+```
+
+Until these run, the backend will error on the new enum values.
 
 ---
 

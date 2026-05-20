@@ -1,0 +1,499 @@
+{
+  "info": {
+    "name": "CICS E-Clearance API",
+    "description": "End-to-end API smoke test for the CICS E-Clearance backend (Express + Prisma). Run with Newman against a running server. Non-destructive: registers a throwaway QA student each run, all other operations are read-only.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "student_token", "value": "" },
+    { "key": "bytes_token", "value": "" },
+    { "key": "student_id", "value": "" },
+    { "key": "request_id", "value": "" },
+    { "key": "rand_id", "value": "" },
+    { "key": "rand_email", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /api/health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('ok:true', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /api/auth/register — QA student",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const n = Date.now().toString().slice(-8);",
+                  "pm.collectionVariables.set('rand_id', '2026-' + n);",
+                  "pm.collectionVariables.set('rand_email', 'qa.student.' + n + '@s.msumain.edu.ph');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('returns user with student role', () => pm.expect(j.user.role).to.eql('student'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_number\": \"{{rand_id}}\",\n  \"course\": \"BSIT 4A\",\n  \"first_name\": \"QA\",\n  \"last_name\": \"Tester\",\n  \"gender\": \"Prefer not to say\",\n  \"date_of_birth\": \"2003-01-15\",\n  \"contact_number\": \"09000000000\",\n  \"email\": \"{{rand_email}}\",\n  \"password\": \"Cics#2026\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/register"
+          }
+        },
+        {
+          "name": "POST /api/auth/login — QA student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('issues access_token', () => pm.expect(j.access_token).to.be.a('string'));",
+                  "pm.collectionVariables.set('student_token', j.access_token);",
+                  "pm.collectionVariables.set('student_id', j.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{rand_email}}\",\n  \"password\": \"Cics#2026\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        },
+        {
+          "name": "POST /api/auth/login — Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('role is admin', () => pm.expect(j.user.role).to.eql('admin'));",
+                  "pm.collectionVariables.set('bytes_token', j.access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{bytes_email}}\",\n  \"password\": \"{{bytes_password}}\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        },
+        {
+          "name": "GET /api/auth/me — student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns own profile', () => pm.expect(pm.response.json().user.id).to.eql(pm.collectionVariables.get('student_id')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/auth/me"
+          }
+        },
+        {
+          "name": "POST /api/auth/logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clearance (student)",
+      "item": [
+        {
+          "name": "POST /api/clearance/request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201 (created) or 409 (already active)', () => pm.expect([201, 409]).to.include(pm.response.code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/clearance/request"
+          }
+        },
+        {
+          "name": "GET /api/clearance/me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const id = j.id || (j.request && j.request.id) || (j.progress && j.progress.request_id);",
+                  "if (id) pm.collectionVariables.set('request_id', id);",
+                  "pm.test('returns a clearance request', () => pm.expect(j).to.be.an('object'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/clearance/me"
+          }
+        },
+        {
+          "name": "GET /api/clearance/me/progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/clearance/me/progress"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Approval (Admin)",
+      "item": [
+        {
+          "name": "GET /api/approval/pending",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns a pending list', () => pm.expect(pm.response.json().pending).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{bytes_token}}" }],
+            "url": "{{base_url}}/api/approval/pending"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin (BYTES)",
+      "item": [
+        {
+          "name": "GET /api/admin/dashboard-stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{bytes_token}}" }],
+            "url": "{{base_url}}/api/admin/dashboard-stats"
+          }
+        },
+        {
+          "name": "GET /api/admin/pending-accounts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns a users list', () => pm.expect(pm.response.json().users).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{bytes_token}}" }],
+            "url": "{{base_url}}/api/admin/pending-accounts"
+          }
+        },
+        {
+          "name": "GET /api/admin/students",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{bytes_token}}" }],
+            "url": "{{base_url}}/api/admin/students"
+          }
+        },
+        {
+          "name": "GET /api/admin/reports/clearance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{bytes_token}}" }],
+            "url": "{{base_url}}/api/admin/reports/clearance"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Requirements & Catalogue",
+      "item": [
+        {
+          "name": "GET /api/requirements",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/requirements"
+          }
+        },
+        {
+          "name": "GET /api/fees",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns a list', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/fees"
+          }
+        },
+        {
+          "name": "GET /api/fines/:studentId — own fines",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('returns a list', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/fines/{{student_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications & Payments",
+      "item": [
+        {
+          "name": "GET /api/notifications — student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/notifications"
+          }
+        },
+        {
+          "name": "GET /api/payments — BYTES",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 200', () => pm.response.to.have.status(200));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{bytes_token}}" }],
+            "url": "{{base_url}}/api/payments"
+          }
+        }
+      ]
+    },
+    {
+      "name": "RBAC negative tests",
+      "item": [
+        {
+          "name": "Admin route without token → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 401', () => pm.response.to.have.status(401));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/admin/dashboard-stats"
+          }
+        },
+        {
+          "name": "Admin route with student token → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 403', () => pm.response.to.have.status(403));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{student_token}}" }],
+            "url": "{{base_url}}/api/admin/dashboard-stats"
+          }
+        },
+        {
+          "name": "Login with wrong password → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('status 401', () => pm.response.to.have.status(401));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{bytes_email}}\",\n  \"password\": \"definitely-wrong-pw\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        }
+      ]
+    }
+  ]
+}

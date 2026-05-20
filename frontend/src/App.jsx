@@ -9,6 +9,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
 import CreateUser from "./admin/CreateUser";
 import AdminRecords from "./admin/AdminRecords";
+import AdminClearanceApprovals from "./admin/AdminClearanceApprovals";
 
 import StudentLayout from "./layouts/StudentLayout";
 import StudentDashboard from "./student/StudentDashboard";
@@ -27,17 +28,27 @@ import PendingAccounts from "./staff/PendingAccounts";
 import PaymentVerification from "./staff/PaymentVerification";
 import ManageFines from "./staff/ManageFines";
 import Reports from "./staff/Reports";
+import CursorDashboard from "./staff/CursorDashboard";
+import DepartmentDashboard from "./staff/DepartmentDashboard";
+import BytesDashboard from "./staff/BytesDashboard";
 import LibrarianDashboard from "./staff/LibrarianDashboard";
 import AdviserDashboard from "./staff/AdviserDashboard";
 import ChairpersonDashboard from "./staff/ChairpersonDashboard";
 import DeanDashboard from "./staff/DeanDashboard";
+import EnrollingFacultyDashboard from "./staff/EnrollingFacultyDashboard";
 
-const adminRoles = ["bytes_officer"];
+// 9-stage workflow: Admin -> Cursor -> Department -> BYTES -> Library ->
+// Adviser -> Chairperson -> Dean -> Enrolling Faculty.
+const adminRoles = ["admin"];
 const studentRoles = ["student"];
+const cursorRoles = ["cursor_org"];
+const departmentRoles = ["department_org"];
+const bytesRoles = ["bytes_officer"];
 const librarianRoles = ["librarian"];
 const adviserRoles = ["faculty_adviser"];
 const chairRoles = ["chairperson"];
 const deanRoles = ["dean"];
+const enrollingRoles = ["enrolling_faculty"];
 
 function App() {
   return (
@@ -49,7 +60,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* BYTES Officer area */}
+        {/* Admin area — owns the staff surface (accounts, reports, users)
+            and the first clearance stage. */}
         <Route
           element={
             <ProtectedRoute roles={adminRoles}>
@@ -59,6 +71,7 @@ function App() {
         >
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/clearance-approvals" element={<AdminClearanceApprovals />} />
           <Route path="/admin/create-user" element={<CreateUser />} />
           <Route path="/admin/records" element={<AdminRecords />} />
           <Route path="/admin/pending-accounts" element={<PendingAccounts />} />
@@ -82,6 +95,36 @@ function App() {
         </Route>
 
         {/* Approver dashboards (each role gets its own gate) */}
+        <Route
+          element={
+            <ProtectedRoute roles={cursorRoles}>
+              <OfficerLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/cursor/dashboard" element={<CursorDashboard />} />
+          <Route path="/cursor/payments" element={<PaymentVerification />} />
+        </Route>
+        <Route
+          element={
+            <ProtectedRoute roles={departmentRoles}>
+              <OfficerLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/department/dashboard" element={<DepartmentDashboard />} />
+          <Route path="/department/payments" element={<PaymentVerification />} />
+        </Route>
+        <Route
+          element={
+            <ProtectedRoute roles={bytesRoles}>
+              <OfficerLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/bytes/dashboard" element={<BytesDashboard />} />
+          <Route path="/bytes/payments" element={<PaymentVerification />} />
+        </Route>
         <Route
           element={
             <ProtectedRoute roles={librarianRoles}>
@@ -117,6 +160,15 @@ function App() {
           }
         >
           <Route path="/dean/dashboard" element={<DeanDashboard />} />
+        </Route>
+        <Route
+          element={
+            <ProtectedRoute roles={enrollingRoles}>
+              <OfficerLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/enrolling/dashboard" element={<EnrollingFacultyDashboard />} />
         </Route>
 
         {/* Legacy officer namespace (kept logged-in but role-agnostic) */}

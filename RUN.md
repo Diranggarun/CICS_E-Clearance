@@ -137,7 +137,7 @@ You need **TWO PowerShell windows open at the same time.** Don't close either on
    | If you want to be a... | Email | Password |
    |---|---|---|
    | **Student** | `maria.santos@s.msumain.edu.ph` | `Cics#2026` |
-   | **BYTES Officer** | `bytes@cics.edu.ph` | `Bytes#2026` |
+   | **Admin** | `admin2@cics.edu.ph` | `Bytes#2026` |
    | **Librarian** | `librarian@cics.edu.ph` | `Cics#2026` |
    | **Adviser** | `adviser@cics.edu.ph` | `Cics#2026` |
    | **Chairperson** | `chairperson@cics.edu.ph` | `Cics#2026` |
@@ -182,7 +182,7 @@ Take a screenshot of the red text and send it to the team.
 Want to see clearance go from request all the way to PDF? Do this in order:
 
 1. Log in as **Student** (`maria.santos@s.msumain.edu.ph`) → click **My Clearance** → click **Submit Clearance Request**.
-2. Log out. Log in as **BYTES Officer** (`bytes@cics.edu.ph` / `Bytes#2026`) → approve the BYTES stage.
+2. Log out. Log in as **BYTES Officer** (`admin2@cics.edu.ph` / `Bytes#2026`) → approve the BYTES stage.
 3. Log out. Log in as **Librarian** → approve.
 4. Log out. Log in as **Adviser** → approve.
 5. Log out. Log in as **Chairperson** → approve.

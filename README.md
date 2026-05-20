@@ -315,13 +315,13 @@ After `npm run seed`, the following accounts are available. **Default password f
 
 | Email                     | Password    | Role             |
 | ------------------------- | ----------- | ---------------- |
-| `bytes@cics.edu.ph`       | `Bytes#2026`| `bytes_officer`  |
+| `admin2@cics.edu.ph`      | `Bytes#2026`| `admin`          |
 | `librarian@cics.edu.ph`   | `Cics#2026` | `librarian`      |
 | `adviser@cics.edu.ph`     | `Cics#2026` | `faculty_adviser`|
 | `chairperson@cics.edu.ph` | `Cics#2026` | `chairperson`    |
 | `dean@cics.edu.ph`        | `Cics#2026` | `dean`           |
 
-### Team accounts (all seeded as `bytes_officer` for development)
+### Team accounts (all seeded as `admin` for development)
 
 `affhan@s.msumain.edu.ph`, `dimalutang@s.msumain.edu.ph`, `naimah@s.msumain.edu.ph`, `asraf@s.msumain.edu.ph`, `landia@s.msumain.edu.ph`, `ed@s.msumain.edu.ph`, `norman@s.msumain.edu.ph`, `shaheel@s.msumain.edu.ph`, `jonaidah@s.msumain.edu.ph`, `diranggarun.hg587@s.msumain.edu.ph`
 
@@ -332,9 +332,9 @@ After `npm run seed`, the following accounts are available. **Default password f
 ## Smoke Test (End-to-End Demo Path)
 
 1. Open http://localhost:5173 → **Register** a new student.
-2. Log in as `bytes@cics.edu.ph` → **Pending Accounts** → approve the new student.
+2. Log in as `admin2@cics.edu.ph` → **Pending Accounts** → approve the new student.
 3. Log in as the student → **My Clearance** → **Submit Clearance Request**.
-4. Log back in as `bytes@cics.edu.ph` → approve the BYTES stage.
+4. Log back in as `admin2@cics.edu.ph` → approve the BYTES stage.
 5. Repeat for `librarian@...`, `adviser@...`, `chairperson@...`, `dean@...` (one login per role).
 6. Log back in as the student → **My Clearance** → **Download PDF** button is now enabled → file downloads.
 

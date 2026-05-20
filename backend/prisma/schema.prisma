@@ -20,6 +20,12 @@ enum Role {
   faculty_adviser
   chairperson
   dean
+  // Workflow expansion (9-stage pipeline). New values appended so existing
+  // enum ordinals are untouched; pipeline order lives in lib/clearance.js.
+  admin
+  cursor_org
+  department_org
+  enrolling_faculty
 }
 
 enum AccountStatus {
@@ -179,6 +185,12 @@ enum StageRole {
   faculty_adviser
   chairperson
   dean
+  // Workflow expansion: Admin (stage 1), the org-fee stages Cursor/Department
+  // (stages 2-3), and Enrolling Faculty (final stage). Order: lib/clearance.js.
+  admin
+  cursor_org
+  department_org
+  enrolling_faculty
 }
 
 enum StageStatus {
@@ -234,6 +246,9 @@ model Fee {
   id     String @id @default(uuid())
   name   String
   amount Float
+  // Which org-fee stage this fee belongs to (cursor_org / department_org /
+  // bytes_officer). Null = a legacy college-wide fee not tied to any org stage.
+  orgRole StageRole?
 }
 
 model Payment {
@@ -244,6 +259,9 @@ model Payment {
   method    String // gcash / onsite
   receipt   String? // legacy filename; new uploads also create a Receipt row
   status    String // pending / approved / rejected
+  // For type 'fee': which org-fee stage this payment settles. Drives per-org
+  // payment verification and the org-fee gate in the approval engine.
+  orgRole   StageRole?
   createdAt DateTime @default(now())
 
   user     User      @relation(fields: [userId], references: [id])

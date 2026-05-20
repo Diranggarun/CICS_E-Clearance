@@ -10,8 +10,18 @@ router.use(requireAuth)
 router.get('/', asyncHandler(list))
 
 // Officer roles can curate the requirements students must satisfy at their stage.
-// BYTES Officer can manage all (used by Admin dashboard).
-const MANAGER_ROLES = ['bytes_officer', 'librarian', 'faculty_adviser', 'chairperson', 'dean']
+// Admin can manage all (used by the Admin dashboard).
+const MANAGER_ROLES = [
+  'admin',
+  'cursor_org',
+  'department_org',
+  'bytes_officer',
+  'librarian',
+  'faculty_adviser',
+  'chairperson',
+  'dean',
+  'enrolling_faculty',
+]
 router.post('/', requireRole(...MANAGER_ROLES), asyncHandler(create))
 router.put('/:id', requireRole(...MANAGER_ROLES), asyncHandler(update))
 router.delete('/:id', requireRole(...MANAGER_ROLES), asyncHandler(remove))

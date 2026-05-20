@@ -35,20 +35,33 @@ multi-stage sequential workflow.
 - Email: SMTP / SendGrid / Gmail API
 - File storage: local filesystem for receipts
 
-## User roles (RBAC — 6 roles)
+## User roles (RBAC — 10 roles)
 
-student, bytes, librarian, adviser, chairperson, dean
+student, admin, cursor_org, department_org, bytes_officer, librarian,
+faculty_adviser, chairperson, dean, enrolling_faculty
+
+Role codes: `cursor_org` / `department_org` / `bytes_officer` are the three
+student-organization fee stages; `admin` owns the staff surface (account
+approval, user creation, fines, reports).
 
 ## Clearance approval flow
 
-Student submits → BYTES → Librarian → Adviser → Chairperson → Dean → PDF generated
+9-stage strictly-sequential pipeline (updated 2026-05-20):
+
+Student submits → Admin → Cursor → Department → BYTES → Library → Adviser →
+Chairperson → Dean → Enrolling Faculty → PDF generated
+
+Order + labels live in `backend/src/lib/clearance.js` (`STAGE_ORDER`); gating
+is derived in `backend/src/lib/approval.js` (`STAGE_PREREQUISITES`).
 
 Prerequisites:
-- BYTES: student must have no unpaid fines
-- Librarian: anytime after submission
-- Adviser: requires BYTES approved
-- Chairperson: requires BYTES + Librarian + Adviser approved
-- Dean: requires all four prior stages approved
+- Every stage requires ALL prior stages in the pipeline to be approved.
+- Org-fee stages (Cursor, Department, BYTES) also require the student to have
+  settled that organization's fee; the BYTES stage additionally requires no
+  unpaid fines.
+- PDF is gated until all 9 stages are approved.
+
+See claude-docs/GAP_ANALYSIS_WORKFLOW.md for the full design.
 
 ## Where the documentation lives
 
