@@ -5,7 +5,11 @@ import { approveStage, denyStage } from '../api/staff'
 
 // Reusable approve/deny modal for any clearance stage (BYTES, Librarian,
 // Adviser, Chairperson, Dean) and for pending account approvals.
+<<<<<<< HEAD
+function ApprovalModal({ open, onClose, subject, kind = 'stage', onDone }) {
+=======
 function ApprovalModal({ open, onClose, subject, kind: _kind = 'stage', onDone }) {
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   const [reason, setReason] = useState('')
   const [busy, setBusy] = useState(false)
 

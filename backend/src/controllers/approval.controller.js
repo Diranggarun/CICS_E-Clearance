@@ -1,4 +1,10 @@
 import prisma from '../lib/prisma.js'
+<<<<<<< HEAD
+import { ROLE_TO_STAGE, checkPrerequisites, isFullyApproved, hasDenial } from '../lib/approval.js'
+import { buildProgress, STAGE_LABELS } from '../lib/clearance.js'
+import { notify } from '../notifications/notify.js'
+import { listFinancialBlockers } from '../lib/payment.js'
+=======
 import {
   ROLE_TO_STAGE,
   ORG_FEE_STAGES,
@@ -9,6 +15,7 @@ import {
 import { buildProgress, STAGE_LABELS } from '../lib/clearance.js'
 import { notify } from '../notifications/notify.js'
 import { listOrgFinancialBlockers } from '../lib/payment.js'
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 // Generic stage decision handler. The role is taken from req.user (set by
 // requireAuth + requireRole), not from the URL, so an officer can never act
@@ -52,6 +59,14 @@ async function decide(req, res, action) {
       })
     }
 
+<<<<<<< HEAD
+    // CLAUDE.md: BYTES cannot approve while student has unpaid fines.
+    if (targetRole === 'bytes_officer') {
+      const blockers = await listFinancialBlockers(request.studentId)
+      if (blockers.unpaid_fines.length > 0 || blockers.has_unpaid_fees) {
+        return res.status(409).json({
+          message: 'Student has outstanding financial obligations.',
+=======
     // Org-fee stages (Cursor / Department / BYTES) can only be approved once
     // the student has settled that organization's fee. The BYTES stage also
     // keeps the legacy unpaid-fines check.
@@ -60,6 +75,7 @@ async function decide(req, res, action) {
       if (blockers.org_fee_unpaid || blockers.unpaid_fines.length > 0) {
         return res.status(409).json({
           message: 'Student has outstanding financial obligations for this office.',
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
           blockers,
         })
       }

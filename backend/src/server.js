@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+import 'dotenv/config'
+import app from './app.js'
+
+const port = Number(process.env.PORT || 8000)
+
+app.listen(port, () => {
+  console.log(`CICS E-Clearance API running on http://localhost:${port}`)
+})
+=======
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -14,3 +24,4 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`🚀 Backend running cleanly via ESM architecture on port ${PORT}`);
 });
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e

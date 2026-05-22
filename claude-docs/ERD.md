@@ -1,6 +1,10 @@
 ﻿# Database Schema Reference
 
 Owner: Affhan Mimbisa (schema coordinator)
+<<<<<<< HEAD
+Source of truth: database/schema.sql
+Migrations: database/migration_NNN_short_name.sql (never edit old ones)
+=======
 Source of truth: `backend/prisma/schema.prisma`
 Migrations: `backend/prisma/migrations/` (Prisma; never edit applied ones)
 
@@ -8,6 +12,7 @@ Migrations: `backend/prisma/migrations/` (Prisma; never edit applied ones)
 > `admin`, `cursor_org`, `department_org`, `enrolling_faculty`. `Fee` and
 > `Payment` gained an `orgRole` column linking a fee/payment to an org-fee
 > stage. See migration `20260520120000_workflow_9_stages`.
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
@@ -18,7 +23,11 @@ Migrations: `backend/prisma/migrations/` (Prisma; never edit applied ones)
 | users | All accounts (student, bytes, librarian, adviser, chairperson, dean) | auth |
 | account_approvals | Audit of BYTES approving/rejecting accounts | auth |
 | clearance_requests | Top-level request from a student | clearance |
+<<<<<<< HEAD
+| approval_stages | Per-stage approval state (5 rows per request) | approval |
+=======
 | approval_stages | Per-stage approval state (9 rows per request as of 2026-05-20) | approval |
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 | audit_logs | Immutable log of every approval action | approval |
 | fines | Fines per student | payment |
 | fees | Fees per student (SSG, course, dept, college) | payment |

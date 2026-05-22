@@ -13,6 +13,9 @@ export default defineConfig({
       },
     },
   },
+<<<<<<< HEAD
+});
+=======
   build: {
     chunkSizeWarningLimit: 800,
     rollupOptions: {
@@ -26,3 +29,4 @@ export default defineConfig({
     },
   },
 });
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e

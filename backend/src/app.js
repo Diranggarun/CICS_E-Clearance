@@ -15,6 +15,9 @@ import { notFound, errorHandler } from './middleware/error.js'
 
 const app = express()
 
+<<<<<<< HEAD
+app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173', credentials: true }))
+=======
 // Accept the configured origin OR any localhost/127.0.0.1 port — keeps dev painless
 // when Vite falls back to 5174/5175 because 5173 is held by a zombie process.
 const allowedOrigin = (origin, cb) => {
@@ -24,6 +27,7 @@ const allowedOrigin = (origin, cb) => {
   cb(new Error(`CORS: origin ${origin} not allowed`))
 }
 app.use(cors({ origin: allowedOrigin, credentials: true }))
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 app.use(express.json({ limit: '1mb' }))
 app.use(morgan('dev'))
 app.use("/uploads", express.static("uploads"))

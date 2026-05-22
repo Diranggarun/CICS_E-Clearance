@@ -35,6 +35,8 @@ export async function listFinancialBlockers(studentId) {
     has_unpaid_fees: feesUnpaid,
   }
 }
+<<<<<<< HEAD
+=======
 
 // --- Per-org fee gating (9-stage workflow) ---
 //
@@ -68,3 +70,4 @@ export async function listOrgFinancialBlockers(studentId, orgRole) {
     unpaid_fines: fines,
   }
 }
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e

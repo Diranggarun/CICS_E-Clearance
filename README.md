@@ -18,9 +18,15 @@
 
 ## Overview
 
+<<<<<<< HEAD
+The **CICS E-Clearance System** digitizes the student clearance process at MSU – Main Campus. It enables students to submit, track, and complete clearance requirements online, while empowering BYTES officers, signatories, and administrators to manage accounts, fees, fines, and approvals through role-based dashboards.
+
+The project follows a clean monorepo split between **frontend** (React + Vite) and **backend** (Node.js + Express + Prisma + PostgreSQL), and is being built collaboratively by a 9-person team.
+=======
 The **CICS E-Clearance System** digitizes the student clearance process at MSU – Main Campus. Students submit clearance requests online and track them through a 5-stage sequential approval pipeline (BYTES → Librarian → Faculty Adviser → Chairperson → Dean). BYTES officers manage fines, fees, and GCash payments. Once all stages are approved, the student downloads an official PDF clearance form.
 
 Monorepo split: **frontend** (React + Vite + Tailwind) and **backend** (Node.js + Express + Prisma + Supabase Postgres). Built collaboratively by a 9-person team.
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
@@ -30,6 +36,19 @@ Monorepo split: **frontend** (React + Vite + Tailwind) and **backend** (Node.js 
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
+<<<<<<< HEAD
+- [Getting Started](#getting-started)
+  - [Backend Setup](#backend-setup)
+  - [Frontend Setup](#frontend-setup)
+- [Environment Variables](#environment-variables)
+- [Default Accounts](#default-accounts)
+- [API Reference](#api-reference)
+- [Frontend Integration Guide](#frontend-integration-guide)
+- [Branching Strategy](#branching-strategy)
+- [Available Scripts](#available-scripts)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+=======
 - [Quick Start (Automated)](#quick-start-automated)
 - [Manual Setup](#manual-setup)
 - [Environment Variables](#environment-variables)
@@ -39,6 +58,7 @@ Monorepo split: **frontend** (React + Vite + Tailwind) and **backend** (Node.js 
 - [Branching Strategy](#branching-strategy)
 - [Available Scripts](#available-scripts)
 - [Roadmap](#roadmap)
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 - [Team](#team)
 - [License](#license)
 
@@ -46,6 +66,16 @@ Monorepo split: **frontend** (React + Vite + Tailwind) and **backend** (Node.js 
 
 ## Features
 
+<<<<<<< HEAD
+- **Role-based access control** — Student, BYTES Officer, Signatory, Admin
+- **Student dashboard** — Submit clearance requests, track approvals, view fines
+- **Officer dashboard** — Approve/deny pending accounts, manage clearance items
+- **Admin dashboard** — User management, requirements configuration, reports
+- **Secure authentication** — JWT-based login with pending/denied account gating
+- **PDF clearance generation** *(planned)*
+- **GCash payment integration** *(planned)*
+- **Email + in-app notifications** *(planned)*
+=======
 - ✅ **Role-based access control** — Student, BYTES Officer, Librarian, Faculty Adviser, Chairperson, Dean
 - ✅ **Student dashboard** — Submit clearance request, real-time progress, fines/fees view, payment history
 - ✅ **5-stage sequential approval pipeline** — BYTES → Librarian → Adviser → Chairperson → Dean, with prerequisite gating
@@ -56,6 +86,7 @@ Monorepo split: **frontend** (React + Vite + Tailwind) and **backend** (Node.js 
 - ✅ **Email + in-app notifications** — Wired into account approval, every stage decision, and payment events
 - ✅ **Reports** — Filterable clearance status report, PDF + CSV export
 - ✅ **Audit trail** — Every approval/denial recorded with actor + reason
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
@@ -69,6 +100,20 @@ Monorepo split: **frontend** (React + Vite + Tailwind) and **backend** (Node.js 
 | Routing       | React Router v6                         |
 | HTTP Client   | Axios                                   |
 | Notifications | react-hot-toast                         |
+<<<<<<< HEAD
+| Styling       | Tailwind CSS, CSS Modules, CSS Variables|
+| Fonts         | Poppins, Inter (Google Fonts)           |
+
+### Backend
+| Layer      | Technology  |
+| ---------- | ----------- |
+| Runtime    | Node.js 18+ |
+| Framework  | Express     |
+| ORM        | Prisma      |
+| Database   | PostgreSQL  |
+| Auth       | JWT         |
+| Validation | Zod         |
+=======
 | Styling       | Tailwind CSS                            |
 | Icons         | react-icons                             |
 
@@ -84,6 +129,7 @@ Monorepo split: **frontend** (React + Vite + Tailwind) and **backend** (Node.js 
 | PDF         | pdfkit                    |
 | Email       | Nodemailer (SMTP)         |
 | Validation  | Zod                       |
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
@@ -91,6 +137,34 @@ Monorepo split: **frontend** (React + Vite + Tailwind) and **backend** (Node.js 
 
 ```
 CICS_Clearance_System/
+<<<<<<< HEAD
+├── frontend/                       # React + Vite + Tailwind
+│   ├── public/                     # Static assets
+│   ├── src/
+│   │   ├── api/                    # API client layer
+│   │   │   └── auth.js
+│   │   ├── components/             # Shared UI components
+│   │   │   └── ProtectedRoute.jsx
+│   │   ├── context/                # React contexts (auth, etc.)
+│   │   │   └── AuthContext.jsx
+│   │   ├── pages/                  # Route-level pages
+│   │   │   ├── LoginPage.jsx
+│   │   │   └── RegisterPage.jsx
+│   │   ├── App.jsx                 # Route definitions
+│   │   ├── main.jsx                # Entry point
+│   │   └── index.css               # Global styles
+│   ├── .env.example
+│   ├── vite.config.js              # Dev server + API proxy
+│   └── package.json
+│
+├── backend/                        # Node.js + Express + Prisma
+│   ├── src/                        # Controllers, routes, middleware
+│   ├── prisma/                     # Schema + migrations
+│   ├── .env.example
+│   └── package.json
+│
+├── README.md
+=======
 │
 ├── frontend/                            # React 18 + Vite 5 + Tailwind
 │   ├── public/                          # Static assets (logos, seals, etc.)
@@ -203,6 +277,7 @@ CICS_Clearance_System/
 ├── RUN.md                               # Full local-run guide
 ├── README.md                            # ← this file
 ├── setup.ps1                            # One-shot bootstrap (Windows)
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 └── .gitignore
 ```
 
@@ -210,6 +285,29 @@ CICS_Clearance_System/
 
 ## Prerequisites
 
+<<<<<<< HEAD
+Before running the project, ensure you have the following installed:
+
+- [Node.js](https://nodejs.org/) **≥ 18**
+- [npm](https://www.npmjs.com/) **≥ 9** (bundled with Node)
+- [PostgreSQL](https://www.postgresql.org/) **≥ 14**
+- [Git](https://git-scm.com/)
+
+---
+
+## Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/<your-org>/cics-eclearance.git
+cd cics-eclearance
+```
+
+Run the backend and frontend in separate terminals.
+
+### Backend Setup
+=======
 - [Node.js](https://nodejs.org/) **≥ 18**
 - [npm](https://www.npmjs.com/) **≥ 9** (bundled with Node)
 - [Git](https://git-scm.com/)
@@ -258,10 +356,20 @@ Open **http://localhost:5173**.
 If you'd rather not run the script:
 
 ### Backend
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ```powershell
 cd backend
 npm install
+<<<<<<< HEAD
+copy .env.example .env               # then edit DATABASE_URL and JWT_SECRET
+npx prisma migrate dev --name init
+npm run seed
+npm run dev                          # http://localhost:8000
+```
+
+### Frontend Setup
+=======
 copy .env.example .env
 # Edit .env — fill DATABASE_URL, DIRECT_URL, set a JWT_SECRET
 npx prisma migrate deploy
@@ -271,6 +379,7 @@ npm run dev                          # http://localhost:5000
 ```
 
 ### Frontend
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ```powershell
 cd frontend
@@ -279,9 +388,13 @@ copy .env.example .env.local
 npm run dev                          # http://localhost:5173
 ```
 
+<<<<<<< HEAD
+Vite automatically proxies `/api/*` → `http://localhost:8000`, so no additional config is required.
+=======
 Vite proxies `/api/*` to `http://127.0.0.1:5000`. No additional config needed unless you change the backend port.
 
 For full setup details + troubleshooting, see [`RUN.md`](RUN.md).
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
@@ -289,6 +402,19 @@ For full setup details + troubleshooting, see [`RUN.md`](RUN.md).
 
 ### Backend (`backend/.env`)
 
+<<<<<<< HEAD
+| Variable       | Description                            | Example                                              |
+| -------------- | -------------------------------------- | ---------------------------------------------------- |
+| `DATABASE_URL` | PostgreSQL connection string           | `postgresql://user:pass@localhost:5432/cics_clearance` |
+| `JWT_SECRET`   | Secret used to sign JWT tokens         | `super-secret-string`                                |
+| `PORT`         | API server port (default `8000`)       | `8000`                                               |
+
+### Frontend (`frontend/.env.local`)
+
+| Variable       | Description                            | Example                  |
+| -------------- | -------------------------------------- | ------------------------ |
+| `VITE_API_URL` | Backend API base URL (optional override)| `http://localhost:8000` |
+=======
 | Variable          | Description                                                       | Example                                                |
 | ----------------- | ----------------------------------------------------------------- | ------------------------------------------------------ |
 | `DATABASE_URL`    | Supabase Transaction pooler URI (port 6543, app runtime)          | `postgresql://postgres.xxx:PASS@aws-...:6543/postgres?pgbouncer=true` |
@@ -304,11 +430,21 @@ For full setup details + troubleshooting, see [`RUN.md`](RUN.md).
 | Variable            | Description                                  | Example                  |
 | ------------------- | -------------------------------------------- | ------------------------ |
 | `VITE_API_BASE_URL` | Backend base URL (optional; usually proxied) | `http://localhost:5000`  |
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
 ## Default Accounts
 
+<<<<<<< HEAD
+After seeding, a BYTES Officer account is available for approving new student registrations:
+
+| Email               | Password     | Role           |
+| ------------------- | ------------ | -------------- |
+| `bytes@cics.edu.ph` | `Bytes#2026` | `bytes_officer`|
+
+> Change this password immediately in production.
+=======
 After `npm run seed`, the following accounts are available. **Default password for all role testers and team members is `Cics#2026`** unless noted.
 
 ### Role testers (use these to walk the approval pipeline)
@@ -339,12 +475,17 @@ After `npm run seed`, the following accounts are available. **Default password f
 6. Log back in as the student → **My Clearance** → **Download PDF** button is now enabled → file downloads.
 
 Optional: issue a fine to the student first to test the GCash receipt-upload flow and the BYTES financial-blocker gate.
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
 ## API Reference
 
+<<<<<<< HEAD
+Base URL: `http://localhost:8000/api`
+=======
 Base URL: `http://localhost:5000/api`
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ### Authentication
 
@@ -355,12 +496,83 @@ Base URL: `http://localhost:5000/api`
 | `GET`  | `/auth/me`            | Get the current authenticated user    | ✅   |
 | `POST` | `/auth/logout`        | Stateless logout                      | ✅   |
 
+<<<<<<< HEAD
+### Admin (BYTES Officer only)
+=======
 ### Admin (BYTES Officer)
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 | Method | Endpoint                                   | Description                |
 | ------ | ------------------------------------------ | -------------------------- |
 | `GET`  | `/admin/pending-accounts`                  | List pending registrations |
 | `POST` | `/admin/pending-accounts/:id/approve`      | Approve a pending account  |
+<<<<<<< HEAD
+| `POST` | `/admin/pending-accounts/:id/deny`         | Deny a pending account     |
+
+### Register Payload
+
+```json
+{
+  "id_number": "2024-00000",
+  "course": "BS-Information Technology",
+  "last_name": "Dela Cruz",
+  "first_name": "Juan",
+  "middle_name": "Santos",
+  "gender": "Male",
+  "date_of_birth": "2002-01-15",
+  "contact_number": "09XX-XXX-XXXX",
+  "email": "your@cics.edu.ph",
+  "password": "securepassword"
+}
+```
+
+### Login Response
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": 1,
+    "email": "your@cics.edu.ph",
+    "role": "student"
+  }
+}
+```
+
+---
+
+## Frontend Integration Guide
+
+This section is intended for the **backend team** integrating against the frontend.
+
+### 1. API Proxy
+
+The Vite dev server proxies `/api/*` to the backend. Update the target in `frontend/vite.config.js` if your API runs on a different port:
+
+```js
+// frontend/vite.config.js
+server: {
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8000',
+      changeOrigin: true,
+    },
+  },
+},
+```
+
+### 2. Activating Real API Calls
+
+API integration points are marked with `// TODO (backend team):` comments. In `src/pages/LoginPage.jsx` and `src/pages/RegisterPage.jsx`, uncomment the real API calls inside the `try` blocks and remove the mock fallbacks once the backend is reachable.
+
+### 3. CORS
+
+Ensure the backend allows the frontend origin in development:
+
+```
+Access-Control-Allow-Origin: http://localhost:5173
+```
+=======
 | `POST` | `/admin/pending-accounts/:id/deny`         | Deny (`{ reason }`)        |
 | `GET`  | `/admin/dashboard-stats`                   | Totals + per-stage breakdown |
 | `GET`  | `/admin/reports/clearance`                 | Filtered report (`?status=`, `?stage=`) |
@@ -420,6 +632,7 @@ Base URL: `http://localhost:5000/api`
 | `DELETE` | `/requirements/:id`            | bytes_officer | Remove                       |
 
 Full contract in [`claude-docs/API_CONTRACT.md`](claude-docs/API_CONTRACT.md).
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
@@ -428,12 +641,21 @@ Full contract in [`claude-docs/API_CONTRACT.md`](claude-docs/API_CONTRACT.md).
 | Branch              | Purpose                                                |
 | ------------------- | ------------------------------------------------------ |
 | `main`              | Production-ready code only                             |
+<<<<<<< HEAD
+| `develop`           | Integration branch — frontend + backend merge here     |
+| `feat/<feature>`    | New features (e.g. `feat/login-api`)                   |
+| `fix/<issue>`       | Bug fixes                                              |
+| `chore/<task>`      | Tooling, configs, dependencies                         |
+
+**Workflow:** branch off `develop` → open PR → review → merge into `develop` → release into `main`.
+=======
 | `develop`           | Integration branch — feature merges land here          |
 | `feat/<feature>`    | New features (e.g. `feat/auth-login-flow`)             |
 | `fix/<issue>`       | Bug fixes                                              |
 | `chore/<task>`      | Tooling, configs, dependencies                         |
 
 Module ownership is documented in [`CLAUDE.md`](CLAUDE.md). Never modify another developer's module without coordinating first. Full workflow rules in [`claude-docs/WORKFLOW.md`](claude-docs/WORKFLOW.md).
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
@@ -443,6 +665,22 @@ Module ownership is documented in [`CLAUDE.md`](CLAUDE.md). Never modify another
 
 | Command           | Description                              |
 | ----------------- | ---------------------------------------- |
+<<<<<<< HEAD
+| `npm run dev`     | Start the Vite dev server with HMR       |
+| `npm run build`   | Build production bundle to `dist/`       |
+| `npm run preview` | Preview the production build locally     |
+| `npm run lint`    | Run ESLint across the codebase           |
+
+### Backend (`/backend`)
+
+| Command                    | Description                          |
+| -------------------------- | ------------------------------------ |
+| `npm run dev`              | Start the API server with hot reload |
+| `npm run start`            | Start the API server (production)    |
+| `npm run seed`             | Seed initial data (BYTES Officer)    |
+| `npx prisma migrate dev`   | Run development migrations           |
+| `npx prisma studio`        | Open the Prisma DB GUI               |
+=======
 | `npm run dev`     | Vite dev server with HMR (port 5173)     |
 | `npm run build`   | Production bundle to `dist/`             |
 | `npm run preview` | Preview the production build locally     |
@@ -458,11 +696,38 @@ Module ownership is documented in [`CLAUDE.md`](CLAUDE.md). Never modify another
 | `npm run prisma:generate`     | Generate Prisma client               |
 | `npm run prisma:migrate`      | Run dev migration interactively      |
 | `npm run prisma:studio`       | Open Prisma DB GUI                   |
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
 ## Roadmap
 
+<<<<<<< HEAD
+Tracked in `claude_prompt_and task.txt`. Current status:
+
+- [x] **Task 1** — Authentication & user management (register, login, JWT, account approval)
+- [ ] **Task 0b** — Full schema + OpenAPI contract
+- [ ] **Task 2** — Student clearance request + PDF generation
+- [ ] **Task 3** — Fines, fees, and GCash payments
+- [ ] **Task 4** — Approval workflow engine (multi-role gating)
+- [ ] **Task 5** — Email + in-app notifications
+- [ ] **Task 6** — Admin dashboard, requirements, reports
+- [ ] **Task 7** — Student frontend pages
+- [ ] **Task 8** — Admin / staff frontend pages
+
+---
+
+## Contributing
+
+1. Fork or clone the repository.
+2. Create a feature branch: `git checkout -b feat/your-feature`.
+3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org/):
+   - `feat: add student clearance form`
+   - `fix: handle 401 on expired tokens`
+   - `chore: bump prisma to 5.x`
+4. Push your branch and open a Pull Request against `develop`.
+5. Ensure linting passes and the app builds before requesting review.
+=======
 Detailed status per phase + module: [`claude-docs/PROGRESS.md`](claude-docs/PROGRESS.md). Current overall completion: **~80%**.
 
 - [x] **Phase 0–3** — Project scaffolding, DB schema, backend foundation
@@ -478,11 +743,22 @@ Detailed status per phase + module: [`claude-docs/PROGRESS.md`](claude-docs/PROG
 - [x] **Phase 14–15** — Approval action UI + Reports UI
 - [ ] **Phase 16** — Integration tests
 - [ ] **Phase 17** — Deployment (Dockerfile, env, hosting)
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
 ## Team
 
+<<<<<<< HEAD
+Built by a 9-person team from the College of Information and Computing Studies, MSU – Main Campus.
+
+| Role               | Responsibilities                                        |
+| ------------------ | ------------------------------------------------------- |
+| Project Lead       | Coordination, architecture, code review                 |
+| Backend Engineers  | API, database, auth, workflow engine                    |
+| Frontend Engineers | UI, dashboards, integrations                            |
+| QA / Documentation | Testing, OpenAPI spec, README                           |
+=======
 College of Information and Computing Studies, MSU – Main Campus (9 members).
 
 | Member                  | Module                                                                       |
@@ -496,17 +772,26 @@ College of Information and Computing Studies, MSU – Main Campus (9 members).
 | Norman Sharief          | Student-facing frontend                                                      |
 | Shaheel Sarip           | Admin / staff-facing frontend                                                |
 | Jonaidah Caris          | Design system + Figma mockups                                                |
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
 ## License
 
+<<<<<<< HEAD
+This project is released under the [MIT License](LICENSE).
+=======
 Released under the [MIT License](LICENSE).
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 
 <div align="center">
 
+<<<<<<< HEAD
+Made with ❤️ by the CICS – MSU Main Campus team.
+=======
 Made with care by the CICS – MSU Main Campus team.
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 </div>

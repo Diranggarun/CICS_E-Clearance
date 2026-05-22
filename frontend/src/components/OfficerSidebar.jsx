@@ -1,3 +1,26 @@
+<<<<<<< HEAD
+import { NavLink } from "react-router-dom";
+import {
+  FiMenu,
+  FiHome,
+  FiFileText,
+  FiInbox,
+  FiCheckCircle,
+  FiXCircle,
+} from "react-icons/fi";
+
+function OfficerSidebar({ collapsed, setCollapsed }) {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const navItems = [
+    { name: "Dashboard", path: "/officer/dashboard", icon: <FiHome /> },
+    { name: "Requirement", path: "/officer/requirement", icon: <FiFileText /> },
+    { name: "Requests", path: "/officer/requests", icon: <FiInbox /> },
+    { name: "Approved", path: "/officer/approved", icon: <FiCheckCircle /> },
+    { name: "Denied", path: "/officer/denied", icon: <FiXCircle /> },
+  ];
+
+=======
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   FiMenu,
@@ -53,6 +76,7 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
   const initial = (user?.firstName || user?.email || "O").charAt(0).toUpperCase();
   const roleLabel = (user?.role || "officer").replace(/_/g, " ");
 
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   return (
     <aside
       className={`h-screen flex flex-col justify-between text-white
@@ -77,6 +101,29 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
+<<<<<<< HEAD
+        {/* Top Profile Card */}
+        {!collapsed && (
+        <div className="px-4 pb-4">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
+                {user?.email?.charAt(0).toUpperCase() || "O"}
+            </div>
+            <div>
+                <p className="font-semibold text-white">Officer</p>
+                <p className="text-xs text-white/75">
+                {user?.email || "officer@cics.edu.ph"}
+                </p>
+            </div>
+            </div>
+        </div>
+        )}
+        
+        {!collapsed && (
+          <p className="px-7 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+            Officer Menu
+          </p>
+=======
         {!collapsed && (
           <div className="px-4 pb-4">
             <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
@@ -91,16 +138,25 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
               </div>
             </div>
           </div>
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
         )}
 
         <nav className="mt-4 space-y-2 px-3">
           {navItems.map((item) => (
             <NavLink
+<<<<<<< HEAD
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                  isActive
+=======
               key={item.name}
               to={item.path}
               className={() =>
                 `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
                   location.pathname === item.path
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
                     ? "bg-white/20 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)] backdrop-blur"
                     : "text-white/85 hover:bg-white/10 hover:text-white"
                 }`
@@ -113,6 +169,19 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
         </nav>
       </div>
 
+<<<<<<< HEAD
+            {!collapsed && (
+        <div className="p-4">
+          <NavLink
+            to="/login"
+            className="flex items-center justify-center rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-white/20"
+          >
+            Logout
+          </NavLink>
+        </div>
+      )}
+      
+=======
       <div className="p-4">
         <button
           onClick={handleLogout}
@@ -122,8 +191,13 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
           {!collapsed && <span>Logout</span>}
         </button>
       </div>
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
     </aside>
   );
 }
 
+<<<<<<< HEAD
 export default OfficerSidebar;
+=======
+export default OfficerSidebar;
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
