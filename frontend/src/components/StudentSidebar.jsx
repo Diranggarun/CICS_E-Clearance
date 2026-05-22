@@ -1,15 +1,42 @@
+<<<<<<< HEAD
 import { NavLink } from "react-router-dom";
 import { FiMenu, FiHome, FiClipboard, FiBell } from "react-icons/fi";
 
 function StudentSidebar({ collapsed, setCollapsed }) {
   const user = JSON.parse(localStorage.getItem("user"));
+=======
+import { NavLink, useNavigate } from "react-router-dom";
+import { FiMenu, FiHome, FiClipboard, FiBell, FiCreditCard, FiLogOut } from "react-icons/fi";
+import { useAuth } from "../context/AuthContext";
+
+function StudentSidebar({ collapsed, setCollapsed }) {
+  const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
   const navItems = [
     { name: "Dashboard", path: "/student/dashboard", icon: <FiHome /> },
     { name: "My Clearance", path: "/student/my-clearance", icon: <FiClipboard /> },
+<<<<<<< HEAD
     { name: "Notifications", path: "/student/notifications", icon: <FiBell /> },
   ];
 
+=======
+    { name: "Payment", path: "/student/payment", icon: <FiCreditCard /> },
+    { name: "Notifications", path: "/student/notifications", icon: <FiBell /> },
+  ];
+
+  const handleLogout = () => {
+    logoutUser();
+    navigate("/login", { replace: true });
+  };
+
+  const displayName = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email
+    : "Student";
+  const initial = (user?.firstName || user?.email || "S").charAt(0).toUpperCase();
+
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   return (
     <aside
       className={`h-screen flex flex-col justify-between text-white
@@ -34,6 +61,7 @@ function StudentSidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
+<<<<<<< HEAD
     {!collapsed && (
               <div className="px-4 pb-4">
                 <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
@@ -49,6 +77,23 @@ function StudentSidebar({ collapsed, setCollapsed }) {
                 </div>
               </div>
             )}
+=======
+        {!collapsed && (
+          <div className="px-4 pb-4">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
+                {initial}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-white">{displayName}</p>
+                <p className="truncate text-xs text-white/75">
+                  {user?.email || ""}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
         {!collapsed && (
           <p className="px-7 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
@@ -76,6 +121,7 @@ function StudentSidebar({ collapsed, setCollapsed }) {
         </nav>
       </div>
 
+<<<<<<< HEAD
       {!collapsed && (
         <div className="p-4">
           <NavLink
@@ -86,8 +132,23 @@ function StudentSidebar({ collapsed, setCollapsed }) {
           </NavLink>
         </div>
       )}
+=======
+      <div className="p-4">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-white/20"
+        >
+          <FiLogOut />
+          {!collapsed && <span>Logout</span>}
+        </button>
+      </div>
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
     </aside>
   );
 }
 
+<<<<<<< HEAD
 export default StudentSidebar;
+=======
+export default StudentSidebar;
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e

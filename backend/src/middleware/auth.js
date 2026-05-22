@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { verifyToken } from '../lib/jwt.js'
 import prisma from '../lib/prisma.js'
 
@@ -14,13 +15,44 @@ export async function requireAuth(req, res, next) {
     next()
   } catch {
     return res.status(401).json({ message: 'Invalid or expired token' })
+=======
+import { verifyToken } from '../lib/jwt.js';
+import prisma from '../lib/prisma.js';
+
+export async function requireAuth(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Missing or invalid Authorization header' });
+  }
+  
+  try {
+    const token = header.slice(7);
+    const decoded = verifyToken(token);
+    
+    const user = await prisma.user.findUnique({ where: { id: decoded.sub } });
+    if (!user) return res.status(401).json({ message: 'User no longer exists' });
+    
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   }
 }
 
 export const requireRole = (...roles) => (req, res, next) => {
+<<<<<<< HEAD
   if (!req.user) return res.status(401).json({ message: 'Not authenticated' })
   if (!roles.includes(req.user.role)) {
     return res.status(403).json({ message: 'Forbidden: insufficient role' })
   }
   next()
 }
+=======
+  if (!req.user) return res.status(401).json({ message: 'Not authenticated' });
+  if (!roles.includes(req.user.role)) {
+    return res.status(403).json({ message: 'Forbidden: insufficient role' });
+  }
+  next();
+};
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e

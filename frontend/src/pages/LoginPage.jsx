@@ -74,8 +74,24 @@ export default function LoginPage() {
       const result = await loginUser(email, password);
       if (result.success) {
         toast.success("Welcome back!");
+<<<<<<< HEAD
         // ✅ FIXED HERE: goes to the correct route from your App.jsx
         navigate("/student/dashboard");
+=======
+        const role = result.user?.role
+        const dashByRole = {
+          admin: '/admin/dashboard',
+          cursor_org: '/cursor/dashboard',
+          department_org: '/department/dashboard',
+          bytes_officer: '/bytes/dashboard',
+          librarian: '/librarian/dashboard',
+          faculty_adviser: '/adviser/dashboard',
+          chairperson: '/chairperson/dashboard',
+          dean: '/dean/dashboard',
+          enrolling_faculty: '/enrolling/dashboard',
+        }
+        navigate(dashByRole[role] || '/student/dashboard');
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
       } else {
         toast.error(result.message);
       }

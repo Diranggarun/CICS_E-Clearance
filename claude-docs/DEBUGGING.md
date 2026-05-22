@@ -162,6 +162,57 @@ Fix:
 
 ---
 
+<<<<<<< HEAD
+=======
+## Node / Prisma / Supabase (current stack)
+
+### EADDRINUSE :::5000 on backend start
+Cause: A zombie node.exe from a previous run is holding the port.
+Fix: `taskkill /IM node.exe /F` then `npm run dev` again. If the error persists, run `netstat -ano | findstr :5000` to find the PID and `taskkill /PID <pid> /F`.
+
+### Vite says "Port 5173 is in use, trying another one..." and lands on 5174
+Cause: Same — a zombie Vite is on 5173.
+Fix: `taskkill /IM node.exe /F` then restart frontend. The backend's CORS was widened to accept any localhost port, so 5174 still works for the demo, but URLs in bookmarks/docs assume 5173.
+
+### Prisma: "invalid domain character in database URL"
+Cause: `backend/.env` still contains literal `[YOUR-PASSWORD]` / `[PROJECT-REF]` placeholders, OR the password has un-escaped special chars (`@ # / ? % :`).
+Fix: Re-run `setup.ps1` (it'll prompt for fresh values), or URL-encode the password. PowerShell quick encode: `Add-Type -AssemblyName System.Web; [System.Web.HttpUtility]::UrlEncode("YourPassword")`.
+
+### Prisma migrate hangs / SSL handshake error
+Cause: Using the Transaction pooler URI (port 6543) for `DIRECT_URL`. Migrations need a real session connection.
+Fix: Set `DIRECT_URL` to the Supabase **Session/Direct** URI (port 5432). The pooler URI goes in `DATABASE_URL`.
+
+### `prisma generate` fails with EPERM rename query_engine-windows.dll.node
+Cause: A running backend (or Prisma Studio) has the engine DLL file-locked. Windows can't replace it.
+Fix: Stop all node processes (`taskkill /IM node.exe /F`), then `npx prisma generate`. Harmless if the client was already generated before — runtime still works.
+
+### Login spins forever / "Network Error" toast
+Cause: Backend isn't running, wrong port, or the user's stale process is on a different port.
+Fix: Confirm backend terminal shows `CICS E-Clearance API running on http://localhost:5000`. Hit `http://localhost:5000/api/health` directly — should return `{"ok":true}`.
+
+### "Email already registered" on Register
+Cause: The email is taken (often a seeded team account like `diranggarun.hg587@s.msumain.edu.ph`).
+Fix: Use a different email. Or wipe the user: `node -e "import('./src/lib/prisma.js').then(async m => { const p=m.default; await p.user.delete({where:{email:'X'}}); await p.\$disconnect()})"`.
+
+### "Please fill in all required fields" on Register even though everything looks filled
+Cause: The Date of Birth field still shows `mm/dd/yyyy` placeholder — it's actually empty.
+Fix: Click the date picker and select a date.
+
+### Manage Fines: "No user found for 2026-9001"
+Cause: Until 2026-05-17, the backend only accepted UUIDs in the studentId field. Now it accepts School IDs too.
+Fix: Restart the backend if it predates the fix. Or paste the UUID instead.
+
+### Multiple zombie node.exe processes accumulate
+Cause: Re-running `npm run dev` in the same terminal without Ctrl+C'ing the previous one leaves orphans (Windows quirk).
+Fix: `taskkill /IM node.exe /F` between runs. Or always use Ctrl+C to stop before restarting.
+
+### Browser stuck showing old code after a Vite change
+Cause: Service worker / aggressive cache.
+Fix: Hard reload — Ctrl+Shift+R (Chrome/Edge) or open DevTools → Network → "Disable cache".
+
+---
+
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 ## Adding entries
 
 Format:

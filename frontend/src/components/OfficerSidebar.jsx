@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { NavLink } from "react-router-dom";
 import {
   FiMenu,
@@ -19,6 +20,63 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
     { name: "Denied", path: "/officer/denied", icon: <FiXCircle /> },
   ];
 
+=======
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import {
+  FiMenu,
+  FiHome,
+  FiLogOut,
+  FiCheckSquare,
+  FiCreditCard,
+} from "react-icons/fi";
+import { useAuth } from "../context/AuthContext";
+
+function OfficerSidebar({ collapsed, setCollapsed }) {
+  const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Approver dashboards all share OfficerLayout. Pick the dashboard path that
+  // matches the current role so the sidebar isn't confusing.
+  const roleDash = {
+    cursor_org: "/cursor/dashboard",
+    department_org: "/department/dashboard",
+    bytes_officer: "/bytes/dashboard",
+    librarian: "/librarian/dashboard",
+    faculty_adviser: "/adviser/dashboard",
+    chairperson: "/chairperson/dashboard",
+    dean: "/dean/dashboard",
+    enrolling_faculty: "/enrolling/dashboard",
+  };
+  // Org-fee officers also verify the payments for their organization.
+  const rolePayments = {
+    cursor_org: "/cursor/payments",
+    department_org: "/department/payments",
+    bytes_officer: "/bytes/payments",
+  };
+  const dashPath = roleDash[user?.role] || "/officer/dashboard";
+  const paymentsPath = rolePayments[user?.role];
+
+  const navItems = [
+    { name: "Dashboard", path: dashPath, icon: <FiHome /> },
+    { name: "Pending Approvals", path: dashPath, icon: <FiCheckSquare /> },
+    ...(paymentsPath
+      ? [{ name: "Payments", path: paymentsPath, icon: <FiCreditCard /> }]
+      : []),
+  ];
+
+  const handleLogout = () => {
+    logoutUser();
+    navigate("/login", { replace: true });
+  };
+
+  const displayName = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email
+    : "Officer";
+  const initial = (user?.firstName || user?.email || "O").charAt(0).toUpperCase();
+  const roleLabel = (user?.role || "officer").replace(/_/g, " ");
+
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   return (
     <aside
       className={`h-screen flex flex-col justify-between text-white
@@ -43,6 +101,7 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
+<<<<<<< HEAD
         {/* Top Profile Card */}
         {!collapsed && (
         <div className="px-4 pb-4">
@@ -64,16 +123,40 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
           <p className="px-7 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
             Officer Menu
           </p>
+=======
+        {!collapsed && (
+          <div className="px-4 pb-4">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/30 bg-white/15 p-4 shadow-sm backdrop-blur">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0D27F7]">
+                {initial}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-white capitalize">{roleLabel}</p>
+                <p className="truncate text-xs text-white/75">
+                  {displayName}
+                </p>
+              </div>
+            </div>
+          </div>
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
         )}
 
         <nav className="mt-4 space-y-2 px-3">
           {navItems.map((item) => (
             <NavLink
+<<<<<<< HEAD
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
                   isActive
+=======
+              key={item.name}
+              to={item.path}
+              className={() =>
+                `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                  location.pathname === item.path
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
                     ? "bg-white/20 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.35)] backdrop-blur"
                     : "text-white/85 hover:bg-white/10 hover:text-white"
                 }`
@@ -86,6 +169,7 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
         </nav>
       </div>
 
+<<<<<<< HEAD
             {!collapsed && (
         <div className="p-4">
           <NavLink
@@ -97,8 +181,23 @@ function OfficerSidebar({ collapsed, setCollapsed }) {
         </div>
       )}
       
+=======
+      <div className="p-4">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/15 px-4 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition hover:bg-white/20"
+        >
+          <FiLogOut />
+          {!collapsed && <span>Logout</span>}
+        </button>
+      </div>
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
     </aside>
   );
 }
 
+<<<<<<< HEAD
 export default OfficerSidebar;
+=======
+export default OfficerSidebar;
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e

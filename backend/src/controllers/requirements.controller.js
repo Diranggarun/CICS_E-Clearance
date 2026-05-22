@@ -1,6 +1,20 @@
 import prisma from '../lib/prisma.js'
 
+<<<<<<< HEAD
 const VALID_ROLES = ['bytes_officer', 'librarian', 'faculty_adviser', 'chairperson', 'dean']
+=======
+const VALID_ROLES = [
+  'admin',
+  'cursor_org',
+  'department_org',
+  'bytes_officer',
+  'librarian',
+  'faculty_adviser',
+  'chairperson',
+  'dean',
+  'enrolling_faculty',
+]
+>>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 // GET /api/requirements — list all (filterable by ?role= and ?active=1)
 export async function list(req, res) {
