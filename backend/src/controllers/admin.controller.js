@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import prisma from '../lib/prisma.js'
-import { notify } from '../notifications/notify.js'
-
-=======
 import bcrypt from 'bcrypt'
 import prisma from '../lib/prisma.js'
 import { notify } from '../notifications/notify.js'
@@ -81,7 +76,6 @@ export async function listStudents(_req, res) {
   res.json({ students })
 }
 
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 export async function listPending(_req, res) {
   const users = await prisma.user.findMany({
     where: { status: 'pending' },

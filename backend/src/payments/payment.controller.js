@@ -1,18 +1,10 @@
 import prisma from '../lib/prisma.js'
 import { notify } from '../notifications/notify.js'
-<<<<<<< HEAD
-=======
 import { ORG_FEE_STAGES } from '../lib/approval.js'
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 const ALLOWED_TYPES = ['fine', 'fee']
 const ALLOWED_METHODS = ['gcash', 'onsite']
 
-<<<<<<< HEAD
-// POST /api/payments — student submits a payment.
-export async function createPayment(req, res) {
-  const { type, amount, method, receipt, fineId } = req.body || {}
-=======
 const STAFF_VIEWER = (role) => role === 'admin' || ORG_FEE_STAGES.includes(role)
 
 // Who may decide (approve/deny) a given payment:
@@ -28,7 +20,6 @@ function canDecidePayment(user, payment) {
 // POST /api/payments — student submits a payment.
 export async function createPayment(req, res) {
   const { type, amount, method, receipt, fineId, orgRole } = req.body || {}
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
   if (!ALLOWED_TYPES.includes(type)) {
     return res.status(400).json({ message: 'type must be "fine" or "fee".' })
@@ -51,8 +42,6 @@ export async function createPayment(req, res) {
     }
   }
 
-<<<<<<< HEAD
-=======
   // Fee payments must name the org-fee stage they settle so the right office
   // verifies them and the approval engine can gate that stage.
   let resolvedOrgRole = null
@@ -65,7 +54,6 @@ export async function createPayment(req, res) {
     resolvedOrgRole = orgRole
   }
 
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   const payment = await prisma.payment.create({
     data: {
       userId: req.user.id,
@@ -73,26 +61,13 @@ export async function createPayment(req, res) {
       amount: Number(amount),
       method,
       receipt: receipt || null,
-<<<<<<< HEAD
-=======
       orgRole: resolvedOrgRole,
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
       status: 'pending',
     },
   })
   res.status(201).json(payment)
 }
 
-<<<<<<< HEAD
-// GET /api/payments — BYTES sees all; students see only their own.
-export async function listPayments(req, res) {
-  const where = req.user.role === 'bytes_officer' ? {} : { userId: req.user.id }
-  if (req.query.status) where.status = req.query.status
-  const payments = await prisma.payment.findMany({
-    where,
-    orderBy: { createdAt: 'desc' },
-    include: req.user.role === 'bytes_officer' ? { user: { select: { firstName: true, lastName: true, schoolId: true } } } : undefined,
-=======
 // GET /api/payments — Admin sees all; an org officer sees their own org's fee
 // payments; students see only their own.
 export async function listPayments(req, res) {
@@ -112,17 +87,10 @@ export async function listPayments(req, res) {
     include: STAFF_VIEWER(req.user.role)
       ? { user: { select: { firstName: true, lastName: true, schoolId: true } } }
       : undefined,
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   })
   res.json(payments)
 }
 
-<<<<<<< HEAD
-// PUT /api/payments/:id/approve — BYTES Officer only.
-export async function approvePayment(req, res) {
-  const payment = await prisma.payment.findUnique({ where: { id: req.params.id } })
-  if (!payment) return res.status(404).json({ message: 'Payment not found.' })
-=======
 // PUT /api/payments/:id/approve — Admin (any) or the owning org officer (fees).
 export async function approvePayment(req, res) {
   const payment = await prisma.payment.findUnique({ where: { id: req.params.id } })
@@ -130,7 +98,6 @@ export async function approvePayment(req, res) {
   if (!canDecidePayment(req.user, payment)) {
     return res.status(403).json({ message: 'You cannot verify this payment.' })
   }
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   if (payment.status !== 'pending') {
     return res.status(409).json({ message: `Payment already ${payment.status}.` })
   }
@@ -167,23 +134,16 @@ export async function approvePayment(req, res) {
   res.json(updated)
 }
 
-<<<<<<< HEAD
-// PUT /api/payments/:id/deny — BYTES Officer only.
-=======
 // PUT /api/payments/:id/deny — Admin (any) or the owning org officer (fees).
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 export async function denyPayment(req, res) {
   const reason = (req.body?.reason || '').trim()
   if (!reason) return res.status(400).json({ message: 'Denial reason required.' })
 
   const payment = await prisma.payment.findUnique({ where: { id: req.params.id } })
   if (!payment) return res.status(404).json({ message: 'Payment not found.' })
-<<<<<<< HEAD
-=======
   if (!canDecidePayment(req.user, payment)) {
     return res.status(403).json({ message: 'You cannot verify this payment.' })
   }
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   if (payment.status !== 'pending') {
     return res.status(409).json({ message: `Payment already ${payment.status}.` })
   }

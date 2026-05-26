@@ -35,22 +35,6 @@ multi-stage sequential workflow.
 - Email: SMTP / SendGrid / Gmail API
 - File storage: local filesystem for receipts
 
-<<<<<<< HEAD
-## User roles (RBAC — 6 roles)
-
-student, bytes, librarian, adviser, chairperson, dean
-
-## Clearance approval flow
-
-Student submits → BYTES → Librarian → Adviser → Chairperson → Dean → PDF generated
-
-Prerequisites:
-- BYTES: student must have no unpaid fines
-- Librarian: anytime after submission
-- Adviser: requires BYTES approved
-- Chairperson: requires BYTES + Librarian + Adviser approved
-- Dean: requires all four prior stages approved
-=======
 ## User roles (RBAC — 10 roles)
 
 student, admin, cursor_org, department_org, bytes_officer, librarian,
@@ -78,7 +62,6 @@ Prerequisites:
 - PDF is gated until all 9 stages are approved.
 
 See claude-docs/GAP_ANALYSIS_WORKFLOW.md for the full design.
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ## Where the documentation lives
 

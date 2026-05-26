@@ -162,8 +162,6 @@ Fix:
 
 ---
 
-<<<<<<< HEAD
-=======
 ## Node / Prisma / Supabase (current stack)
 
 ### EADDRINUSE :::5000 on backend start
@@ -212,7 +210,6 @@ Fix: Hard reload — Ctrl+Shift+R (Chrome/Edge) or open DevTools → Network →
 
 ---
 
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 ## Adding entries
 
 Format:

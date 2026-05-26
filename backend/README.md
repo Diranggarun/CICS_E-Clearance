@@ -22,11 +22,7 @@ Node.js + Express + Prisma + Supabase (PostgreSQL). Powers the existing `cics-ec
 
 | email                 | password    | role          |
 |-----------------------|-------------|---------------|
-<<<<<<< HEAD
-| bytes@cics.edu.ph     | Bytes#2026  | bytes_officer |
-=======
 | admin2@cics.edu.ph    | Bytes#2026  | admin         |
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 Use this account to approve newly-registered students via `/api/admin/pending-accounts/:id/approve`.
 
@@ -68,11 +64,7 @@ curl -X POST http://localhost:5000/api/auth/register \
 # Login as BYTES Officer
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
-<<<<<<< HEAD
-  -d '{"email":"bytes@cics.edu.ph","password":"Bytes#2026"}'
-=======
   -d '{"email":"admin2@cics.edu.ph","password":"Bytes#2026"}'
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 # Approve pending student (replace TOKEN and ID)
 curl -X POST http://localhost:5000/api/admin/pending-accounts/<USER_ID>/approve \

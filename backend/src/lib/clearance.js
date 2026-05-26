@@ -1,10 +1,5 @@
 // Shared helpers for the clearance module.
 
-<<<<<<< HEAD
-// The ordered approval pipeline. Task 4 (Approval Workflow Engine) enforces the
-// prerequisite gating between these; Task 2 only creates and reads them.
-export const STAGE_ORDER = [
-=======
 // The ordered 9-stage approval pipeline. The Approval Workflow Engine enforces
 // strictly-sequential prerequisite gating between these (see lib/approval.js).
 // Stages 2-4 (Cursor/Department/BYTES) are org-fee stages: their officer can
@@ -13,22 +8,11 @@ export const STAGE_ORDER = [
   'admin',
   'cursor_org',
   'department_org',
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   'bytes_officer',
   'librarian',
   'faculty_adviser',
   'chairperson',
   'dean',
-<<<<<<< HEAD
-]
-
-export const STAGE_LABELS = {
-  bytes_officer: 'BYTES Officer',
-  librarian: 'Librarian',
-  faculty_adviser: 'Faculty Adviser',
-  chairperson: 'Chairperson',
-  dean: 'Dean',
-=======
   'enrolling_faculty',
 ]
 
@@ -42,7 +26,6 @@ export const STAGE_LABELS = {
   chairperson: 'Chairperson',
   dean: 'Dean',
   enrolling_faculty: 'Enrolling Faculty',
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 }
 
 // Current Philippine academic year, e.g. "2025-2026" (rolls over in June).
