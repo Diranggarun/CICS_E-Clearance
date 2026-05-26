@@ -2,6 +2,14 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { register } from "../api/auth";
+import {
+  FiArrowLeft,
+  FiUserPlus,
+  FiMail,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+} from "react-icons/fi";
 
 const COURSES = [
   "BS-Information Technology",
@@ -124,42 +132,49 @@ export default function RegisterPage() {
   };
 
   const inputClass =
-    "h-11 w-full rounded-[12px] border border-[#dbe7ff] bg-white/75 px-3.5 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-[#0D27F7] focus:ring-4 focus:ring-[#0D27F7]/15";
+    "h-11 w-full rounded-[14px] border border-[#dbe7ff] bg-white/60 px-4 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 hover:bg-white focus:border-[#0D27F7] focus:bg-white focus:ring-4 focus:ring-[#0D27F7]/15";
 
   const labelClass =
-    "text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500";
+    "text-[11px] font-semibold uppercase tracking-wide text-[#0D27F7]/70";
 
-  const fieldClass = "space-y-1.5";
+  const fieldClass = "flex flex-col gap-1.5";
 
   return (
-    <main className="min-h-screen w-full bg-gradient-to-br from-white via-[#f8fbff] to-[#eef4ff] px-4 py-5 font-inter">
-      <div className="mx-auto flex min-h-[calc(100vh-40px)] max-w-5xl flex-col justify-center">
-        <Link
-          to="/login"
-          className="mb-4 inline-flex w-fit items-center gap-1 text-sm font-medium text-[#0D27F7] transition hover:opacity-75"
-        >
-          &lt; Back to Login
-        </Link>
+    <main className="relative min-h-screen w-full overflow-hidden font-inter p-4 md:p-6 flex items-center justify-center">
+      <img
+        src="/college-building.png"
+        alt="College Building Background"
+        className="absolute inset-0 h-full w-full object-cover -z-40"
+      />
+      
+      <div className="absolute inset-0 bg-gradient-to-br from-white/85 via-[#f8fbff]/90 to-[#eef4ff]/85 backdrop-blur-[2px] -z-30" />
 
-        <section className="rounded-[28px] border border-[#dbe7ff]/80 bg-white/75 p-6 shadow-[0_4px_20px_rgba(13,39,247,0.06)] ring-1 ring-white/80 backdrop-blur-xl md:p-7">
-          <div className="mb-6 flex flex-col gap-3 border-b border-[#e2ebff] pb-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0D27F7]/60">
-                Student Registration
-              </p>
-              <h1 className="mt-2 bg-gradient-to-b from-[#0D27F7] to-[#0E1BEF] bg-clip-text text-2xl font-semibold tracking-tight text-transparent md:text-3xl">
-                Create your account
-              </h1>
-              <p className="mt-1 text-sm font-medium text-gray-500">
-                Fill out the required details to request portal access.
-              </p>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0D27F705_1px,transparent_1px),linear-gradient(to_bottom,#0D27F705_1px,transparent_1px)] bg-[size:4rem_4rem] -z-20" />
+
+      <div className="absolute -top-40 -right-40 h-[800px] w-[800px] rounded-full bg-gradient-to-bl from-[#0D27F7]/10 to-transparent blur-[120px] -z-10" />
+      <div className="absolute -bottom-40 left-0 h-[600px] w-[600px] rounded-full bg-gradient-to-tr from-[#1767FE]/10 to-transparent blur-[120px] -z-10" />
+
+      <Link
+        to="/login"
+        className="absolute left-4 top-4 z-50 flex items-center gap-1.5 rounded-full border border-[#dbe7ff] bg-white/70 px-3 py-1.5 text-xs font-semibold text-[#0D27F7] shadow-sm backdrop-blur-md transition hover:bg-white hover:shadow-md md:left-6 md:top-6"
+      >
+        <FiArrowLeft className="text-sm" /> Back to Login
+      </Link>
+
+      <div className="relative z-10 mx-auto flex w-full items-center justify-center py-8">
+        
+        <section className="flex w-full max-w-[640px] flex-col justify-center rounded-[36px] border border-[#dbe7ff] bg-white/85 px-6 py-10 shadow-[0_20px_50px_rgba(13,39,247,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-white/80 backdrop-blur-xl sm:px-10">
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0D27F7] to-[#1767FE] text-white shadow-[0_8px_16px_rgba(13,39,247,0.2)]">
+              <FiUserPlus className="text-xl" />
             </div>
-
-           
+            <h2 className="text-2xl font-bold tracking-tight text-[#0D27F7] sm:text-3xl">Create your account</h2>
+            <p className="mt-2 text-sm font-medium text-gray-500">Fill out the required details to request portal access.</p>
           </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-            <div className="grid gap-4 md:grid-cols-2">
+          <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+            
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className={fieldClass}>
                 <label className={labelClass}>ID Number</label>
                 <input
@@ -169,7 +184,6 @@ export default function RegisterPage() {
                   onChange={set("idNumber")}
                 />
               </div>
-
               <div className={fieldClass}>
                 <label className={labelClass}>Course</label>
                 <select
@@ -177,29 +191,15 @@ export default function RegisterPage() {
                   value={form.course}
                   onChange={set("course")}
                 >
-                  <option value="" disabled>
-                    Select course
-                  </option>
+                  <option value="" disabled>Select course</option>
                   {COURSES.map((course) => (
-                    <option key={course} value={course}>
-                      {course}
-                    </option>
+                    <option key={course} value={course}>{course}</option>
                   ))}
                 </select>
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className={fieldClass}>
-                <label className={labelClass}>Last Name</label>
-                <input
-                  className={inputClass}
-                  placeholder="Dela Cruz"
-                  value={form.lastName}
-                  onChange={set("lastName")}
-                />
-              </div>
-
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className={fieldClass}>
                 <label className={labelClass}>First Name</label>
                 <input
@@ -209,7 +209,18 @@ export default function RegisterPage() {
                   onChange={set("firstName")}
                 />
               </div>
+              <div className={fieldClass}>
+                <label className={labelClass}>Last Name</label>
+                <input
+                  className={inputClass}
+                  placeholder="Dela Cruz"
+                  value={form.lastName}
+                  onChange={set("lastName")}
+                />
+              </div>
+            </div>
 
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className={fieldClass}>
                 <label className={labelClass}>Middle Name</label>
                 <input
@@ -219,9 +230,6 @@ export default function RegisterPage() {
                   onChange={set("middleName")}
                 />
               </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
               <div className={fieldClass}>
                 <label className={labelClass}>Gender</label>
                 <select
@@ -229,17 +237,15 @@ export default function RegisterPage() {
                   value={form.gender}
                   onChange={set("gender")}
                 >
-                  <option value="" disabled>
-                    Select gender
-                  </option>
+                  <option value="" disabled>Select gender</option>
                   {GENDERS.map((gender) => (
-                    <option key={gender} value={gender}>
-                      {gender}
-                    </option>
+                    <option key={gender} value={gender}>{gender}</option>
                   ))}
                 </select>
               </div>
+            </div>
 
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className={fieldClass}>
                 <label className={labelClass}>Date of Birth</label>
                 <input
@@ -249,20 +255,6 @@ export default function RegisterPage() {
                   onChange={set("dateOfBirth")}
                 />
               </div>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className={fieldClass}>
-                <label className={labelClass}>Institutional Email</label>
-                <input
-                  type="email"
-                  className={inputClass}
-                  placeholder="your@cics.edu.ph"
-                  value={form.institutionalEmail}
-                  onChange={set("institutionalEmail")}
-                />
-              </div>
-
               <div className={fieldClass}>
                 <label className={labelClass}>Contact Number</label>
                 <input
@@ -275,13 +267,28 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className={fieldClass}>
+              <label className={labelClass}>Institutional Email</label>
+              <div className="relative">
+                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0D27F7]/50" />
+                <input
+                  type="email"
+                  className={`${inputClass} pl-11`}
+                  placeholder="your@cics.edu.ph"
+                  value={form.institutionalEmail}
+                  onChange={set("institutionalEmail")}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className={fieldClass}>
                 <label className={labelClass}>Password</label>
                 <div className="relative">
+                  <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0D27F7]/50" />
                   <input
                     type={showPass ? "text" : "password"}
-                    className={`${inputClass} pr-11`}
+                    className={`${inputClass} pl-11 pr-11`}
                     placeholder="Min. 8 characters"
                     value={form.password}
                     onChange={set("password")}
@@ -289,9 +296,9 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => setShowPass((value) => !value)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm transition hover:scale-105"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-[#0D27F7]"
                   >
-                    {showPass ? "🙈" : "👁️"}
+                    {showPass ? <FiEyeOff /> : <FiEye />}
                   </button>
                 </div>
               </div>
@@ -299,9 +306,10 @@ export default function RegisterPage() {
               <div className={fieldClass}>
                 <label className={labelClass}>Confirm Password</label>
                 <div className="relative">
+                  <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0D27F7]/50" />
                   <input
                     type={showConfirmPass ? "text" : "password"}
-                    className={`${inputClass} pr-11`}
+                    className={`${inputClass} pl-11 pr-11`}
                     placeholder="Repeat password"
                     value={form.confirmPassword}
                     onChange={set("confirmPassword")}
@@ -309,36 +317,30 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPass((value) => !value)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sm transition hover:scale-105"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-[#0D27F7]"
                   >
-                    {showConfirmPass ? "🙈" : "👁️"}
+                    {showConfirmPass ? <FiEyeOff /> : <FiEye />}
                   </button>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 border-t border-[#e2ebff] pt-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="mt-6 border-t border-[#e2ebff] pt-6 flex flex-col items-center gap-5 sm:flex-row sm:justify-between">
               <label className="flex cursor-pointer items-start gap-3">
                 <input
                   type="checkbox"
                   checked={agreed}
                   onChange={(e) => setAgreed(e.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-[#0D27F7]"
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 accent-[#0D27F7] focus:ring-[#0D27F7]"
                 />
-                <span className="text-xs leading-5 text-gray-500 md:text-sm">
+                <span className="text-[13px] leading-5 text-gray-500">
                   I agree to the{" "}
-                  <Link
-                    to="/terms"
-                    className="font-medium text-[#0D27F7] underline"
-                  >
-                    Terms & Conditions
+                  <Link to="/terms" className="font-semibold text-[#0D27F7] transition hover:underline">
+                    Terms
                   </Link>{" "}
-                  and{" "}
-                  <Link
-                    to="/privacy"
-                    className="font-medium text-[#0D27F7] underline"
-                  >
-                    Privacy Policy
+                  &{" "}
+                  <Link to="/privacy" className="font-semibold text-[#0D27F7] transition hover:underline">
+                    Privacy
                   </Link>
                   .
                 </span>
@@ -347,13 +349,14 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="h-11 rounded-full bg-gradient-to-b from-[#0D27F7] to-[#0E1BEF] px-7 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(13,39,247,0.2)] transition hover:opacity-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 lg:min-w-[170px]"
+                className="h-12 w-full shrink-0 rounded-full bg-gradient-to-b from-[#0D27F7] to-[#0E1BEF] px-8 text-sm font-bold text-white shadow-[0_8px_16px_rgba(13,39,247,0.15)] transition hover:opacity-95 hover:shadow-[0_12px_20px_rgba(13,39,247,0.2)] active:scale-[0.98] disabled:opacity-60 sm:w-auto"
               >
                 {loading ? "Creating..." : "Create Account"}
               </button>
             </div>
           </form>
         </section>
+
       </div>
     </main>
   );
