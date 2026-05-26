@@ -155,9 +155,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            <div className="hidden h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0D27F7] to-[#1767FE] text-sm font-bold tracking-wider text-white shadow-[0_10px_24px_rgba(13,39,247,0.22)] md:flex">
-              EC
-            </div>
+           
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit} noValidate>

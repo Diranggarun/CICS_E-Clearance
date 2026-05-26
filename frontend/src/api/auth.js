@@ -12,15 +12,6 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-<<<<<<< HEAD
-// Handle global 401 (Unauthorized) errors
-api.interceptors.response.use(
-  (res) => res,
-  (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      localStorage.removeItem('access_token')
-      window.location.href = '/login'
-=======
 // Global auth-error handling.
 //   401 = the session is genuinely invalid/expired -> clear it and send the
 //         user to login.
@@ -41,7 +32,6 @@ api.interceptors.response.use(
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
     }
     return Promise.reject(error)
   }

@@ -24,6 +24,8 @@ import OfficerRequests from "./officer/OfficerRequests";
 import OfficerApproved from "./officer/OfficerApproved";
 import OfficerDenied from "./officer/OfficerDenied";
 
+
+
 import PendingAccounts from "./staff/PendingAccounts";
 import PaymentVerification from "./staff/PaymentVerification";
 import ManageFines from "./staff/ManageFines";
@@ -161,14 +163,12 @@ function App() {
         >
           <Route path="/dean/dashboard" element={<DeanDashboard />} />
         </Route>
-        <Route
-          element={
-            <ProtectedRoute roles={enrollingRoles}>
-              <OfficerLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/enrolling/dashboard" element={<EnrollingFacultyDashboard />} />
+
+        <Route element={<StudentLayout />}> 
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
+        <Route path="/student/my-clearance" element={<MyClearance />} />
+        <Route path="/student/notifications" element={<Notifications />} />
+       
         </Route>
 
         {/* Legacy officer namespace (kept logged-in but role-agnostic) */}

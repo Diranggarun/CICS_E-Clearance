@@ -1,19 +1,13 @@
-<<<<<<< HEAD
-=======
 import { useEffect, useState } from "react";
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 import {
   FiUsers,
   FiFileText,
   FiCheckCircle,
   FiClock,
-<<<<<<< HEAD
-=======
   FiCreditCard,
   FiAlertTriangle,
   FiUserPlus,
   FiLoader,
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 } from "react-icons/fi";
 import {
   ResponsiveContainer,
@@ -22,25 +16,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-<<<<<<< HEAD
-} from "recharts";
-
-function AdminDashboard() {
-  const stats = [
-    { title: "Total Students", value: "500", icon: <FiUsers /> },
-    { title: "Clearance Requests", value: "128", icon: <FiFileText /> },
-    { title: "Cleared", value: "230", icon: <FiCheckCircle /> },
-    { title: "Pending", value: "270", icon: <FiClock /> },
-  ];
-
-  const officeData = [
-    { office: "Library", cleared: 180, pending: 70 },
-    { office: "SC", cleared: 150, pending: 100 },
-    { office: "Publication", cleared: 130, pending: 120 },
-    { office: "Adviser", cleared: 200, pending: 50 },
-    { office: "Dean", cleared: 100, pending: 150 },
-  ];
-=======
   Legend,
 } from "recharts";
 import { dashboardStats } from "../api/staff";
@@ -58,13 +33,10 @@ function AdminDashboard() {
       )
       .finally(() => setLoading(false));
   }, []);
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
   const appleCard =
     "rounded-[28px] border border-[#d6e2ff] bg-white/70 shadow-[0_4px_20px_rgba(13,39,247,0.06)] ring-1 ring-white/80 backdrop-blur-xl transition-all duration-200 hover:-translate-y-[2px] hover:border-[#c3d4ff] hover:shadow-[0_8px_30px_rgba(13,39,247,0.08)]";
 
-<<<<<<< HEAD
-=======
   const t = data?.totals || {};
   const stats = [
     { title: "Total Students", value: t.students ?? "—", icon: <FiUsers /> },
@@ -83,7 +55,6 @@ function AdminDashboard() {
     denied: s.denied,
   }));
 
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   return (
     <div className="space-y-8 font-inter">
       <div>
@@ -91,12 +62,6 @@ function AdminDashboard() {
           Dashboard
         </h1>
         <p className="mt-2 text-base font-medium text-gray-500 md:text-lg">
-<<<<<<< HEAD
-          Overview of the CICS E-Clearance system.
-        </p>
-      </div>
-
-=======
           Live overview of the CICS E-Clearance system.
         </p>
       </div>
@@ -113,19 +78,12 @@ function AdminDashboard() {
         </div>
       )}
 
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
           <div key={item.title} className={`${appleCard} p-6`}>
             <div className="flex items-center justify-between">
               <div>
-<<<<<<< HEAD
-                <p className="text-sm font-medium text-gray-500">
-                  {item.title}
-                </p>
-=======
                 <p className="text-sm font-medium text-gray-500">{item.title}</p>
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
                 <h2 className="mt-3 text-3xl font-semibold text-[#0D27F7]">
                   {item.value}
                 </h2>
@@ -139,49 +97,6 @@ function AdminDashboard() {
         ))}
       </div>
 
-<<<<<<< HEAD
-      <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-        <div className={`${appleCard} p-6`}>
-          <h2 className="text-xl font-semibold text-[#0D27F7]">
-            Office Progress
-          </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Clearance status per office.
-          </p>
-
-          <div className="mt-5 h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={officeData}>
-                <XAxis dataKey="office" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="cleared" fill="#0D27F7" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="pending" fill="#FFB433" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className={`${appleCard} p-6`}>
-          <h2 className="text-xl font-semibold text-[#0D27F7]">
-            Recent Activity
-          </h2>
-
-          <div className="mt-5 space-y-3">
-            {[
-              "Maria Santos submitted a clearance request.",
-              "Publication added a payment requirement.",
-              "Dean approved Juan Dela Cruz.",
-            ].map((text) => (
-              <div
-                key={text}
-                className="rounded-2xl border border-[#e2ebff] bg-white/60 p-4 text-sm text-gray-500 shadow-[0_2px_10px_rgba(13,39,247,0.04)] backdrop-blur transition hover:border-[#c3d4ff] hover:bg-blue-50"
-              >
-                {text}
-              </div>
-            ))}
-          </div>
-=======
       <div className={`${appleCard} p-6`}>
         <h2 className="text-xl font-semibold text-[#0D27F7]">
           Stage Progress
@@ -208,15 +123,10 @@ function AdminDashboard() {
               </BarChart>
             </ResponsiveContainer>
           )}
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
         </div>
       </div>
     </div>
   );
 }
 
-<<<<<<< HEAD
 export default AdminDashboard;
-=======
-export default AdminDashboard;
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e

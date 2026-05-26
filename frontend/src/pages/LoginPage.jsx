@@ -74,10 +74,6 @@ export default function LoginPage() {
       const result = await loginUser(email, password);
       if (result.success) {
         toast.success("Welcome back!");
-<<<<<<< HEAD
-        // ✅ FIXED HERE: goes to the correct route from your App.jsx
-        navigate("/student/dashboard");
-=======
         const role = result.user?.role
         const dashByRole = {
           admin: '/admin/dashboard',
@@ -91,7 +87,6 @@ export default function LoginPage() {
           enrolling_faculty: '/enrolling/dashboard',
         }
         navigate(dashByRole[role] || '/student/dashboard');
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
       } else {
         toast.error(result.message);
       }
@@ -146,8 +141,8 @@ export default function LoginPage() {
               <div className="flex justify-end">
                 <Link to="/forgot-password" className="text-xs font-medium text-[#1767FE] underline-offset-4 transition hover:underline">Forgot password?</Link>
               </div>
-
-              <button type="submit" disabled={loading} className="h-12 rounded-full bg-gradient-to-b from-[#0D27F7] to-[0E1BEF] text-sm font-semibold text-white shadow-[0_8px_24px_rgba(13,39,247,0.2)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-60">
+npm
+              <button type="submit" disabled={loading} className="h-12 rounded-full bg-gradient-to-b from-[#0D27F7] to-[#0E1BEF] text-sm font-semibold text-white shadow-[0_8px_24px_rgba(13,39,247,0.2)] transition hover:opacity-95 active:scale-[0.98] disabled:opacity-60">
                 {loading ? "Logging in..." : "Log in"}
               </button>
             </form>

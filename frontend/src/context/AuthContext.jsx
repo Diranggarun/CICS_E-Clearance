@@ -1,28 +1,10 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-<<<<<<< HEAD
-=======
 import { login as apiLogin, getMe, logout as apiLogout } from '../api/auth'
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-<<<<<<< HEAD
-  const [loading, setLoading] = useState(false)
-
-  const loginUser = async (email, password) => {
-    if (email === "student@cics.edu.ph" && password === "student123") {
-      setUser({ 
-        id: "test-user-123", 
-        email, 
-        name: 'PLANGUGN A WATA',
-        role: 'student'
-      })
-      return { success: true }
-    } else {
-      return { success: false, message: "Invalid email or password" }
-=======
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -49,16 +31,12 @@ export function AuthProvider({ children }) {
         err.response?.data?.error ||
         'Invalid email or password'
       return { success: false, message }
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
     }
   }
 
   const logoutUser = () => {
     setUser(null)
-<<<<<<< HEAD
-=======
     apiLogout()
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   }
 
   return (
@@ -68,8 +46,4 @@ export function AuthProvider({ children }) {
   )
 }
 
-<<<<<<< HEAD
 export const useAuth = () => useContext(AuthContext)
-=======
-export const useAuth = () => useContext(AuthContext)
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e

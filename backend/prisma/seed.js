@@ -7,40 +7,6 @@ import prisma from '../src/lib/prisma.js'
 // digit + symbol, 8+ chars).
 const TEAM_PASSWORD = 'Cics#2026'
 
-<<<<<<< HEAD
-// Team accounts — one per developer, all BYTES Officer so each person has
-// full admin access while building. Role-specific test accounts are seeded
-// separately below for end-to-end approval testing.
-const TEAM = [
-  // Original seed account (kept for backwards compatibility).
-  { schoolId: '0000-0001', firstName: 'BYTES',       lastName: 'Officer',     email: 'bytes@cics.edu.ph',    role: 'bytes_officer', password: 'Bytes#2026' },
-
-  // Backend devs
-  { schoolId: '2026-0001', firstName: 'Affhan',      lastName: 'Mimbisa',     email: 'affhan@s.msumain.edu.ph',     role: 'bytes_officer' },
-  { schoolId: '2026-0002', firstName: 'Dimalutang',  lastName: 'Amerhussein', email: 'dimalutang@s.msumain.edu.ph', role: 'bytes_officer' },
-  { schoolId: '2026-0003', firstName: 'Naimah',      lastName: 'Abdulcader',  email: 'naimah@s.msumain.edu.ph',     role: 'bytes_officer' },
-  { schoolId: '2026-0004', firstName: 'Asraf',       lastName: 'Alauya Jr.',  email: 'asraf@s.msumain.edu.ph',      role: 'bytes_officer' },
-  { schoolId: '2026-0005', firstName: 'Landia',      lastName: 'Cherry Mae',  email: 'landia@s.msumain.edu.ph',     role: 'bytes_officer' },
-  { schoolId: '2026-0006', firstName: 'Ed',          lastName: 'Arafat',      email: 'ed@s.msumain.edu.ph',         role: 'bytes_officer' },
-
-  // Frontend devs
-  { schoolId: '2026-0007', firstName: 'Norman',      lastName: 'Sharief',     email: 'norman@s.msumain.edu.ph',     role: 'bytes_officer' },
-  { schoolId: '2026-0008', firstName: 'Shaheel',     lastName: 'Sarip',       email: 'shaheel@s.msumain.edu.ph',    role: 'bytes_officer' },
-
-  // Designer
-  { schoolId: '2026-0009', firstName: 'Jonaidah',    lastName: 'Caris',       email: 'jonaidah@s.msumain.edu.ph',   role: 'bytes_officer' },
-
-  // Tech lead
-  { schoolId: '2026-0010', firstName: 'Hussien',     lastName: 'Diran',       email: 'diranggarun.hg587@s.msumain.edu.ph', role: 'bytes_officer' },
-]
-
-// Role-specific accounts so the team can test the full approval pipeline.
-const ROLE_TESTERS = [
-  { schoolId: '2026-1001', firstName: 'Library',     lastName: 'Officer',    email: 'librarian@cics.edu.ph',    role: 'librarian' },
-  { schoolId: '2026-1002', firstName: 'Faculty',     lastName: 'Adviser',    email: 'adviser@cics.edu.ph',      role: 'faculty_adviser' },
-  { schoolId: '2026-1003', firstName: 'Department',  lastName: 'Chairperson', email: 'chairperson@cics.edu.ph', role: 'chairperson' },
-  { schoolId: '2026-1004', firstName: 'College',     lastName: 'Dean',       email: 'dean@cics.edu.ph',         role: 'dean' },
-=======
 // Team accounts — one per developer, all Admin so each person has full staff
 // access (account approval, reports, user creation) while building.
 // Role-specific test accounts are seeded separately for approval testing.
@@ -81,7 +47,6 @@ const ROLE_TESTERS = [
   { schoolId: '2026-1003', firstName: 'Department',  lastName: 'Chairperson', email: 'chairperson@cics.edu.ph',  role: 'chairperson' },
   { schoolId: '2026-1004', firstName: 'College',     lastName: 'Dean',        email: 'dean@cics.edu.ph',         role: 'dean' },
   { schoolId: '2026-1008', firstName: 'Enrolling',   lastName: 'Faculty',     email: 'enrolling@cics.edu.ph',    role: 'enrolling_faculty' },
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 ]
 
 // Test students so anyone can walk through the student-facing flow.
@@ -126,11 +91,7 @@ async function main() {
   }
 
   console.log('\n=== Seeded accounts ===')
-<<<<<<< HEAD
-  console.log('Team (BYTES Officer access, password: ' + TEAM_PASSWORD + ' unless noted):')
-=======
   console.log('Team (Admin access, password: ' + TEAM_PASSWORD + ' unless noted):')
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   for (const u of TEAM) {
     console.log(`  ${u.email.padEnd(45)} ${u.password ? '(password: ' + u.password + ')' : ''}`)
   }

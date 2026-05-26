@@ -2,22 +2,12 @@ import express from 'express'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { asyncHandler } from '../lib/asyncHandler.js'
-<<<<<<< HEAD
-=======
 import { ORG_FEE_STAGES } from '../lib/approval.js'
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 const router = express.Router()
 
 router.use(requireAuth)
 
-<<<<<<< HEAD
-// Anyone authenticated may list fees (read-only catalogue).
-router.get(
-  '/',
-  asyncHandler(async (_req, res) => {
-    const fees = await prisma.fee.findMany({ orderBy: { name: 'asc' } })
-=======
 // Admin manages the whole fee catalogue; each org officer manages their own
 // organization's fees.
 const FEE_MANAGER_ROLES = ['admin', ...ORG_FEE_STAGES]
@@ -30,31 +20,20 @@ router.get(
     const where = {}
     if (req.query.orgRole) where.orgRole = req.query.orgRole
     const fees = await prisma.fee.findMany({ where, orderBy: { name: 'asc' } })
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
     res.json(fees)
   }),
 )
 
-<<<<<<< HEAD
-// Only BYTES Officer can manage the fee catalogue.
-router.post(
-  '/',
-  requireRole('bytes_officer'),
-=======
 // Create a fee. An org officer may only create fees for their own org; Admin
 // may create a fee for any org-fee stage.
 router.post(
   '/',
   requireRole(...FEE_MANAGER_ROLES),
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
   asyncHandler(async (req, res) => {
     const { name, amount } = req.body
     if (!name || amount == null) {
       return res.status(400).json({ message: 'name and amount are required.' })
     }
-<<<<<<< HEAD
-    const fee = await prisma.fee.create({ data: { name, amount: Number(amount) } })
-=======
 
     let orgRole = req.user.role
     if (req.user.role === 'admin') {
@@ -67,17 +46,12 @@ router.post(
     const fee = await prisma.fee.create({
       data: { name, amount: Number(amount), orgRole },
     })
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
     res.status(201).json(fee)
   }),
 )
 
 router.delete(
   '/:id',
-<<<<<<< HEAD
-  requireRole('bytes_officer'),
-  asyncHandler(async (req, res) => {
-=======
   requireRole(...FEE_MANAGER_ROLES),
   asyncHandler(async (req, res) => {
     const fee = await prisma.fee.findUnique({ where: { id: req.params.id } })
@@ -85,7 +59,6 @@ router.delete(
     if (req.user.role !== 'admin' && fee.orgRole !== req.user.role) {
       return res.status(403).json({ message: "You can only remove your organization's fees." })
     }
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
     await prisma.fee.delete({ where: { id: req.params.id } })
     res.json({ message: 'Fee removed.' })
   }),
