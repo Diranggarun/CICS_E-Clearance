@@ -62,4 +62,43 @@ export const templates = {
       <p>Please settle your balance at the Finance Office to continue.</p>
     `,
   }),
+
+  accountPending: (name) => ({
+    subject: 'Your account is pending approval',
+    html: `
+      <h2>Hi ${name},</h2>
+      <p>Thanks for registering with the CICS E-Clearance System.</p>
+      <p>Your account is now awaiting Admin approval. You will receive another
+      email once the Admin office has reviewed your registration.</p>
+    `,
+  }),
+
+  clearanceSubmitted: (name, referenceNo) => ({
+    subject: `Clearance request received — ${referenceNo}`,
+    html: `
+      <h2>Hi ${name},</h2>
+      <p>Your clearance request <strong>${referenceNo}</strong> has been received and routed to the first approval stage.</p>
+      <p>You can track its progress from your dashboard.</p>
+    `,
+  }),
+
+  fineAdded: (name, amount, reason) => ({
+    subject: `A new fine was added to your account — ₱${amount}`,
+    html: `
+      <h2>Hi ${name},</h2>
+      <p>A new fine of <strong>₱${amount}</strong> has been added to your account.</p>
+      ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+      <p>Please settle it to avoid blocking your clearance at the BYTES stage.</p>
+    `,
+  }),
+
+  paymentRejected: (name, refNumber, reason) => ({
+    subject: 'Your payment was rejected',
+    html: `
+      <h2>Hi ${name},</h2>
+      <p>Your payment submission <strong>${refNumber || ''}</strong> was rejected by the verifying officer.</p>
+      ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+      <p>Please re-upload a clearer receipt or pay on-site at the BYTES office.</p>
+    `,
+  }),
 }

@@ -15,12 +15,16 @@ import { notFound, errorHandler } from './middleware/error.js'
 
 const app = express()
 
-// Accept the configured origin OR any localhost/127.0.0.1 port — keeps dev painless
-// when Vite falls back to 5174/5175 because 5173 is held by a zombie process.
+// In dev: accept the configured origin OR any localhost/127.0.0.1 port (so Vite
+// can fall back to 5174/5175 when 5173 is held by a zombie process).
+// In production: only the configured CORS_ORIGIN is allowed.
+const isProd = process.env.NODE_ENV === 'production'
 const allowedOrigin = (origin, cb) => {
   if (!origin) return cb(null, true)
   if (origin === process.env.CORS_ORIGIN) return cb(null, true)
-  if (/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) return cb(null, true)
+  if (!isProd && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+    return cb(null, true)
+  }
   cb(new Error(`CORS: origin ${origin} not allowed`))
 }
 app.use(cors({ origin: allowedOrigin, credentials: true }))

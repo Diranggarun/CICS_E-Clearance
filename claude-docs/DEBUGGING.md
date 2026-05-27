@@ -26,9 +26,10 @@ Fix: npm install --legacy-peer-deps
 ## Auth module (Dimalutang)
 
 ### Registered user cannot log in
-Cause: is_approved is FALSE. This is intentional.
-Fix: BYTES officer must approve the account first.
-Dev shortcut: UPDATE users SET is_approved = TRUE WHERE user_id = ?;
+Cause: `status` is `pending`. This is intentional — the Admin role approves new
+accounts (as of the 9-stage workflow rework; was BYTES previously).
+Fix: Admin must approve via /admin/pending-accounts.
+Dev shortcut (Postgres): UPDATE "User" SET status = 'approved' WHERE email = '...';
 
 ### 403 Forbidden even though role is correct
 Cause: JWT was issued before the role was changed in DB.

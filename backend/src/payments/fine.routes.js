@@ -2,6 +2,7 @@ import express from 'express'
 import prisma from '../lib/prisma.js'
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { asyncHandler } from '../lib/asyncHandler.js'
+import { notify } from '../notifications/notify.js'
 
 const router = express.Router()
 
@@ -38,6 +39,18 @@ router.post(
     const fine = await prisma.fine.create({
       data: { studentId: target.id, amount: Number(amount), reason, status: 'unpaid' },
     })
+    const student = await prisma.user.findUnique({ where: { id: target.id } })
+    if (student) {
+      notify({
+        userId: student.id,
+        userEmail: student.email,
+        type: 'fine',
+        title: 'New fine added',
+        message: `A fine of ₱${fine.amount} was added: ${reason}`,
+        emailKey: 'fineAdded',
+        emailArgs: [student.firstName, fine.amount, reason],
+      })
+    }
     res.status(201).json(fine)
   }),
 )

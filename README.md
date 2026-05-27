@@ -279,13 +279,9 @@ copy .env.example .env.local
 npm run dev                          # http://localhost:5173
 ```
 
-<<<< HEAD
-Vite automatically proxies `/api/*` → `http://localhost:8000`, so no additional config is required.
-=======
 Vite proxies `/api/*` to `http://127.0.0.1:5000`. No additional config needed unless you change the backend port.
 
 For full setup details + troubleshooting, see [`RUN.md`](RUN.md).
->>>>>>> d28bd3b538eb5eb7f22a9b7749abab309e37038e
 
 ---
 

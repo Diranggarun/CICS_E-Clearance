@@ -14,7 +14,10 @@ export const registerSchema = z.object({
   contact_number: z.string().min(7),
   email: z.string().email(),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  role: z.enum(['student', 'librarian', 'faculty_adviser', 'chairperson', 'dean']).optional(),
+  // Public registration creates students only. Staff/approver accounts are
+  // provisioned by the Admin via POST /api/admin/users. Field accepted but
+  // ignored by the controller — kept so older clients don't 422.
+  role: z.enum(['student']).optional(),
   college: z.string().optional(),
   department: z.string().optional(),
 })

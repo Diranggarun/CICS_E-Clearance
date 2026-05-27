@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import prisma from '../lib/prisma.js';
 import { signToken } from '../lib/jwt.js';
+import { notify } from '../notifications/notify.js';
 
 const publicUser = (u) => ({
   id: u.id,
@@ -25,12 +26,14 @@ export async function register(req, res) {
 
   const passwordHash = await bcrypt.hash(b.password, 10);
 
+  // Self-registration creates students only. Staff/approver accounts are
+  // created by the Admin via POST /api/admin/users.
   const user = await prisma.user.create({
     data: {
       schoolId: b.id_number,
-      role: b.role || 'student',
+      role: 'student',
       firstName: b.first_name,
-      middleName: b.middle_name || null,
+      middleName: b.middle_name?.trim() || null,
       lastName: b.last_name,
       sex: b.gender,
       birthdate: b.date_of_birth ? new Date(b.date_of_birth) : null,
@@ -40,12 +43,22 @@ export async function register(req, res) {
       college: b.college || null,
       department: b.department || null,
       passwordHash,
-      status: 'approved', 
+      status: 'pending',
     },
   });
 
+  notify({
+    userId: user.id,
+    userEmail: user.email,
+    type: 'account',
+    title: 'Account pending approval',
+    message: 'Your account has been submitted and is awaiting Admin approval.',
+    emailKey: 'accountPending',
+    emailArgs: [user.firstName],
+  });
+
   return res.status(201).json({
-    message: 'Account created successfully.',
+    message: 'Account created. It is pending Admin approval before you can log in.',
     user: publicUser(user),
   });
 }
@@ -54,45 +67,28 @@ export async function login(req, res) {
   const { email, password } = req.body;
 
   try {
-    // 1. Locate the user by email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      console.log(`❌ Login failed: User with email ${email} not found.`);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // -------------------------------------------------------------
-    // TEMPORARY BYPASS: Accept Cics#2026 or fallback verification
-    // Remove or revert this before deployment!
-    // -------------------------------------------------------------
-    const isTestPassword = (password === 'Cics#2026');
-    const matchesDatabaseHash = await bcrypt.compare(password, user.passwordHash).catch(() => false);
-
-    if (!isTestPassword && !matchesDatabaseHash) {
-      console.log(`❌ Login failed: Password mismatch for ${email}.`);
+    const ok = await bcrypt.compare(password, user.passwordHash).catch(() => false);
+    if (!ok) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-    // -------------------------------------------------------------
 
-    // 3. Status validation gates
     if (user.status === 'pending') {
-      return res.status(403).json({ message: 'Account is pending BYTES Officer approval' });
+      return res.status(403).json({ message: 'Account is pending Admin approval.' });
     }
     if (user.status === 'denied') {
-      return res.status(403).json({ message: 'Account was denied. Contact the BYTES Office.' });
+      return res.status(403).json({ message: 'Account was denied. Contact the Admin office.' });
     }
 
-    // 4. Issue signature token
     const access_token = signToken({ sub: user.id, role: user.role });
-    console.log(`✅ BYPASS LOGIN SUCCESSFUL: ${email} (${user.role})`);
-    
-    return res.json({ 
-      access_token, 
-      user: publicUser(user) 
-    });
+    return res.json({ access_token, user: publicUser(user) });
   } catch (error) {
-    console.error('Prisma Login Controller Crash:', error);
-    return res.status(500).json({ message: error.message });
+    console.error('Login error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 }
 
