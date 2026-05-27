@@ -161,6 +161,8 @@ export async function denyPayment(req, res) {
       type: 'payment',
       title: 'Payment denied',
       message: `Your payment of ₱${payment.amount} was denied. Reason: ${reason}`,
+      emailKey: 'paymentRejected',
+      emailArgs: [user.firstName, payment.id.slice(0, 8).toUpperCase(), reason],
     })
   }
 

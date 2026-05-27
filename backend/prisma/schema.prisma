@@ -57,6 +57,7 @@ model User {
   updatedAt     DateTime      @updatedAt @map("updated_at")
 
   payments Payment[]
+  fines    Fine[]
 
   approvedBy    User?  @relation("UserApprovals", fields: [approvedById], references: [id])
   approvedUsers User[] @relation("UserApprovals")
@@ -240,6 +241,10 @@ model Fine {
   reason    String
   status    String // unpaid / paid
   createdAt DateTime @default(now())
+
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, status])
 }
 
 model Fee {

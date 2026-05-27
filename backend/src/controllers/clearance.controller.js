@@ -7,6 +7,7 @@ import {
   currentAcademicYear,
 } from '../lib/clearance.js'
 import { streamClearancePdf } from '../lib/pdf.js'
+import { notify } from '../notifications/notify.js'
 
 const requestInclude = {
   stages: { include: { approver: true } },
@@ -46,6 +47,16 @@ export async function createRequest(req, res) {
     }
   }
 
+  notify({
+    userId: req.user.id,
+    userEmail: req.user.email,
+    type: 'clearance',
+    title: 'Clearance request submitted',
+    message: `Your request ${request.referenceNo} is now in the approval pipeline.`,
+    emailKey: 'clearanceSubmitted',
+    emailArgs: [req.user.firstName, request.referenceNo],
+  })
+
   res.status(201).json({
     message: 'Clearance request submitted.',
     progress: buildProgress(request),
@@ -78,7 +89,7 @@ export async function getMyProgress(req, res) {
     include: requestInclude,
   })
   if (!request) {
-    return res.status(404).json({ message: 'No active clearance request.' })
+    return res.json({ progress: null })
   }
   res.json({ progress: buildProgress(request) })
 }

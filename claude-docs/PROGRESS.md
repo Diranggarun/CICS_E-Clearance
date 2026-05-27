@@ -1,6 +1,6 @@
 # Build Progress
 
-_Last audited from code: 2026-05-19 (honest re-audit — testing scaffolding + deploy configs added, but neither is production-grade)_
+_Last audited from code: 2026-05-23 (post-bugfix sweep — critical auth holes closed, missing email templates added)_
 
 Each developer maintains their own module rows.
 Run the audit prompt (see AUDIT.md) to refresh based on actual code state.
@@ -49,6 +49,7 @@ migrated yet. Run from `backend/`:
 
 ```
 npx prisma migrate deploy      # applies 20260520120000_workflow_9_stages
+npx prisma migrate dev --name fine_user_fk  # generates + applies the new Fine→User FK
 npx prisma generate            # regenerates the Prisma client
 node scripts/backfill-workflow-stages.js   # adds 4 stages to existing requests
 npm run seed                   # (optional) refresh role-test accounts
@@ -209,3 +210,9 @@ Format: YYYY-MM-DD | Phase N / Module X | Status change | Note | By: name
 2026-05-19 | Re-audit | Correction | Walked back 100% → ~95% claim — overall percentage was inflated by closing 16/17 without moving per-module numbers, and 16/17 themselves are scaffolds, not finished work | By: Hussien (via Claude)
 2026-05-19 | Phase 16 | Partial → Done (~85%) | Added 33 more tests: full approval prereq matrix (bytes/librarian/adviser/chairperson/dean gating), isFullyApproved, hasDenial, ROLE_TO_STAGE, STAGE_ORDER, academic-year rollover, reference-no format, buildProgress shape. Total: 50 tests across 5 suites | By: Hussien (via Claude)
 2026-05-19 | Phase 17 | Partial → Done (~85%) | Replaced YOUR-BACKEND placeholder with env-driven scripts/inject-backend-url.mjs hook in vercel.json buildCommand. Added Vite manualChunks code-splitting (react-vendor/charts/icons) — chunk-size warnings gone, build verified | By: Hussien (via Claude)
+2026-05-23 | Auth | Bugfix (CRITICAL) | Removed hardcoded `Cics#2026` backdoor password from login. Fixed register auto-approving every account (status now `pending`). Locked public registration enum to `student` only — staff roles created via admin. Stopped leaking error.message on 500. Updated stale "BYTES Officer approval" copy to "Admin approval". | By: Hussien (via Claude)
+2026-05-23 | Notifications | Added 4 of 4 missing email templates: accountPending, clearanceSubmitted, fineAdded, paymentRejected. Wired into register, clearance submit, fine creation, payment denial. 10/10 templates now present. | By: Hussien (via Claude)
+2026-05-23 | Clearance | Bugfix | `GET /clearance/me/progress` returns `{progress:null}` instead of 404 when no request exists — matches `/clearance/me` shape. | By: Hussien (via Claude)
+2026-05-23 | Schema | Hygiene | Added FK + cascade + index on `Fine.studentId → User.id`. Requires `npx prisma migrate dev --name fine_user_fk` after the 9-stage migration is applied. | By: Hussien (via Claude)
+2026-05-23 | Payment lib | Cleanup | Removed dead `hasUnpaidFees` / `listFinancialBlockers` helpers (replaced by per-org variants). | By: Hussien (via Claude)
+2026-05-23 | App | Hardening | CORS localhost-any-port branch now gated by `NODE_ENV !== 'production'`. | By: Hussien (via Claude)
